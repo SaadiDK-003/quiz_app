@@ -93,6 +93,52 @@ docker compose exec api php artisan pilot:report
 
 `docker compose --profile local-mail up -d mailpit` provides a local mail inbox on http://localhost:8025 when testing with Mailpit SMTP settings. Production must use real SMTP delivery.
 
+## Hostinger VPS with existing Nginx and Certbot
+
+Use the standalone [VPS installer](scripts/deploy-vps.sh) for **quiz.webostics.com** when the server already hosts projects such as School Van Tracking. It supports Ubuntu 22.04, 24.04, and 26.04 LTS. It reuses the clean `master` checkout at `/var/www/html/quiz_app` and keeps private deployment state under `/opt/webostics-quiz`. The existing Caddy Compose setup above is for a separate deployment arrangement; do not start it alongside host Nginx on this shared VPS.
+
+Once this script is available on `master`, run on the VPS:
+
+```bash
+cd /var/www/html/quiz_app
+git pull --ff-only origin master
+sudo bash scripts/deploy-vps.sh --check
+sudo bash scripts/deploy-vps.sh
+```
+
+Alternatively, copy the standalone script to `/root/deploy-vps.sh` and run it from there. Keep a manually copied script outside the checkout so Git does not report an unexpected untracked file.
+
+The installer asks for a GitHub username and a hidden personal access token. Leave the username empty for anonymous access to this public repository. GitHub account passwords are not supported. Credentials are temporary and are not saved in the remote URL or logs.
+
+On first setup, SMTP settings are imported from the checkout's ignored `apps/api/.env` if present. **Git does not transfer this file from your development machine.** You can also copy that file onto the VPS and select it explicitly:
+
+```bash
+sudo bash /root/deploy-vps.sh --env-file /root/quiz.env
+```
+
+If no file or previous production configuration is available, the installer prompts for SMTP settings with a hidden password. It uses Laravel's dotenv parser and preserves literal dollar signs, quotes, and backslashes through Docker Compose. Only `MAIL_*` settings are imported. Production application/database secrets are generated separately and retained across retries and updates; local SQLite credentials and development application keys are not imported. Later runs preserve production mail settings unless you explicitly pass `--env-file` again.
+
+The script checks available RAM/disk, repository ownership, host web listeners, and Nginx domain collisions. It installs missing dependencies without upgrading or removing installed packages. If an existing Docker/plugin installation is incompatible or its daemon is stopped, it stops with instructions rather than replacing or restarting shared infrastructure.
+
+Quiz runs under Compose project `webostics_quiz`. Only its gateway is bound to `127.0.0.1`, using an available port in **18080–18179**; PostgreSQL, PHP-FPM, and Next.js remain internal. The dedicated build worker is capped at one CPU and 2 GiB RAM and is stopped after the build. Runtime containers also have CPU/memory limits and rotating logs. Existing projects, default Docker builders, and global PHP/Node/PostgreSQL installations are not reconfigured.
+
+Nginx changes are limited to `/etc/nginx/conf.d/webostics-quiz.conf`. Configuration is checked before a graceful reload, and the prior Quiz configuration is restored on failure. Certbot obtains certificates through a dedicated webroot without stopping Nginx, retaining its normal interactive account/terms prompts. A matching valid certificate and an active standard Certbot systemd timer are reused. If no active standard timer is detected, a Quiz-only timer is added without changing existing cron jobs. Any added reload hook acts only on the Quiz certificate.
+
+Updates build commit-tagged images before placing **only Quiz** in maintenance mode. The installer pauses its worker, backs up its database and media, applies migrations explicitly, checks health, configures HTTPS, and resumes the worker. The initial question bank remains draft; administrator creation is interactive and optional. If failure occurs after migrations begin, Quiz stays in maintenance mode; the script does not automatically reverse migrations or restore the database. Correct the logged issue and rerun the installer. The last successful deployment and failed candidate configurations remain available under the private deployment directory.
+
+```bash
+# Re-run to update to the latest master; this does not run application test suites.
+sudo bash /opt/webostics-quiz/bin/deploy-vps.sh
+
+sudo bash /opt/webostics-quiz/bin/deploy-vps.sh --status
+sudo bash /opt/webostics-quiz/bin/deploy-vps.sh --logs
+sudo bash /opt/webostics-quiz/bin/deploy-vps.sh --backup
+```
+
+Deployment logs and paired backups are under `/opt/webostics-quiz/shared/`, with restricted permissions. Daily backups run at **02:30 UTC / 07:30 Pakistan time** and retain the latest seven complete pairs (`.dump`, `.media.tar.gz`, and `.complete`). Copy them to separate storage for protection against VPS loss, and securely back up `shared/environment.json` separately to retain production keys and mail settings. A `.complete` marker identifies a successfully created pair. Status output includes the active configuration path; use it with `docker compose --env-file /dev/null -p webostics_quiz -f PATH` for manual administration or recovery. Never use `down -v` or automatic database rollback as an update step.
+
+`--check` performs a read-only preflight. Actual deployment performs only required configuration validation and service/HTTPS health checks, with no application test suites or automatic test email. The installer is not a remote SSH tool; run it on the VPS in an interactive root/sudo terminal.
+
 ## Backups and restore
 
 The backup service writes a PostgreSQL custom-format dump and a matching media `.tar.gz` immediately, then daily, under `backups/`. Both must be kept together. Protect this directory and copy backups to separate storage; the app does not select an external storage provider or retention policy for you.
