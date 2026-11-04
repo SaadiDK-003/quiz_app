@@ -1415,6 +1415,21 @@ h1 {
 .dialog.wide {
   width: 780px;
 }
+.dialog-mascot {
+  display: block;
+  width: 112px;
+  height: auto;
+  margin: 12px auto 20px;
+}
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.dialog-actions .button {
+  flex: 1 1 170px;
+}
 .dialog > h2 {
   font-size: clamp(1.5rem, 2.5vw, 1.75rem);
   line-height: 1.3;

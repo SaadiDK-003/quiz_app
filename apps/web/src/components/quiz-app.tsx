@@ -50,6 +50,7 @@ const emptyProgress: Progress = {
   stickers: [],
 };
 export type Notice = (message: string) => void;
+type Destination = "home" | "explore" | "stickers" | "parent" | "picker";
 export default function QuizApp() {
   const [session, setSession] = useState<Session | null>(null),
     [catalog, setCatalog] = useState<Subject[]>(demoCatalog),
@@ -66,6 +67,10 @@ export default function QuizApp() {
     [online, setOnline] = useState(true),
     [demoAvatar, setDemoAvatar] = useState("fox"),
     [demoHydrated, setDemoHydrated] = useState(false);
+  const [leaveDestination, setLeaveDestination] = useState<Destination | null>(
+    null,
+  );
+  const [switchTarget, setSwitchTarget] = useState<Skill | null>(null);
   const [authParams, setAuthParams] = useState({
     invite: "",
     email: "",
@@ -152,7 +157,12 @@ export default function QuizApp() {
   useEffect(() => {
     setSelected(attempt?.feedback?.selected_choice_id || null);
     audioRef.current?.pause();
-  }, [attempt?.id, attempt?.position, attempt?.feedback]);
+  }, [
+    attempt?.id,
+    attempt?.position,
+    attempt?.question?.id,
+    attempt?.feedback,
+  ]);
   useEffect(() => {
     if (view === "quiz")
       document
@@ -165,33 +175,58 @@ export default function QuizApp() {
         ? e.message
         : "Something went wrong. Please try again.",
     );
-    if (e instanceof ApiError && e.status === 409 && attempt && !demo) {
+    if (e instanceof ApiError && e.status === 409 && !demo) {
       void api
-        .get<Attempt>(`/attempts/${attempt.id}`)
-        .then(setAttempt)
+        .get<Attempt | null>("/attempts/active")
+        .then((current) => {
+          setAttempt(current);
+          setLeaveDestination(null);
+          setSwitchTarget(null);
+          if (!current) setView("home");
+        })
         .catch(() => {});
     }
     if (e instanceof ApiError && e.status === 401 && session) {
       setSession(null);
       setProgress(emptyProgress);
       setAttempt(null);
+      setLeaveDestination(null);
+      setSwitchTarget(null);
       setAuth("login");
       setView("home");
     }
     if (!demo)
       void api.post("/events/error", { code: "request" }).catch(() => {});
   };
-  const navigate = (next: string) => {
+  const goTo = (next: Destination) => {
     setMenu(false);
-    setView(next);
+    audioRef.current?.pause();
     setSubject(null);
+    if (next === "parent") {
+      if (view === "quiz") setView("home");
+      if (!session) setAuth("login");
+      else if (session.mode === "child") setAuth("reauth");
+      else setView("parent");
+    } else if (next === "picker") {
+      if (view === "quiz") setView("home");
+      setPicker(true);
+    } else setView(next);
   };
-  const parent = () => {
+  const navigate = (next: Destination) => {
+    if (busy) return;
     setMenu(false);
-    if (!session) setAuth("login");
-    else if (session.mode === "child") setAuth("reauth");
-    else setView("parent");
+    audioRef.current?.pause();
+    if (
+      view === "quiz" &&
+      attempt?.status === "active" &&
+      attempt.answered > 0
+    ) {
+      setLeaveDestination(next);
+      return;
+    }
+    goTo(next);
   };
+  const parent = () => navigate("parent");
   const entered = async (s: Session) => {
     setAuth(null);
     setPicker(false);
@@ -212,17 +247,27 @@ export default function QuizApp() {
     }
   };
   async function start(skill?: Skill) {
+    if (busy) return;
     if (session?.mode === "adult") {
       setPicker(true);
       return;
     }
     setBusy(true);
     try {
-      if (attempt?.status === "active") {
+      if (
+        attempt?.status === "active" &&
+        (!skill || skill.id === attempt.skill_id)
+      ) {
+        if (!demo)
+          setAttempt(await api.get<Attempt>(`/attempts/${attempt.id}`));
         setView("quiz");
         return;
       }
       const target = skill || suggested;
+      if (attempt?.status === "active" && attempt.answered > 0) {
+        setSwitchTarget(target);
+        return;
+      }
       if (demo) {
         const english = target?.subject_id === 2;
         setAttempt({
@@ -242,6 +287,10 @@ export default function QuizApp() {
       } else {
         const a = await api.post<Attempt>("/attempts", { skill_id: target.id });
         setAttempt(a);
+        if (a.skill_id !== target.id) {
+          setSwitchTarget(target);
+          return;
+        }
       }
       setView("quiz");
     } catch (e) {
@@ -491,7 +540,7 @@ export default function QuizApp() {
             <button
               className="profile-button"
               aria-label={`Choose explorer. Current: ${child?.nickname || "Explorer"}`}
-              onClick={() => setPicker(true)}
+              onClick={() => navigate("picker")}
             >
               <span className="avatar">{avatar}</span>
               <span>{child?.nickname || "Explorer"}</span>
@@ -854,7 +903,9 @@ export default function QuizApp() {
                       onClick={() => navigate("home")}
                     >
                       <ArrowLeft size={18} />
-                      Save & leave
+                      {attempt.answered > 0
+                        ? "Save & leave"
+                        : "Back to adventures"}
                     </button>
                     <span className="quiz-subject">
                       {attempt.subject_slug === "maths" ? "MATHS" : "ENGLISH"} /{" "}
@@ -1007,6 +1058,72 @@ export default function QuizApp() {
           </footer>
         </main>
       </div>
+      {leaveDestination && (
+        <Dialog
+          title="A little break?"
+          onClose={() => setLeaveDestination(null)}
+        >
+          <Fox className="dialog-mascot" />
+          <p className="dialog-description">
+            Your answers are safe. Would you like to keep playing or save and
+            leave?
+          </p>
+          <div className="dialog-actions">
+            <button
+              className="button primary"
+              onClick={() => setLeaveDestination(null)}
+            >
+              Keep playing <Play size={18} />
+            </button>
+            <button
+              className="button secondary"
+              onClick={() => {
+                const destination = leaveDestination;
+                setLeaveDestination(null);
+                goTo(destination);
+              }}
+            >
+              Save & leave <ArrowRight size={18} />
+            </button>
+          </div>
+        </Dialog>
+      )}
+      {switchTarget && attempt && (
+        <Dialog
+          title="Your adventure is waiting!"
+          onClose={() => setSwitchTarget(null)}
+        >
+          <Fox className="dialog-mascot" celebrate />
+          <p className="dialog-description">
+            Your{" "}
+            {catalog.find((s) => s.slug === attempt.subject_slug)?.name ||
+              attempt.subject_slug}{" "}
+            adventure is waiting! Let’s finish {attempt.skill_name}, then
+            explore{" "}
+            {catalog.find((s) => s.id === switchTarget.subject_id)?.name ||
+              "something new"}
+            .
+          </p>
+          <div className="dialog-actions">
+            <button
+              className="button primary"
+              disabled={busy}
+              onClick={() => {
+                setSwitchTarget(null);
+                void start();
+              }}
+            >
+              Continue adventure <Play size={18} />
+            </button>
+            <button
+              className="button secondary"
+              onClick={() => setSwitchTarget(null)}
+            >
+              Go back <ArrowLeft size={18} />
+            </button>
+          </div>
+        </Dialog>
+      )}
       {auth && (
         <AuthDialog
           mode={auth}
@@ -1103,26 +1220,51 @@ export function Dialog({
   wide?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  useEffect(() => {
+    closeRef.current = onClose;
+  }, [onClose]);
   useEffect(() => {
     const old = document.activeElement as HTMLElement | null;
     const bodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const el = ref.current;
-    el?.querySelector<HTMLElement>("input,button,select,textarea")?.focus();
+    const firstField = el?.querySelector<HTMLElement>(
+      'input:not([type="hidden"]):not([disabled]),select:not([disabled]),textarea:not([disabled])',
+    );
+    const firstAction = el?.querySelector<HTMLElement>(
+      "button:not(.dialog-close):not([disabled]),a[href]",
+    );
+    (
+      firstField ||
+      firstAction ||
+      el?.querySelector<HTMLElement>("button")
+    )?.focus();
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeRef.current();
+      }
       if (e.key === "Tab") {
         const items = Array.from(
           el?.querySelectorAll<HTMLElement>(
-            "button:not([disabled]),input:not([disabled]),select,textarea,a[href]",
+            'button:not([disabled]),input:not([type="hidden"]):not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]',
           ) || [],
-        );
+        ).filter((item) => item.getClientRects().length > 0);
         const first = items[0],
           last = items.at(-1);
-        if (e.shiftKey && document.activeElement === first) {
+        if (
+          e.shiftKey &&
+          (document.activeElement === first ||
+            !el?.contains(document.activeElement))
+        ) {
           e.preventDefault();
           last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
+        } else if (
+          !e.shiftKey &&
+          (document.activeElement === last ||
+            !el?.contains(document.activeElement))
+        ) {
           e.preventDefault();
           first?.focus();
         }
@@ -1132,9 +1274,19 @@ export function Dialog({
     return () => {
       document.body.style.overflow = bodyOverflow;
       document.removeEventListener("keydown", handler);
-      old?.focus();
+      if (
+        old?.isConnected &&
+        old.getClientRects().length > 0 &&
+        getComputedStyle(old).visibility === "visible"
+      ) {
+        old.focus();
+      } else {
+        document
+          .querySelector<HTMLElement>(".question-panel h1, .celebration h1")
+          ?.focus();
+      }
     };
-  }, [onClose]);
+  }, [title]);
   return (
     <div
       className="dialog-backdrop"
