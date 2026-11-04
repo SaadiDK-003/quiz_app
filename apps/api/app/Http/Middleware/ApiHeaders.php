@@ -10,6 +10,10 @@ class ApiHeaders
 {
     public function handle(Request $r, Closure $next): Response
     {
+        if ($r->is('api/*')) {
+            $r->headers->set('Accept', 'application/json');
+        }
+
         $response = $next($r);
         if ($r->is('api/*')) {
             $response->headers->set('Cache-Control', 'no-store, private');

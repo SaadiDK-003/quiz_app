@@ -13,6 +13,7 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 class AdventureTest extends TestCase
@@ -109,8 +110,111 @@ class AdventureTest extends TestCase
         $this->assertArrayNotHasKey('correct_choice_id', $a['question']);
         $this->assertArrayNotHasKey('explanation', $a['question']);
         $this->assertNull($a['feedback']);
-        $this->postJson('/api/v1/attempts', ['skill_id' => Skill::where('slug', 'addition')->value('id')])->assertJsonPath('id', $a['id']);
+        $this->postJson('/api/v1/attempts', ['skill_id' => (string) $this->skillId])->assertOk()->assertJsonPath('id', $a['id']);
         $this->assertDatabaseCount('attempts', 1);
+    }
+
+    public function test_switching_before_an_answer_replaces_the_empty_adventure_and_returns_409_for_stale_requests(): void
+    {
+        $original = $this->start();
+        $snapshot = AttemptQuestion::where('attempt_id', $original['id'])->pluck('question_revision_id')->all();
+        $english = Skill::where('slug', 'vocabulary')->value('id');
+        $this->publish($english);
+
+        $replacement = $this->postJson('/api/v1/attempts', ['skill_id' => $english])
+            ->assertOk()->assertJsonPath('subject_slug', 'english')->assertJsonPath('answered', 0)->json();
+
+        $this->assertNotSame($original['id'], $replacement['id']);
+        $this->assertDatabaseHas('attempts', ['id' => $original['id'], 'status' => 'superseded']);
+        $this->assertDatabaseHas('attempts', ['id' => $replacement['id'], 'status' => 'active']);
+        $this->assertSame($snapshot, AttemptQuestion::where('attempt_id', $original['id'])->pluck('question_revision_id')->all());
+        $this->postJson('/api/v1/attempts', ['skill_id' => $english])->assertOk()->assertJsonPath('id', $replacement['id']);
+        $this->assertDatabaseCount('attempts', 2);
+        $this->getJson('/api/v1/attempts/'.$original['id'])->assertConflict();
+        $this->postJson('/api/v1/attempts/'.$original['id'].'/answers', [
+            'position' => 0,
+            'question_id' => $original['question']['id'],
+            'choice_id' => $original['question']['choices'][0]['id'],
+        ])->assertConflict()->assertJsonPath('message', 'This adventure has changed. Resume your current adventure.');
+        $this->postJson('/api/v1/attempts/'.$original['id'].'/next', ['position' => 0])->assertConflict();
+        $this->getJson('/api/v1/attempts/active')->assertOk()->assertJsonPath('id', $replacement['id']);
+        $this->assertSame(0, AttemptQuestion::whereNotNull('answered_at')->count());
+        $this->assertDatabaseCount('rewards', 0);
+    }
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function test_a_checked_answer_keeps_the_current_adventure_when_another_skill_is_requested(bool $correct): void
+    {
+        $original = $this->start();
+        $english = Skill::where('slug', 'vocabulary')->value('id');
+        $this->publish($english);
+        $revision = QuestionRevision::findOrFail($original['question']['id']);
+        $choice = $correct ? $revision->correct_choice_id : collect($revision->choices)->first(fn (array $choice): bool => $choice['id'] !== $revision->correct_choice_id)['id'];
+        $this->postJson('/api/v1/attempts/'.$original['id'].'/answers', [
+            'position' => 0,
+            'question_id' => $revision->id,
+            'choice_id' => $choice,
+        ])->assertOk();
+
+        $this->postJson('/api/v1/attempts', ['skill_id' => $english])
+            ->assertOk()->assertJsonPath('id', $original['id'])->assertJsonPath('skill_id', $this->skillId)
+            ->assertJsonPath('answered', 1)->assertJsonPath('position', 0)
+            ->assertJsonPath('feedback.correct', $correct)->assertJsonPath('feedback.selected_choice_id', $choice);
+
+        $this->assertDatabaseHas('attempts', ['id' => $original['id'], 'status' => 'active']);
+        $this->assertDatabaseCount('attempts', 1);
+        $this->assertSame(1, AttemptQuestion::whereNotNull('answered_at')->count());
+    }
+
+    public function test_unpublished_replacement_returns_422_and_keeps_the_original_adventure(): void
+    {
+        $original = $this->start();
+        $english = Skill::where('slug', 'vocabulary')->value('id');
+
+        $this->postJson('/api/v1/attempts', ['skill_id' => $english])->assertUnprocessable()
+            ->assertJsonPath('message', 'This adventure is still being prepared. Try another skill soon.');
+
+        $this->getJson('/api/v1/attempts/active')->assertOk()->assertJsonPath('id', $original['id'])->assertJsonPath('question.id', $original['question']['id']);
+        $this->assertDatabaseHas('attempts', ['id' => $original['id'], 'status' => 'active']);
+        $this->assertDatabaseCount('attempts', 1);
+        $this->assertDatabaseCount('attempt_questions', 5);
+    }
+
+    public function test_hidden_replacement_returns_422_without_superseding_the_original(): void
+    {
+        $original = $this->start();
+        $english = Skill::where('slug', 'vocabulary')->firstOrFail();
+        $this->publish($english->id);
+        $english->update(['active' => false]);
+
+        $this->postJson('/api/v1/attempts', ['skill_id' => $english->id])->assertUnprocessable()
+            ->assertJsonPath('message', 'This skill is taking a little rest.');
+
+        $this->getJson('/api/v1/attempts/active')->assertOk()->assertJsonPath('id', $original['id']);
+        $this->assertDatabaseHas('attempts', ['id' => $original['id'], 'status' => 'active']);
+        $this->assertDatabaseCount('attempts', 1);
+    }
+
+    public function test_starting_an_adventure_in_another_family_does_not_replace_the_first_familys_attempt(): void
+    {
+        $original = $this->start();
+        $otherParent = User::factory()->create();
+        $otherChild = $otherParent->children()->create(['nickname' => 'Leo', 'avatar' => 'bear', 'age_band' => '9-10']);
+        $this->actingAs($otherParent)->withSession(['mode' => 'child', 'child_id' => $otherChild->id]);
+
+        $otherAttempt = $this->postJson('/api/v1/attempts', ['skill_id' => $this->skillId])->assertOk()->json();
+
+        $this->assertNotSame($original['id'], $otherAttempt['id']);
+        $this->assertDatabaseHas('attempts', ['id' => $original['id'], 'child_profile_id' => $this->child->id, 'status' => 'active']);
+        $this->assertDatabaseHas('attempts', ['id' => $otherAttempt['id'], 'child_profile_id' => $otherChild->id, 'status' => 'active']);
+        $this->getJson('/api/v1/attempts/'.$original['id'])->assertNotFound();
+        $this->postJson('/api/v1/attempts/'.$original['id'].'/answers', [
+            'position' => 0,
+            'question_id' => $original['question']['id'],
+            'choice_id' => $original['question']['choices'][0]['id'],
+        ])->assertNotFound();
+        $this->assertSame(0, AttemptQuestion::whereNotNull('answered_at')->count());
     }
 
     public function test_accepted_answer_resumes_and_cannot_be_overwritten(): void

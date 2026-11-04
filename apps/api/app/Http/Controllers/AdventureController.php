@@ -25,6 +25,7 @@ class AdventureController extends Controller
     public function show(Request $r, Attempt $attempt): array
     {
         $this->own($r, $attempt);
+        abort_if($attempt->status === 'superseded', 409, 'This adventure has changed. Resume your current adventure.');
 
         return $this->present($attempt);
     }
@@ -40,16 +41,19 @@ class AdventureController extends Controller
     {
         $v = $r->validate(['skill_id' => 'required|integer|exists:skills,id']);
 
-        return DB::transaction(function () use ($r, $v) {
+        return DB::transaction(function () use ($r, $v): array {
             $child = ChildProfile::lockForUpdate()->findOrFail($r->session()->get('child_id'));
-            $old = Attempt::where('child_profile_id', $child->id)->where('status', 'active')->first();
-            if ($old) {
+            $old = Attempt::where('child_profile_id', $child->id)->where('status', 'active')->lockForUpdate()->first();
+            if ($old && ($old->skill_id === (int) $v['skill_id'] || $old->items()->whereNotNull('answered_at')->exists())) {
                 return $this->present($old);
             }
             $skill = Skill::with('subject')->findOrFail($v['skill_id']);
             abort_unless($skill->active && $skill->subject->active, 422, 'This skill is taking a little rest.');
             $questions = Question::where('skill_id', $skill->id)->where('status', 'published')->with('latestRevision')->inRandomOrder()->limit(5)->get();
             abort_unless($questions->count() === 5, 422, 'This adventure is still being prepared. Try another skill soon.');
+            if ($old) {
+                $old->update(['status' => 'superseded']);
+            }
             $a = Attempt::create(['child_profile_id' => $child->id, 'skill_id' => $skill->id, 'position' => 0, 'status' => 'active', 'score' => 0]);
             foreach ($questions as $position => $q) {
                 AttemptQuestion::create(['attempt_id' => $a->id, 'question_revision_id' => $q->latestRevision->id, 'position' => $position]);
@@ -64,8 +68,9 @@ class AdventureController extends Controller
         $this->own($r, $attempt);
         $v = $r->validate(['position' => 'required|integer|min:0|max:4', 'question_id' => 'required|integer', 'choice_id' => 'required|string|max:20']);
 
-        return DB::transaction(function () use ($v, $attempt) {
+        return DB::transaction(function () use ($v, $attempt): array {
             $a = Attempt::lockForUpdate()->findOrFail($attempt->id);
+            abort_if($a->status === 'superseded', 409, 'This adventure has changed. Resume your current adventure.');
             if ($a->status === 'completed') {
                 return $this->present($a);
             }abort_unless($a->position === $v['position'], 409, 'Your adventure has moved on. Resume to continue.');
@@ -85,8 +90,9 @@ class AdventureController extends Controller
         $this->own($r, $attempt);
         $v = $r->validate(['position' => 'required|integer|min:0|max:4']);
 
-        return DB::transaction(function () use ($v, $attempt) {
+        return DB::transaction(function () use ($v, $attempt): array {
             $a = Attempt::lockForUpdate()->findOrFail($attempt->id);
+            abort_if($a->status === 'superseded', 409, 'This adventure has changed. Resume your current adventure.');
             if ($a->status === 'completed' || $a->position !== $v['position']) {
                 return $this->present($a);
             }

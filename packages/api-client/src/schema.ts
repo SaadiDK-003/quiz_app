@@ -292,7 +292,7 @@ export interface paths {
         put?: never;
         /**
          * Start adventure
-         * @description Returns the existing active attempt if one exists; otherwise snapshots five published question revisions.
+         * @description Resumes an active attempt for the same skill. A different skill replaces the active attempt only before its first accepted answer, after validating that five published questions are available. Replaced empty attempts are retained internally as superseded. Once any answer is accepted, returns the existing active attempt even if a different skill was requested; clients must explain that adventure should be continued. New attempts snapshot five published question revisions.
          */
         post: operations["start_adventure"];
         delete?: never;
@@ -308,7 +308,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get adventure */
+        /**
+         * Get adventure
+         * @description Superseded attempts return 409. Fetch /attempts/active to recover the current adventure; superseded is not a public Attempt status.
+         */
         get: operations["get_adventure"];
         put?: never;
         post?: never;
@@ -329,7 +332,7 @@ export interface paths {
         put?: never;
         /**
          * Submit first answer
-         * @description Retries preserve the first accepted answer. Correct answer and explanation become available only after submission.
+         * @description Retries preserve the first accepted answer. Correct answer and explanation become available only after submission. Superseded attempts return 409 without accepting an answer; recover with /attempts/active.
          */
         post: operations["submit_first_answer"];
         delete?: never;
@@ -349,7 +352,7 @@ export interface paths {
         put?: never;
         /**
          * Next question
-         * @description The position acts as an idempotency guard. Completing position 4 awards exactly one completion sticker.
+         * @description The position acts as an idempotency guard. Completing position 4 awards exactly one completion sticker. Superseded attempts return 409 without advancing or awarding a reward; recover with /attempts/active.
          */
         post: operations["next_question"];
         delete?: never;
