@@ -83,6 +83,10 @@ export default function QuizApp() {
     nickname = child?.nickname || "explorer";
   const refresh = useCallback(async (s: Session) => {
     setSession(s);
+    if (s.mode === "adult") {
+      setProgress(emptyProgress);
+      setAttempt(null);
+    }
     if (!s.user.email_verified_at) {
       setView("parent");
       return;
@@ -484,7 +488,11 @@ export default function QuizApp() {
               <strong>{progress.stars}</strong>
               <span>stars</span>
             </div>
-            <button className="profile-button" onClick={() => setPicker(true)}>
+            <button
+              className="profile-button"
+              aria-label={`Choose explorer. Current: ${child?.nickname || "Explorer"}`}
+              onClick={() => setPicker(true)}
+            >
               <span className="avatar">{avatar}</span>
               <span>{child?.nickname || "Explorer"}</span>
               <ChevronDown size={15} />
