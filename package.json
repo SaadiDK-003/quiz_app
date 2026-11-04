@@ -1,0 +1,24 @@
+{
+  "name": "little-quest",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "packages/api-client"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @little-quest/web",
+    "build": "npm run build --workspace @little-quest/web",
+    "typecheck": "npm run typecheck --workspace @little-quest/web",
+    "test:api": "cd apps/api && php artisan test",
+    "generate:api": "openapi-typescript docs/openapi.yaml -o packages/api-client/src/schema.ts",
+    "dev:all": "bash scripts/dev.sh",
+    "format": "prettier --write apps/web/src packages/api-client/src/index.ts docs"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.10.1",
+    "prettier": "^3.9.10"
+  },
+  "overrides": {
+    "minimatch": "^11.0.1"
+  }
+}

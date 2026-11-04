@@ -1,0 +1,1764 @@
+openapi: 3.1.0
+info:
+  title: Little Quest API
+  version: 1.0.0
+  description:
+    Same-origin Laravel Sanctum cookie sessions. Before a browser mutation
+    GET /sanctum/csrf-cookie and send the decoded XSRF-TOKEN cookie in X-XSRF-TOKEN.
+    Adult and child modes are server enforced. All catalog/adventure endpoints require
+    verified email. Mobile device token issuance is deferred.
+servers:
+  - url: /api/v1
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: little_quest_session
+  schemas:
+    Choice:
+      type: object
+      properties:
+        id: &id001
+          type: string
+        text: *id001
+        image_url: &id003
+          type:
+            - string
+            - "null"
+      required:
+        - id
+        - text
+    Skill:
+      type: object
+      properties:
+        id: &id002
+          type: integer
+        subject_id: *id002
+        name: *id001
+        slug: *id001
+        description: *id001
+        position: *id002
+        question_count: *id002
+        completed: &id004
+          type: boolean
+      required:
+        - id
+        - subject_id
+        - name
+        - slug
+        - description
+        - position
+        - question_count
+    Subject:
+      type: object
+      properties:
+        id: *id002
+        name: *id001
+        slug: *id001
+        description: *id001
+        color: *id001
+        icon: *id001
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/Skill"
+      required:
+        - id
+        - name
+        - slug
+        - description
+        - color
+        - icon
+        - skills
+    Child:
+      type: object
+      properties:
+        id: *id002
+        nickname: *id001
+        avatar: *id001
+        age_band: *id001
+        starting_skills:
+          type:
+            - object
+            - "null"
+          additionalProperties: *id002
+      required:
+        - id
+        - nickname
+        - avatar
+        - age_band
+        - starting_skills
+    User:
+      type: object
+      properties:
+        id: *id002
+        name: *id001
+        email: *id001
+        role:
+          type: string
+          enum:
+            - parent
+            - admin
+        email_verified_at: *id003
+      required:
+        - id
+        - name
+        - email
+        - role
+        - email_verified_at
+    Session:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        mode:
+          type: string
+          enum:
+            - adult
+            - child
+        child:
+          anyOf:
+            - $ref: "#/components/schemas/Child"
+            - type: "null"
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/Child"
+      required:
+        - user
+        - mode
+        - child
+        - children
+    Question:
+      type: object
+      properties:
+        id: *id002
+        prompt: *id001
+        choices:
+          type: array
+          items:
+            $ref: "#/components/schemas/Choice"
+        image_url: *id003
+        audio_url: *id003
+        image_alt: *id003
+        instruction: *id001
+      required:
+        - id
+        - prompt
+        - choices
+        - image_url
+        - audio_url
+        - image_alt
+        - instruction
+    Feedback:
+      type: object
+      properties:
+        correct: *id004
+        explanation: *id001
+        correct_choice_id: *id001
+        selected_choice_id: *id001
+      required:
+        - correct
+        - explanation
+        - correct_choice_id
+        - selected_choice_id
+    Attempt:
+      type: object
+      properties:
+        id: *id002
+        skill_id: *id002
+        skill_name: *id001
+        subject_slug: *id001
+        status:
+          type: string
+          enum:
+            - active
+            - completed
+        position: *id002
+        total: *id002
+        answered: *id002
+        score: *id002
+        question:
+          anyOf:
+            - $ref: "#/components/schemas/Question"
+            - type: "null"
+        feedback:
+          anyOf:
+            - $ref: "#/components/schemas/Feedback"
+            - type: "null"
+        reward: *id003
+      required:
+        - id
+        - skill_id
+        - skill_name
+        - subject_slug
+        - status
+        - position
+        - total
+        - answered
+        - score
+        - question
+        - feedback
+        - reward
+    Progress:
+      type: object
+      properties:
+        completed: *id002
+        stars: *id002
+        accuracy: *id002
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              id: *id002
+              name: *id001
+              subject: *id001
+              completed: *id002
+              accuracy: *id002
+            required:
+              - id
+              - name
+              - subject
+              - completed
+              - accuracy
+        recent:
+          type: array
+          items:
+            type: object
+            properties:
+              id: *id002
+              skill_name: *id001
+              score: *id002
+              total: *id002
+              completed_at: *id001
+            required:
+              - id
+              - skill_name
+              - score
+              - total
+              - completed_at
+        stickers:
+          type: array
+          items:
+            type: object
+            properties:
+              id: *id002
+              name: *id001
+              icon: *id001
+              earned_at: *id001
+            required:
+              - id
+              - name
+              - icon
+              - earned_at
+      required:
+        - completed
+        - stars
+        - accuracy
+        - skills
+        - recent
+        - stickers
+    AdminQuestion:
+      type: object
+      properties:
+        id: *id002
+        skill_id: *id002
+        skill_name: *id001
+        prompt: *id001
+        choices: &id005
+          type: array
+          items:
+            $ref: "#/components/schemas/Choice"
+        correct_choice_id: *id001
+        explanation: *id001
+        instruction: *id001
+        difficulty: *id001
+        locale: *id001
+        status: *id001
+        image_path: *id003
+        image_alt: *id003
+        audio_path: *id003
+        answers_reviewed: *id004
+        explanation_reviewed: *id004
+        narration_reviewed: *id004
+        version: *id002
+      required:
+        - id
+        - skill_id
+        - skill_name
+        - prompt
+        - choices
+        - correct_choice_id
+        - explanation
+        - instruction
+        - difficulty
+        - locale
+        - status
+        - image_path
+        - image_alt
+        - audio_path
+        - answers_reviewed
+        - explanation_reviewed
+        - narration_reviewed
+        - version
+    Error:
+      type: object
+      properties:
+        message: *id001
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: *id001
+      required:
+        - message
+    Message:
+      type: object
+      properties:
+        message: *id001
+      required:
+        - message
+    ProfileInput:
+      type: object
+      properties:
+        nickname:
+          type: string
+          maxLength: 40
+        avatar:
+          type: string
+          enum:
+            - fox
+            - bear
+            - bunny
+            - panda
+            - cat
+            - frog
+        age_band:
+          type: string
+          enum:
+            - 7-8
+            - 9-10
+        starting_skills:
+          type:
+            - object
+            - "null"
+          additionalProperties: *id002
+      required:
+        - nickname
+        - avatar
+        - age_band
+    Media:
+      type: object
+      properties:
+        path: *id001
+        url: *id001
+      required:
+        - path
+        - url
+    TopicRecord:
+      type: object
+      properties:
+        id: *id002
+        subject_id: *id002
+        name: *id001
+        position: *id002
+      required:
+        - id
+        - subject_id
+        - name
+        - position
+    SubjectRecord:
+      type: object
+      properties:
+        id: *id002
+        name: *id001
+        slug: *id001
+        description: *id001
+        color: *id001
+        icon: *id001
+        position: *id002
+        active: *id004
+      required:
+        - id
+        - name
+        - slug
+        - description
+        - color
+        - icon
+        - position
+        - active
+    SkillRecord:
+      type: object
+      properties:
+        id: *id002
+        subject_id: *id002
+        topic_id: &id006
+          type:
+            - integer
+            - "null"
+        name: *id001
+        slug: *id001
+        description: *id001
+        position: *id002
+        active: *id004
+      required:
+        - id
+        - subject_id
+        - topic_id
+        - name
+        - slug
+        - description
+        - position
+        - active
+    Metadata:
+      type: object
+      properties:
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectRecord"
+        topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/TopicRecord"
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/SkillRecord"
+      required:
+        - subjects
+        - topics
+        - skills
+    QuestionInput:
+      type: object
+      properties:
+        skill_id: *id002
+        prompt: *id001
+        choices: *id005
+        correct_choice_id: *id001
+        explanation: *id001
+        instruction: *id001
+        difficulty: *id001
+        locale: *id001
+        status: *id001
+        image_path: *id003
+        image_alt: *id003
+        audio_path: *id003
+        answers_reviewed: *id004
+        explanation_reviewed: *id004
+        narration_reviewed: *id004
+      required:
+        - skill_id
+        - prompt
+        - choices
+        - correct_choice_id
+        - explanation
+        - instruction
+        - difficulty
+        - locale
+        - status
+        - answers_reviewed
+        - explanation_reviewed
+        - narration_reviewed
+    SubjectInput:
+      type: object
+      properties:
+        name: *id001
+        slug: *id001
+        description: *id001
+        color: *id001
+        icon: *id001
+        position: *id002
+        active: *id004
+      required:
+        - name
+        - slug
+        - color
+        - icon
+        - position
+    TopicInput:
+      type: object
+      properties:
+        subject_id: *id002
+        name: *id001
+        position: *id002
+      required:
+        - subject_id
+        - name
+        - position
+    SkillInput:
+      type: object
+      properties:
+        subject_id: *id002
+        topic_id: *id006
+        name: *id001
+        slug: *id001
+        description: *id001
+        position: *id002
+        active: *id004
+      required:
+        - subject_id
+        - name
+        - slug
+        - position
+paths:
+  /session:
+    get:
+      operationId: current_session
+      summary: Current session
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+  /auth/login:
+    post:
+      operationId: sign_in
+      summary: Sign in
+      description: ""
+      security: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: *id001
+                password: *id001
+              required:
+                - email
+                - password
+  /auth/register:
+    post:
+      operationId: accept_invitation
+      summary: Accept invitation
+      description: ""
+      security: []
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: *id001
+                email: *id001
+                password: *id001
+                password_confirmation: *id001
+                invite: *id001
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+                - invite
+  /auth/logout:
+    post:
+      operationId: sign_out
+      summary: Sign out
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "204":
+          description: Success
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+  /auth/reauthenticate:
+    post:
+      operationId: reauthenticate_parent
+      summary: Reauthenticate parent
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password: *id001
+              required:
+                - password
+  /auth/verification-notification:
+    post:
+      operationId: send_verification
+      summary: Send verification
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+  /auth/verify/{id}/{hash}:
+    get:
+      operationId: verify_email
+      summary: Verify email
+      description:
+        Relative signed URL sent by email; requires the signed-in parent.
+        Redirects to the web app.
+      security:
+        - cookieAuth: []
+      responses:
+        "302":
+          description: Success
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: *id002
+        - name: hash
+          in: path
+          required: true
+          schema: *id001
+        - name: expires
+          in: query
+          required: true
+          schema: *id002
+        - name: signature
+          in: query
+          required: true
+          schema: *id001
+  /auth/forgot-password:
+    post:
+      operationId: request_password_reset
+      summary: Request password reset
+      description: ""
+      security: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: *id001
+              required:
+                - email
+  /auth/reset-password:
+    post:
+      operationId: reset_password
+      summary: Reset password
+      description: ""
+      security: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: *id001
+                token: *id001
+                password: *id001
+                password_confirmation: *id001
+              required:
+                - email
+                - token
+                - password
+                - password_confirmation
+  /account:
+    delete:
+      operationId: delete_family_account
+      summary: Delete family account
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "204":
+          description: Success
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password: *id001
+              required:
+                - password
+  /catalog:
+    get:
+      operationId: learning_catalog
+      summary: Learning catalog
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subject"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+  /children:
+    get:
+      operationId: list_explorers
+      summary: List explorers
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Child"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+    post:
+      operationId: create_explorer
+      summary: Create explorer
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Child"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileInput"
+  /children/{child}:
+    put:
+      operationId: update_explorer
+      summary: Update explorer
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Child"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: child
+          in: path
+          required: true
+          schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileInput"
+    delete:
+      operationId: delete_explorer
+      summary: Delete explorer
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "204":
+          description: Success
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: child
+          in: path
+          required: true
+          schema: *id002
+  /children/{child}/enter:
+    post:
+      operationId: enter_child_mode
+      summary: Enter child mode
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: child
+          in: path
+          required: true
+          schema: *id002
+  /children/{child}/progress:
+    get:
+      operationId: learning_progress
+      summary: Learning progress
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Progress"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: child
+          in: path
+          required: true
+          schema: *id002
+  /attempts/active:
+    get:
+      operationId: resume_active_adventure
+      summary: Resume active adventure
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/Attempt"
+                  - type: "null"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+  /attempts:
+    post:
+      operationId: start_adventure
+      summary: Start adventure
+      description:
+        Returns the existing active attempt if one exists; otherwise snapshots
+        five published question revisions.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attempt"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skill_id: *id002
+              required:
+                - skill_id
+  /attempts/{attempt}:
+    get:
+      operationId: get_adventure
+      summary: Get adventure
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attempt"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: attempt
+          in: path
+          required: true
+          schema: *id002
+  /attempts/{attempt}/answers:
+    post:
+      operationId: submit_first_answer
+      summary: Submit first answer
+      description:
+        Retries preserve the first accepted answer. Correct answer and
+        explanation become available only after submission.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attempt"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: attempt
+          in: path
+          required: true
+          schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position: *id002
+                question_id: *id002
+                choice_id: *id001
+              required:
+                - position
+                - question_id
+                - choice_id
+  /attempts/{attempt}/next:
+    post:
+      operationId: next_question
+      summary: Next question
+      description:
+        The position acts as an idempotency guard. Completing position
+        4 awards exactly one completion sticker.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attempt"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: attempt
+          in: path
+          required: true
+          schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position: *id002
+              required:
+                - position
+  /events/error:
+    post:
+      operationId: record_error
+      summary: Record error
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "204":
+          description: Success
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                    - connection
+                    - audio
+                    - request
+              required:
+                - code
+  /admin/questions:
+    get:
+      operationId: list_admin_questions
+      summary: List admin questions
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminQuestion"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: status
+          in: query
+          schema: *id001
+        - name: skill_id
+          in: query
+          schema: *id002
+    post:
+      operationId: create_question_revision
+      summary: Create question revision
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminQuestion"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionInput"
+  /admin/questions/{question}:
+    put:
+      operationId: save_question_revision
+      summary: Save question revision
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminQuestion"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: question
+          in: path
+          required: true
+          schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionInput"
+  /admin/metadata:
+    get:
+      operationId: admin_learning_catalog
+      summary: Admin learning catalog
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Metadata"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+  /admin/metadata/{kind}:
+    post:
+      operationId: create_catalog_record
+      summary: Create catalog record
+      description:
+        kind is subjects, topics, or skills. Omit id on create; topic IDs
+        must belong to the subject. active hides a subject or skill.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/SubjectRecord"
+                  - $ref: "#/components/schemas/TopicRecord"
+                  - $ref: "#/components/schemas/SkillRecord"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: kind
+          in: path
+          required: true
+          schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/SubjectInput"
+                - $ref: "#/components/schemas/TopicInput"
+                - $ref: "#/components/schemas/SkillInput"
+  /admin/metadata/{kind}/{id}:
+    put:
+      operationId: update_catalog_record
+      summary: Update catalog record
+      description:
+        kind is subjects, topics, or skills. Omit id on create; topic IDs
+        must belong to the subject. active hides a subject or skill.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/SubjectRecord"
+                  - $ref: "#/components/schemas/TopicRecord"
+                  - $ref: "#/components/schemas/SkillRecord"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      parameters:
+        - name: kind
+          in: path
+          required: true
+          schema: *id001
+        - name: id
+          in: path
+          required: true
+          schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/SubjectInput"
+                - $ref: "#/components/schemas/TopicInput"
+                - $ref: "#/components/schemas/SkillInput"
+  /admin/media:
+    post:
+      operationId: upload_review_media
+      summary: Upload review media
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Media"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+                - file
+  /admin/invitations:
+    post:
+      operationId: invite_family
+      summary: Invite family
+      description: ""
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Sign in required
+        "403":
+          description: Permission or adult reauthentication required
+        "404":
+          description: Not found
+        "409":
+          description: The adventure moved on; resume the current state
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "429":
+          description: Too many requests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: *id001
+              required:
+                - email

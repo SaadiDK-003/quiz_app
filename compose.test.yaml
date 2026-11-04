@@ -1,0 +1,33 @@
+name: little-quest-test
+services:
+  database:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: quest_test
+      POSTGRES_USER: quest_test
+      POSTGRES_PASSWORD: isolated_test_password
+    tmpfs: [/var/lib/postgresql]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U quest_test -d quest_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  test:
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile.api
+      target: development
+    environment:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DB_CONNECTION: pgsql
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_DATABASE: quest_test
+      DB_USERNAME: quest_test
+      DB_PASSWORD: isolated_test_password
+    volumes: ["./artifacts/test-results:/results"]
+    command: [php, vendor/bin/phpunit, "--log-junit", /results/postgres.xml]
+    depends_on:
+      database:
+        condition: service_healthy

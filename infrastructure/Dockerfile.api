@@ -1,0 +1,14 @@
+FROM php:8.4-fpm-bookworm AS base
+RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev libicu-dev libzip-dev libsqlite3-dev libonig-dev unzip git && docker-php-ext-install pdo_pgsql pdo_sqlite intl bcmath pcntl zip mbstring && rm -rf /var/lib/apt/lists/*
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+WORKDIR /var/www/html
+COPY apps/api/ ./
+RUN mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+COPY infrastructure/api-entrypoint.sh /usr/local/bin/quest-entrypoint
+RUN chmod +x /usr/local/bin/quest-entrypoint && chown -R www-data:www-data storage bootstrap/cache
+ENTRYPOINT ["quest-entrypoint"]
+CMD ["php-fpm"]
+FROM base AS development
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+FROM base AS production
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader

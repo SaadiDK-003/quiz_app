@@ -1,0 +1,3362 @@
+[
+  {
+    "seed_key": "place-value-1",
+    "skill": "place-value",
+    "prompt": "What is the value of the 2 in 24?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "4"
+      },
+      {
+        "id": "b",
+        "text": "2"
+      },
+      {
+        "id": "c",
+        "text": "120"
+      },
+      {
+        "id": "d",
+        "text": "20"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "24 has 2 tens and 4 ones. The 2 stands for 20.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "place-value-2",
+    "skill": "place-value",
+    "prompt": "What is the value of the 3 in 36?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "130"
+      },
+      {
+        "id": "b",
+        "text": "6"
+      },
+      {
+        "id": "c",
+        "text": "30"
+      },
+      {
+        "id": "d",
+        "text": "3"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "36 has 3 tens and 6 ones. The 3 stands for 30.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "place-value-3",
+    "skill": "place-value",
+    "prompt": "What is the value of the 5 in 52?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "5"
+      },
+      {
+        "id": "b",
+        "text": "150"
+      },
+      {
+        "id": "c",
+        "text": "2"
+      },
+      {
+        "id": "d",
+        "text": "50"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "52 has 5 tens and 2 ones. The 5 stands for 50.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "place-value-4",
+    "skill": "place-value",
+    "prompt": "What is the value of the 7 in 71?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "7"
+      },
+      {
+        "id": "b",
+        "text": "1"
+      },
+      {
+        "id": "c",
+        "text": "70"
+      },
+      {
+        "id": "d",
+        "text": "170"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "71 has 7 tens and 1 ones. The 7 stands for 70.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "place-value-5",
+    "skill": "place-value",
+    "prompt": "What is the value of the 8 in 89?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "8"
+      },
+      {
+        "id": "b",
+        "text": "9"
+      },
+      {
+        "id": "c",
+        "text": "180"
+      },
+      {
+        "id": "d",
+        "text": "80"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "89 has 8 tens and 9 ones. The 8 stands for 80.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "place-value-6",
+    "skill": "place-value",
+    "prompt": "What is the value of the 4 in 43?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "4"
+      },
+      {
+        "id": "b",
+        "text": "140"
+      },
+      {
+        "id": "c",
+        "text": "3"
+      },
+      {
+        "id": "d",
+        "text": "40"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "43 has 4 tens and 3 ones. The 4 stands for 40.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "place-value-7",
+    "skill": "place-value",
+    "prompt": "What is the value of the 6 in 65?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "5"
+      },
+      {
+        "id": "b",
+        "text": "6"
+      },
+      {
+        "id": "c",
+        "text": "60"
+      },
+      {
+        "id": "d",
+        "text": "160"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "65 has 6 tens and 5 ones. The 6 stands for 60.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "place-value-8",
+    "skill": "place-value",
+    "prompt": "What is the value of the 9 in 97?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "9"
+      },
+      {
+        "id": "b",
+        "text": "190"
+      },
+      {
+        "id": "c",
+        "text": "90"
+      },
+      {
+        "id": "d",
+        "text": "7"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "97 has 9 tens and 7 ones. The 9 stands for 90.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "place-value-9",
+    "skill": "place-value",
+    "prompt": "What is the value of the 1 in 18?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "10"
+      },
+      {
+        "id": "b",
+        "text": "8"
+      },
+      {
+        "id": "c",
+        "text": "1"
+      },
+      {
+        "id": "d",
+        "text": "110"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "18 has 1 tens and 8 ones. The 1 stands for 10.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "place-value-10",
+    "skill": "place-value",
+    "prompt": "What is the value of the 2 in 230?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "200"
+      },
+      {
+        "id": "b",
+        "text": "230"
+      },
+      {
+        "id": "c",
+        "text": "2"
+      },
+      {
+        "id": "d",
+        "text": "20"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "The 2 is in the hundreds place, so it stands for 200.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-1",
+    "skill": "addition",
+    "prompt": "What is 4 + 3?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "6"
+      },
+      {
+        "id": "b",
+        "text": "8"
+      },
+      {
+        "id": "c",
+        "text": "17"
+      },
+      {
+        "id": "d",
+        "text": "7"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Adding 3 to 4 gives 7. You can count on or add the tens and ones.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-2",
+    "skill": "addition",
+    "prompt": "What is 8 + 5?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "23"
+      },
+      {
+        "id": "b",
+        "text": "12"
+      },
+      {
+        "id": "c",
+        "text": "14"
+      },
+      {
+        "id": "d",
+        "text": "13"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Adding 5 to 8 gives 13. You can count on or add the tens and ones.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-3",
+    "skill": "addition",
+    "prompt": "What is 12 + 6?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "28"
+      },
+      {
+        "id": "b",
+        "text": "19"
+      },
+      {
+        "id": "c",
+        "text": "18"
+      },
+      {
+        "id": "d",
+        "text": "17"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Adding 6 to 12 gives 18. You can count on or add the tens and ones.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-4",
+    "skill": "addition",
+    "prompt": "What is 24 + 13?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "36"
+      },
+      {
+        "id": "b",
+        "text": "47"
+      },
+      {
+        "id": "c",
+        "text": "38"
+      },
+      {
+        "id": "d",
+        "text": "37"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Adding 13 to 24 gives 37. You can count on or add the tens and ones.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-5",
+    "skill": "addition",
+    "prompt": "What is 17 + 8?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "25"
+      },
+      {
+        "id": "b",
+        "text": "26"
+      },
+      {
+        "id": "c",
+        "text": "35"
+      },
+      {
+        "id": "d",
+        "text": "24"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "Adding 8 to 17 gives 25. You can count on or add the tens and ones.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-6",
+    "skill": "addition",
+    "prompt": "What is 35 + 22?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "67"
+      },
+      {
+        "id": "b",
+        "text": "57"
+      },
+      {
+        "id": "c",
+        "text": "56"
+      },
+      {
+        "id": "d",
+        "text": "58"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "Adding 22 to 35 gives 57. You can count on or add the tens and ones.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-7",
+    "skill": "addition",
+    "prompt": "What is 46 + 18?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "65"
+      },
+      {
+        "id": "b",
+        "text": "74"
+      },
+      {
+        "id": "c",
+        "text": "63"
+      },
+      {
+        "id": "d",
+        "text": "64"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Adding 18 to 46 gives 64. You can count on or add the tens and ones.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-8",
+    "skill": "addition",
+    "prompt": "What is 63 + 27?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "91"
+      },
+      {
+        "id": "b",
+        "text": "100"
+      },
+      {
+        "id": "c",
+        "text": "90"
+      },
+      {
+        "id": "d",
+        "text": "89"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Adding 27 to 63 gives 90. You can count on or add the tens and ones.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-9",
+    "skill": "addition",
+    "prompt": "What is 125 + 34?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "169"
+      },
+      {
+        "id": "b",
+        "text": "158"
+      },
+      {
+        "id": "c",
+        "text": "160"
+      },
+      {
+        "id": "d",
+        "text": "159"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Adding 34 to 125 gives 159. You can count on or add the tens and ones.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "addition-10",
+    "skill": "addition",
+    "prompt": "What is 147 + 125?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "272"
+      },
+      {
+        "id": "b",
+        "text": "273"
+      },
+      {
+        "id": "c",
+        "text": "271"
+      },
+      {
+        "id": "d",
+        "text": "282"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "Adding 125 to 147 gives 272. You can count on or add the tens and ones.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-1",
+    "skill": "subtraction",
+    "prompt": "What is 9 − 4?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "5"
+      },
+      {
+        "id": "b",
+        "text": "4"
+      },
+      {
+        "id": "c",
+        "text": "15"
+      },
+      {
+        "id": "d",
+        "text": "6"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "Start with 9 and take away 4. There are 5 left. Check: 5 + 4 = 9.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-2",
+    "skill": "subtraction",
+    "prompt": "What is 12 − 5?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "7"
+      },
+      {
+        "id": "b",
+        "text": "17"
+      },
+      {
+        "id": "c",
+        "text": "6"
+      },
+      {
+        "id": "d",
+        "text": "8"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "Start with 12 and take away 5. There are 7 left. Check: 7 + 5 = 12.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-3",
+    "skill": "subtraction",
+    "prompt": "What is 18 − 6?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "13"
+      },
+      {
+        "id": "b",
+        "text": "22"
+      },
+      {
+        "id": "c",
+        "text": "11"
+      },
+      {
+        "id": "d",
+        "text": "12"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Start with 18 and take away 6. There are 12 left. Check: 12 + 6 = 18.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-4",
+    "skill": "subtraction",
+    "prompt": "What is 25 − 12?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "12"
+      },
+      {
+        "id": "b",
+        "text": "23"
+      },
+      {
+        "id": "c",
+        "text": "13"
+      },
+      {
+        "id": "d",
+        "text": "14"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Start with 25 and take away 12. There are 13 left. Check: 13 + 12 = 25.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-5",
+    "skill": "subtraction",
+    "prompt": "What is 34 − 8?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "25"
+      },
+      {
+        "id": "b",
+        "text": "26"
+      },
+      {
+        "id": "c",
+        "text": "27"
+      },
+      {
+        "id": "d",
+        "text": "36"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "Start with 34 and take away 8. There are 26 left. Check: 26 + 8 = 34.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-6",
+    "skill": "subtraction",
+    "prompt": "What is 50 − 17?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "34"
+      },
+      {
+        "id": "b",
+        "text": "43"
+      },
+      {
+        "id": "c",
+        "text": "33"
+      },
+      {
+        "id": "d",
+        "text": "32"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Start with 50 and take away 17. There are 33 left. Check: 33 + 17 = 50.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-7",
+    "skill": "subtraction",
+    "prompt": "What is 72 − 26?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "56"
+      },
+      {
+        "id": "b",
+        "text": "45"
+      },
+      {
+        "id": "c",
+        "text": "47"
+      },
+      {
+        "id": "d",
+        "text": "46"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Start with 72 and take away 26. There are 46 left. Check: 46 + 26 = 72.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-8",
+    "skill": "subtraction",
+    "prompt": "What is 83 − 35?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "49"
+      },
+      {
+        "id": "b",
+        "text": "58"
+      },
+      {
+        "id": "c",
+        "text": "48"
+      },
+      {
+        "id": "d",
+        "text": "47"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Start with 83 and take away 35. There are 48 left. Check: 48 + 35 = 83.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-9",
+    "skill": "subtraction",
+    "prompt": "What is 140 − 25?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "125"
+      },
+      {
+        "id": "b",
+        "text": "116"
+      },
+      {
+        "id": "c",
+        "text": "115"
+      },
+      {
+        "id": "d",
+        "text": "114"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Start with 140 and take away 25. There are 115 left. Check: 115 + 25 = 140.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "subtraction-10",
+    "skill": "subtraction",
+    "prompt": "What is 253 − 128?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "125"
+      },
+      {
+        "id": "b",
+        "text": "126"
+      },
+      {
+        "id": "c",
+        "text": "124"
+      },
+      {
+        "id": "d",
+        "text": "135"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "Start with 253 and take away 128. There are 125 left. Check: 125 + 128 = 253.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-1",
+    "skill": "multiplication",
+    "prompt": "There are 2 baskets with 3 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "8"
+      },
+      {
+        "id": "b",
+        "text": "6"
+      },
+      {
+        "id": "c",
+        "text": "11"
+      },
+      {
+        "id": "d",
+        "text": "7"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "2 equal groups of 3 make 6. That is 2 × 3 = 6.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-2",
+    "skill": "multiplication",
+    "prompt": "There are 3 baskets with 4 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "12"
+      },
+      {
+        "id": "b",
+        "text": "17"
+      },
+      {
+        "id": "c",
+        "text": "14"
+      },
+      {
+        "id": "d",
+        "text": "13"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "3 equal groups of 4 make 12. That is 3 × 4 = 12.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-3",
+    "skill": "multiplication",
+    "prompt": "There are 5 baskets with 2 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "10"
+      },
+      {
+        "id": "b",
+        "text": "11"
+      },
+      {
+        "id": "c",
+        "text": "12"
+      },
+      {
+        "id": "d",
+        "text": "15"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "5 equal groups of 2 make 10. That is 5 × 2 = 10.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-4",
+    "skill": "multiplication",
+    "prompt": "There are 4 baskets with 4 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "17"
+      },
+      {
+        "id": "b",
+        "text": "21"
+      },
+      {
+        "id": "c",
+        "text": "16"
+      },
+      {
+        "id": "d",
+        "text": "18"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "4 equal groups of 4 make 16. That is 4 × 4 = 16.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-5",
+    "skill": "multiplication",
+    "prompt": "There are 3 baskets with 5 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "16"
+      },
+      {
+        "id": "b",
+        "text": "17"
+      },
+      {
+        "id": "c",
+        "text": "15"
+      },
+      {
+        "id": "d",
+        "text": "20"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "3 equal groups of 5 make 15. That is 3 × 5 = 15.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-6",
+    "skill": "multiplication",
+    "prompt": "There are 6 baskets with 4 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "25"
+      },
+      {
+        "id": "b",
+        "text": "26"
+      },
+      {
+        "id": "c",
+        "text": "29"
+      },
+      {
+        "id": "d",
+        "text": "24"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "6 equal groups of 4 make 24. That is 6 × 4 = 24.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-7",
+    "skill": "multiplication",
+    "prompt": "There are 7 baskets with 3 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "22"
+      },
+      {
+        "id": "b",
+        "text": "21"
+      },
+      {
+        "id": "c",
+        "text": "23"
+      },
+      {
+        "id": "d",
+        "text": "26"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "7 equal groups of 3 make 21. That is 7 × 3 = 21.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-8",
+    "skill": "multiplication",
+    "prompt": "There are 8 baskets with 5 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "40"
+      },
+      {
+        "id": "b",
+        "text": "42"
+      },
+      {
+        "id": "c",
+        "text": "41"
+      },
+      {
+        "id": "d",
+        "text": "45"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "8 equal groups of 5 make 40. That is 8 × 5 = 40.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-9",
+    "skill": "multiplication",
+    "prompt": "There are 9 baskets with 6 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "55"
+      },
+      {
+        "id": "b",
+        "text": "54"
+      },
+      {
+        "id": "c",
+        "text": "59"
+      },
+      {
+        "id": "d",
+        "text": "56"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "9 equal groups of 6 make 54. That is 9 × 6 = 54.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "multiplication-10",
+    "skill": "multiplication",
+    "prompt": "There are 12 baskets with 4 apples in each. How many apples altogether?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "53"
+      },
+      {
+        "id": "b",
+        "text": "49"
+      },
+      {
+        "id": "c",
+        "text": "50"
+      },
+      {
+        "id": "d",
+        "text": "48"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "12 equal groups of 4 make 48. That is 12 × 4 = 48.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-1",
+    "skill": "division",
+    "prompt": "Share 6 strawberries equally between 2 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "7"
+      },
+      {
+        "id": "b",
+        "text": "4"
+      },
+      {
+        "id": "c",
+        "text": "3"
+      },
+      {
+        "id": "d",
+        "text": "5"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "6 divided into 2 equal groups gives 3 in each. Check: 2 × 3 = 6.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-2",
+    "skill": "division",
+    "prompt": "Share 12 strawberries equally between 3 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "6"
+      },
+      {
+        "id": "b",
+        "text": "5"
+      },
+      {
+        "id": "c",
+        "text": "4"
+      },
+      {
+        "id": "d",
+        "text": "8"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "12 divided into 3 equal groups gives 4 in each. Check: 3 × 4 = 12.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-3",
+    "skill": "division",
+    "prompt": "Share 10 strawberries equally between 5 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "6"
+      },
+      {
+        "id": "b",
+        "text": "3"
+      },
+      {
+        "id": "c",
+        "text": "4"
+      },
+      {
+        "id": "d",
+        "text": "2"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "10 divided into 5 equal groups gives 2 in each. Check: 5 × 2 = 10.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-4",
+    "skill": "division",
+    "prompt": "Share 16 strawberries equally between 4 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "8"
+      },
+      {
+        "id": "b",
+        "text": "4"
+      },
+      {
+        "id": "c",
+        "text": "6"
+      },
+      {
+        "id": "d",
+        "text": "5"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "16 divided into 4 equal groups gives 4 in each. Check: 4 × 4 = 16.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-5",
+    "skill": "division",
+    "prompt": "Share 20 strawberries equally between 2 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "11"
+      },
+      {
+        "id": "b",
+        "text": "10"
+      },
+      {
+        "id": "c",
+        "text": "14"
+      },
+      {
+        "id": "d",
+        "text": "12"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "20 divided into 2 equal groups gives 10 in each. Check: 2 × 10 = 20.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-6",
+    "skill": "division",
+    "prompt": "Share 24 strawberries equally between 6 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "6"
+      },
+      {
+        "id": "b",
+        "text": "4"
+      },
+      {
+        "id": "c",
+        "text": "8"
+      },
+      {
+        "id": "d",
+        "text": "5"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "24 divided into 6 equal groups gives 4 in each. Check: 6 × 4 = 24.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-7",
+    "skill": "division",
+    "prompt": "Share 28 strawberries equally between 4 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "11"
+      },
+      {
+        "id": "b",
+        "text": "8"
+      },
+      {
+        "id": "c",
+        "text": "9"
+      },
+      {
+        "id": "d",
+        "text": "7"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "28 divided into 4 equal groups gives 7 in each. Check: 4 × 7 = 28.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-8",
+    "skill": "division",
+    "prompt": "Share 35 strawberries equally between 5 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "8"
+      },
+      {
+        "id": "b",
+        "text": "9"
+      },
+      {
+        "id": "c",
+        "text": "7"
+      },
+      {
+        "id": "d",
+        "text": "11"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "35 divided into 5 equal groups gives 7 in each. Check: 5 × 7 = 35.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-9",
+    "skill": "division",
+    "prompt": "Share 48 strawberries equally between 8 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "10"
+      },
+      {
+        "id": "b",
+        "text": "6"
+      },
+      {
+        "id": "c",
+        "text": "7"
+      },
+      {
+        "id": "d",
+        "text": "8"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "48 divided into 8 equal groups gives 6 in each. Check: 8 × 6 = 48.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "division-10",
+    "skill": "division",
+    "prompt": "Share 63 strawberries equally between 7 bowls. How many go in each bowl?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "10"
+      },
+      {
+        "id": "b",
+        "text": "11"
+      },
+      {
+        "id": "c",
+        "text": "13"
+      },
+      {
+        "id": "d",
+        "text": "9"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "63 divided into 7 equal groups gives 9 in each. Check: 7 × 9 = 63.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-1",
+    "skill": "fractions",
+    "prompt": "What is one half of 4?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "5"
+      },
+      {
+        "id": "b",
+        "text": "3"
+      },
+      {
+        "id": "c",
+        "text": "4"
+      },
+      {
+        "id": "d",
+        "text": "2"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "One half means one of two equal parts. 4 shared equally into 2 groups gives 2 in each.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-2",
+    "skill": "fractions",
+    "prompt": "What is one half of 6?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "4"
+      },
+      {
+        "id": "b",
+        "text": "7"
+      },
+      {
+        "id": "c",
+        "text": "6"
+      },
+      {
+        "id": "d",
+        "text": "3"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "One half means one of two equal parts. 6 shared equally into 2 groups gives 3 in each.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-3",
+    "skill": "fractions",
+    "prompt": "What is one half of 8?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "4"
+      },
+      {
+        "id": "b",
+        "text": "9"
+      },
+      {
+        "id": "c",
+        "text": "8"
+      },
+      {
+        "id": "d",
+        "text": "5"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "One half means one of two equal parts. 8 shared equally into 2 groups gives 4 in each.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-4",
+    "skill": "fractions",
+    "prompt": "What is one half of 10?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "5"
+      },
+      {
+        "id": "b",
+        "text": "10"
+      },
+      {
+        "id": "c",
+        "text": "11"
+      },
+      {
+        "id": "d",
+        "text": "6"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "One half means one of two equal parts. 10 shared equally into 2 groups gives 5 in each.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-5",
+    "skill": "fractions",
+    "prompt": "What is one half of 12?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "13"
+      },
+      {
+        "id": "b",
+        "text": "6"
+      },
+      {
+        "id": "c",
+        "text": "12"
+      },
+      {
+        "id": "d",
+        "text": "7"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "One half means one of two equal parts. 12 shared equally into 2 groups gives 6 in each.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-6",
+    "skill": "fractions",
+    "prompt": "What is one half of 14?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "7"
+      },
+      {
+        "id": "b",
+        "text": "15"
+      },
+      {
+        "id": "c",
+        "text": "8"
+      },
+      {
+        "id": "d",
+        "text": "14"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "One half means one of two equal parts. 14 shared equally into 2 groups gives 7 in each.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-7",
+    "skill": "fractions",
+    "prompt": "What is one half of 16?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "8"
+      },
+      {
+        "id": "b",
+        "text": "9"
+      },
+      {
+        "id": "c",
+        "text": "16"
+      },
+      {
+        "id": "d",
+        "text": "17"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "One half means one of two equal parts. 16 shared equally into 2 groups gives 8 in each.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-8",
+    "skill": "fractions",
+    "prompt": "What is one half of 18?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "10"
+      },
+      {
+        "id": "b",
+        "text": "18"
+      },
+      {
+        "id": "c",
+        "text": "19"
+      },
+      {
+        "id": "d",
+        "text": "9"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "One half means one of two equal parts. 18 shared equally into 2 groups gives 9 in each.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-9",
+    "skill": "fractions",
+    "prompt": "A pizza has 4 equal slices. You eat 1 slice. What fraction did you eat?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "3/4"
+      },
+      {
+        "id": "b",
+        "text": "4/4"
+      },
+      {
+        "id": "c",
+        "text": "1/2"
+      },
+      {
+        "id": "d",
+        "text": "1/4"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "You ate 1 of the 4 equal parts. That is one quarter, written 1/4.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "fractions-10",
+    "skill": "fractions",
+    "prompt": "Which fraction means the whole cake?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "4/4"
+      },
+      {
+        "id": "b",
+        "text": "1/4"
+      },
+      {
+        "id": "c",
+        "text": "3/4"
+      },
+      {
+        "id": "d",
+        "text": "1/2"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "All 4 of the 4 equal parts make one whole. That is 4/4.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-1",
+    "skill": "vocabulary",
+    "prompt": "Which word describes something very big?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Tiny"
+      },
+      {
+        "id": "b",
+        "text": "Narrow"
+      },
+      {
+        "id": "c",
+        "text": "Short"
+      },
+      {
+        "id": "d",
+        "text": "Huge"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Huge means very big, like a huge elephant.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-2",
+    "skill": "vocabulary",
+    "prompt": "Which word means a place with many trees?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Roof"
+      },
+      {
+        "id": "b",
+        "text": "Desert"
+      },
+      {
+        "id": "c",
+        "text": "Forest"
+      },
+      {
+        "id": "d",
+        "text": "Ocean"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "A forest is a large area with many trees.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-3",
+    "skill": "vocabulary",
+    "prompt": "Which word describes someone who tells the truth?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Sleepy"
+      },
+      {
+        "id": "b",
+        "text": "Noisy"
+      },
+      {
+        "id": "c",
+        "text": "Honest"
+      },
+      {
+        "id": "d",
+        "text": "Hungry"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "An honest person tells the truth.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-4",
+    "skill": "vocabulary",
+    "prompt": "Which word means to look carefully at something?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Observe"
+      },
+      {
+        "id": "b",
+        "text": "Forget"
+      },
+      {
+        "id": "c",
+        "text": "Hide"
+      },
+      {
+        "id": "d",
+        "text": "Drop"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "To observe means to watch or look carefully.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-5",
+    "skill": "vocabulary",
+    "prompt": "Which word describes a very quiet sound?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Rough"
+      },
+      {
+        "id": "b",
+        "text": "Faint"
+      },
+      {
+        "id": "c",
+        "text": "Bright"
+      },
+      {
+        "id": "d",
+        "text": "Loud"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "A faint sound is quiet and can be difficult to hear.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-6",
+    "skill": "vocabulary",
+    "prompt": "Which word means a journey to discover new things?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Window"
+      },
+      {
+        "id": "b",
+        "text": "Pillow"
+      },
+      {
+        "id": "c",
+        "text": "Adventure"
+      },
+      {
+        "id": "d",
+        "text": "Spoon"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "An adventure is an exciting experience or journey.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-7",
+    "skill": "vocabulary",
+    "prompt": "Which word describes something that breaks easily?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Strong"
+      },
+      {
+        "id": "b",
+        "text": "Heavy"
+      },
+      {
+        "id": "c",
+        "text": "Fragile"
+      },
+      {
+        "id": "d",
+        "text": "Fast"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Fragile things can break easily, so we handle them carefully.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-8",
+    "skill": "vocabulary",
+    "prompt": "Which word means to work together?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Whisper"
+      },
+      {
+        "id": "b",
+        "text": "Compete"
+      },
+      {
+        "id": "c",
+        "text": "Disappear"
+      },
+      {
+        "id": "d",
+        "text": "Cooperate"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "When we cooperate, we work together toward a shared goal.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-9",
+    "skill": "vocabulary",
+    "prompt": "Which word describes someone who wants to learn more?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Curious"
+      },
+      {
+        "id": "b",
+        "text": "Silent"
+      },
+      {
+        "id": "c",
+        "text": "Bored"
+      },
+      {
+        "id": "d",
+        "text": "Careless"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "A curious person wants to find out more and learn new things.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "vocabulary-10",
+    "skill": "vocabulary",
+    "prompt": "Which word means to make something better?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Destroy"
+      },
+      {
+        "id": "b",
+        "text": "Improve"
+      },
+      {
+        "id": "c",
+        "text": "Lose"
+      },
+      {
+        "id": "d",
+        "text": "Ignore"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "To improve something means to make it better.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-1",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "freind"
+      },
+      {
+        "id": "b",
+        "text": "friend"
+      },
+      {
+        "id": "c",
+        "text": "frind"
+      },
+      {
+        "id": "d",
+        "text": "frend"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "Friend is spelled f-r-i-e-n-d.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-2",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "becuase"
+      },
+      {
+        "id": "b",
+        "text": "becose"
+      },
+      {
+        "id": "c",
+        "text": "becaus"
+      },
+      {
+        "id": "d",
+        "text": "because"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Because is spelled b-e-c-a-u-s-e.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-3",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "schoole"
+      },
+      {
+        "id": "b",
+        "text": "scool"
+      },
+      {
+        "id": "c",
+        "text": "skool"
+      },
+      {
+        "id": "d",
+        "text": "school"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "School is spelled s-c-h-o-o-l.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-4",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "happy"
+      },
+      {
+        "id": "b",
+        "text": "happpy"
+      },
+      {
+        "id": "c",
+        "text": "happey"
+      },
+      {
+        "id": "d",
+        "text": "hapy"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "Happy is spelled h-a-p-p-y.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-5",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "animel"
+      },
+      {
+        "id": "b",
+        "text": "animul"
+      },
+      {
+        "id": "c",
+        "text": "animal"
+      },
+      {
+        "id": "d",
+        "text": "anemal"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Animal is spelled a-n-i-m-a-l.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-6",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "gardan"
+      },
+      {
+        "id": "b",
+        "text": "gaarden"
+      },
+      {
+        "id": "c",
+        "text": "garden"
+      },
+      {
+        "id": "d",
+        "text": "gardin"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Garden is spelled g-a-r-d-e-n.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-7",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "peeple"
+      },
+      {
+        "id": "b",
+        "text": "peple"
+      },
+      {
+        "id": "c",
+        "text": "people"
+      },
+      {
+        "id": "d",
+        "text": "peopel"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "People is spelled p-e-o-p-l-e.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-8",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "beutiful"
+      },
+      {
+        "id": "b",
+        "text": "beautifull"
+      },
+      {
+        "id": "c",
+        "text": "beautful"
+      },
+      {
+        "id": "d",
+        "text": "beautiful"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Beautiful is spelled b-e-a-u-t-i-f-u-l.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-9",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "diferent"
+      },
+      {
+        "id": "b",
+        "text": "diffrent"
+      },
+      {
+        "id": "c",
+        "text": "different"
+      },
+      {
+        "id": "d",
+        "text": "differant"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Different is spelled d-i-f-f-e-r-e-n-t.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "spelling-10",
+    "skill": "spelling",
+    "prompt": "Choose the correctly spelled word.",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "tomorrow"
+      },
+      {
+        "id": "b",
+        "text": "tomorow"
+      },
+      {
+        "id": "c",
+        "text": "tomarrow"
+      },
+      {
+        "id": "d",
+        "text": "tommorow"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "Tomorrow is spelled t-o-m-o-r-r-o-w.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-1",
+    "skill": "sentence-structure",
+    "prompt": "Choose the word that completes: “The cat ___ sleeping.”",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "am"
+      },
+      {
+        "id": "b",
+        "text": "is"
+      },
+      {
+        "id": "c",
+        "text": "be"
+      },
+      {
+        "id": "d",
+        "text": "are"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "We say “The cat is sleeping” because the cat is one animal.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-2",
+    "skill": "sentence-structure",
+    "prompt": "Choose the word that completes: “We ___ happy.”",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "is"
+      },
+      {
+        "id": "b",
+        "text": "am"
+      },
+      {
+        "id": "c",
+        "text": "are"
+      },
+      {
+        "id": "d",
+        "text": "be"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "We use “are” with “we”: We are happy.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-3",
+    "skill": "sentence-structure",
+    "prompt": "Which is a complete sentence?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "The dog runs."
+      },
+      {
+        "id": "b",
+        "text": "Very quickly"
+      },
+      {
+        "id": "c",
+        "text": "Under the table"
+      },
+      {
+        "id": "d",
+        "text": "A big red"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "A sentence can tell who does something and what they do. The dog runs.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-4",
+    "skill": "sentence-structure",
+    "prompt": "Choose the correct word: “She ___ a book yesterday.”",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "reads"
+      },
+      {
+        "id": "b",
+        "text": "to read"
+      },
+      {
+        "id": "c",
+        "text": "read"
+      },
+      {
+        "id": "d",
+        "text": "reading"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Yesterday tells us it already happened. We say “She read a book yesterday.”",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-5",
+    "skill": "sentence-structure",
+    "prompt": "Which sentence has its words in the right order?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Sky the birds in fly."
+      },
+      {
+        "id": "b",
+        "text": "The in sky fly birds."
+      },
+      {
+        "id": "c",
+        "text": "Birds fly in the sky."
+      },
+      {
+        "id": "d",
+        "text": "Fly birds sky the in."
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "“Birds fly in the sky” puts the subject, action, and place in a clear order.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-6",
+    "skill": "sentence-structure",
+    "prompt": "Choose the word that completes: “There ___ three apples.”",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "is"
+      },
+      {
+        "id": "b",
+        "text": "be"
+      },
+      {
+        "id": "c",
+        "text": "are"
+      },
+      {
+        "id": "d",
+        "text": "am"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Three apples is more than one, so we use “are.”",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-7",
+    "skill": "sentence-structure",
+    "prompt": "Choose the joining word: “I wore a coat ___ it was cold.”",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "but"
+      },
+      {
+        "id": "b",
+        "text": "because"
+      },
+      {
+        "id": "c",
+        "text": "or"
+      },
+      {
+        "id": "d",
+        "text": "until"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "Because tells us the reason: I wore a coat because it was cold.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-8",
+    "skill": "sentence-structure",
+    "prompt": "Choose the word that completes: “A bird can ___.”",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "flies"
+      },
+      {
+        "id": "b",
+        "text": "flew"
+      },
+      {
+        "id": "c",
+        "text": "flying"
+      },
+      {
+        "id": "d",
+        "text": "fly"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "After “can,” we use the base form: A bird can fly.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-9",
+    "skill": "sentence-structure",
+    "prompt": "Choose the word that completes: “These ___ are ripe.”",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "bananases"
+      },
+      {
+        "id": "b",
+        "text": "a banana"
+      },
+      {
+        "id": "c",
+        "text": "bananas"
+      },
+      {
+        "id": "d",
+        "text": "banana"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "These means more than one. The plural of banana is bananas.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "sentence-structure-10",
+    "skill": "sentence-structure",
+    "prompt": "Choose the correct sentence.",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "My sister and I plays together."
+      },
+      {
+        "id": "b",
+        "text": "My sister and I play together."
+      },
+      {
+        "id": "c",
+        "text": "My sister and me playing together."
+      },
+      {
+        "id": "d",
+        "text": "My sister and me plays together."
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "“My sister and I” is the subject, and we use “play” for more than one person.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-1",
+    "skill": "punctuation",
+    "prompt": "Which mark belongs at the end of “Where is my bag”?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": ","
+      },
+      {
+        "id": "b",
+        "text": "?"
+      },
+      {
+        "id": "c",
+        "text": "!"
+      },
+      {
+        "id": "d",
+        "text": "."
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "This sentence asks a question, so it ends with a question mark.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-2",
+    "skill": "punctuation",
+    "prompt": "Which sentence starts correctly?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "the Sun is warm."
+      },
+      {
+        "id": "b",
+        "text": "tHe sun is warm."
+      },
+      {
+        "id": "c",
+        "text": "the sun is warm."
+      },
+      {
+        "id": "d",
+        "text": "The sun is warm."
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "A sentence begins with a capital letter: The.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-3",
+    "skill": "punctuation",
+    "prompt": "Choose the correctly punctuated list.",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "I packed apples bread, and, water."
+      },
+      {
+        "id": "b",
+        "text": "I packed apples bread and water."
+      },
+      {
+        "id": "c",
+        "text": "I packed apples, bread, and water."
+      },
+      {
+        "id": "d",
+        "text": "I packed, apples bread and water."
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Commas separate the items in a list.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-4",
+    "skill": "punctuation",
+    "prompt": "Which mark shows excitement in “What a wonderful day”?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "!"
+      },
+      {
+        "id": "b",
+        "text": ","
+      },
+      {
+        "id": "c",
+        "text": ":"
+      },
+      {
+        "id": "d",
+        "text": "?"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "An exclamation mark can show excitement or strong feeling.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-5",
+    "skill": "punctuation",
+    "prompt": "Choose the correct spelling with an apostrophe.",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "don’t"
+      },
+      {
+        "id": "b",
+        "text": "d’ont"
+      },
+      {
+        "id": "c",
+        "text": "do’nt"
+      },
+      {
+        "id": "d",
+        "text": "dont"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "Don’t is short for do not. The apostrophe takes the place of the missing o.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-6",
+    "skill": "punctuation",
+    "prompt": "Which sentence uses a full stop correctly?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "The dog. is asleep"
+      },
+      {
+        "id": "b",
+        "text": "The dog is asleep."
+      },
+      {
+        "id": "c",
+        "text": "The. dog is asleep"
+      },
+      {
+        "id": "d",
+        "text": "The dog is. asleep"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "A full stop marks the end of a statement.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-7",
+    "skill": "punctuation",
+    "prompt": "Choose the correctly written name.",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "mAya"
+      },
+      {
+        "id": "b",
+        "text": "maYa"
+      },
+      {
+        "id": "c",
+        "text": "maya"
+      },
+      {
+        "id": "d",
+        "text": "Maya"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "People’s names begin with capital letters.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-8",
+    "skill": "punctuation",
+    "prompt": "Which word needs a capital letter in “We visited london”?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "visited"
+      },
+      {
+        "id": "b",
+        "text": "No word"
+      },
+      {
+        "id": "c",
+        "text": "We"
+      },
+      {
+        "id": "d",
+        "text": "London"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "London is the name of a city, so it begins with a capital L.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-9",
+    "skill": "punctuation",
+    "prompt": "Choose the correct contraction of “it is.”",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "i’ts"
+      },
+      {
+        "id": "b",
+        "text": "its"
+      },
+      {
+        "id": "c",
+        "text": "it’s"
+      },
+      {
+        "id": "d",
+        "text": "its’"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "It’s means it is. The apostrophe shows the missing letter.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "punctuation-10",
+    "skill": "punctuation",
+    "prompt": "Which sentence asks a question correctly?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Can you help, me"
+      },
+      {
+        "id": "b",
+        "text": "Can you help me."
+      },
+      {
+        "id": "c",
+        "text": "can you help me!"
+      },
+      {
+        "id": "d",
+        "text": "Can you help me?"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "A question begins with a capital letter and ends with a question mark.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-1",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word means the opposite of happy?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Joyful"
+      },
+      {
+        "id": "b",
+        "text": "Glad"
+      },
+      {
+        "id": "c",
+        "text": "Sad"
+      },
+      {
+        "id": "d",
+        "text": "Cheerful"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Sad is the opposite of happy. Glad, cheerful, and joyful mean something like happy.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-2",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word means the same as small?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Huge"
+      },
+      {
+        "id": "b",
+        "text": "Little"
+      },
+      {
+        "id": "c",
+        "text": "Long"
+      },
+      {
+        "id": "d",
+        "text": "Tall"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "Small and little have similar meanings. They are synonyms.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-3",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word is the opposite of hot?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Warm"
+      },
+      {
+        "id": "b",
+        "text": "Cold"
+      },
+      {
+        "id": "c",
+        "text": "Heated"
+      },
+      {
+        "id": "d",
+        "text": "Boiling"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "Cold is the opposite of hot.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-4",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word means the same as fast?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Still"
+      },
+      {
+        "id": "b",
+        "text": "Quick"
+      },
+      {
+        "id": "c",
+        "text": "Late"
+      },
+      {
+        "id": "d",
+        "text": "Slow"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "Fast and quick both describe moving at a high speed.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-5",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word is the opposite of near?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Close"
+      },
+      {
+        "id": "b",
+        "text": "Nearby"
+      },
+      {
+        "id": "c",
+        "text": "Beside"
+      },
+      {
+        "id": "d",
+        "text": "Far"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Far is the opposite of near.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-6",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word means the same as kind?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Mean"
+      },
+      {
+        "id": "b",
+        "text": "Caring"
+      },
+      {
+        "id": "c",
+        "text": "Cruel"
+      },
+      {
+        "id": "d",
+        "text": "Rude"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "A kind or caring person treats others thoughtfully.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-7",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word is the opposite of empty?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Bare"
+      },
+      {
+        "id": "b",
+        "text": "Hollow"
+      },
+      {
+        "id": "c",
+        "text": "Full"
+      },
+      {
+        "id": "d",
+        "text": "Vacant"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Full means holding as much as possible. It is the opposite of empty.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-8",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word means the same as begin?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Stop"
+      },
+      {
+        "id": "b",
+        "text": "Start"
+      },
+      {
+        "id": "c",
+        "text": "Finish"
+      },
+      {
+        "id": "d",
+        "text": "End"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "Begin and start have the same meaning.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-9",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word is the opposite of brave?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Fearless"
+      },
+      {
+        "id": "b",
+        "text": "Bold"
+      },
+      {
+        "id": "c",
+        "text": "Daring"
+      },
+      {
+        "id": "d",
+        "text": "Afraid"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "Afraid means feeling fear. It is the opposite of brave in this question.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "synonyms-opposites-10",
+    "skill": "synonyms-opposites",
+    "prompt": "Which word means the same as silent?",
+    "instruction": "Choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Loud"
+      },
+      {
+        "id": "b",
+        "text": "Chatty"
+      },
+      {
+        "id": "c",
+        "text": "Quiet"
+      },
+      {
+        "id": "d",
+        "text": "Noisy"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Silent and quiet both describe an absence of sound.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-1",
+    "skill": "reading-comprehension",
+    "prompt": "Sam planted a seed and watered it. A small plant grew. What helped the plant grow?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A blanket"
+      },
+      {
+        "id": "b",
+        "text": "A pencil"
+      },
+      {
+        "id": "c",
+        "text": "Water"
+      },
+      {
+        "id": "d",
+        "text": "A shoe"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "The story says Sam watered the seed. Water helped the plant grow.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-2",
+    "skill": "reading-comprehension",
+    "prompt": "Mia wore her boots and took an umbrella. Rain tapped on the roof. What was the weather like?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Rainy"
+      },
+      {
+        "id": "b",
+        "text": "Dry"
+      },
+      {
+        "id": "c",
+        "text": "Snowy"
+      },
+      {
+        "id": "d",
+        "text": "Sunny"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "The rain and umbrella tell us it was a rainy day.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-3",
+    "skill": "reading-comprehension",
+    "prompt": "Leo gave half his sandwich to a friend who had no lunch. How did Leo behave?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Rudely"
+      },
+      {
+        "id": "b",
+        "text": "Kindly"
+      },
+      {
+        "id": "c",
+        "text": "Angrily"
+      },
+      {
+        "id": "d",
+        "text": "Carelessly"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "Leo shared his food with someone who needed it. That was kind.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-4",
+    "skill": "reading-comprehension",
+    "prompt": "A bird carried twigs to a tree. Soon, three eggs lay in its nest. Why did the bird collect twigs?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "To eat them"
+      },
+      {
+        "id": "b",
+        "text": "To make rain"
+      },
+      {
+        "id": "c",
+        "text": "To paint the tree"
+      },
+      {
+        "id": "d",
+        "text": "To build a nest"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "The bird used the twigs to build a nest for its eggs.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-5",
+    "skill": "reading-comprehension",
+    "prompt": "Noor put on a helmet before riding her bicycle. Why did she wear a helmet?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "To carry water"
+      },
+      {
+        "id": "b",
+        "text": "To make the bike faster"
+      },
+      {
+        "id": "c",
+        "text": "To keep her feet dry"
+      },
+      {
+        "id": "d",
+        "text": "To protect her head"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "A bicycle helmet helps protect a rider’s head.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-6",
+    "skill": "reading-comprehension",
+    "prompt": "Ben could not find his red scarf. He looked under his bed and found it there. Where was the scarf?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "In the garden"
+      },
+      {
+        "id": "b",
+        "text": "On the roof"
+      },
+      {
+        "id": "c",
+        "text": "Under the bed"
+      },
+      {
+        "id": "d",
+        "text": "At school"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "The story tells us Ben found his scarf under his bed.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-7",
+    "skill": "reading-comprehension",
+    "prompt": "The class planted trees. Years later, their shade kept the playground cool. What provided the shade?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "The school bags"
+      },
+      {
+        "id": "b",
+        "text": "The trees"
+      },
+      {
+        "id": "c",
+        "text": "The pencils"
+      },
+      {
+        "id": "d",
+        "text": "The clouds of chalk"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "The trees grew and provided shade for the playground.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-8",
+    "skill": "reading-comprehension",
+    "prompt": "Ava practiced skipping every afternoon. At first she managed two jumps. Later she could do twenty. What helped her improve?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Stopping after one try"
+      },
+      {
+        "id": "b",
+        "text": "Never jumping"
+      },
+      {
+        "id": "c",
+        "text": "Regular practice"
+      },
+      {
+        "id": "d",
+        "text": "Hiding the rope"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Practicing regularly helped Ava learn and improve.",
+    "difficulty": "growing",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-9",
+    "skill": "reading-comprehension",
+    "prompt": "Eli heard a kitten meowing behind a gate. He asked a grown-up to help. What did Eli hear?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A bell"
+      },
+      {
+        "id": "b",
+        "text": "A dog"
+      },
+      {
+        "id": "c",
+        "text": "A train"
+      },
+      {
+        "id": "d",
+        "text": "A kitten"
+      }
+    ],
+    "correct_choice_id": "d",
+    "explanation": "The story says Eli heard a kitten meowing.",
+    "difficulty": "challenge",
+    "locale": "en"
+  },
+  {
+    "seed_key": "reading-comprehension-10",
+    "skill": "reading-comprehension",
+    "prompt": "The sun was setting. Birds returned to their nests and streetlights came on. What time of day was it?",
+    "instruction": "Read carefully, then choose the best answer.",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Midnight"
+      },
+      {
+        "id": "b",
+        "text": "Noon"
+      },
+      {
+        "id": "c",
+        "text": "Evening"
+      },
+      {
+        "id": "d",
+        "text": "Early morning"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "Sunset and streetlights coming on tell us it was evening.",
+    "difficulty": "challenge",
+    "locale": "en"
+  }
+]

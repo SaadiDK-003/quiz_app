@@ -1,0 +1,21 @@
+{$SITE_DOMAIN:localhost} {
+ encode zstd gzip
+ header {
+  X-Content-Type-Options nosniff
+  Referrer-Policy no-referrer
+  Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  X-Frame-Options DENY
+ }
+ handle /storage/* {
+  root * /srv
+  file_server
+ }
+ @laravel path /api/* /sanctum/* /up
+ handle @laravel {
+  root * /var/www/html/public
+  php_fastcgi api:9000
+ }
+ handle {
+  reverse_proxy web:3000
+ }
+}
