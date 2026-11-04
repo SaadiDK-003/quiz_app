@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['adult' => AdultMode::class, 'learner' => LearnerMode::class, 'admin' => AdminOnly::class]);
         $middleware->trustProxies(at: '*');
-        $middleware->web(append: [ApiHeaders::class]);
+        $middleware->web(prepend: [ApiHeaders::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(fn (Request $request) => $request->is('api/*') || $request->expectsJson());
