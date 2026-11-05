@@ -124,6 +124,8 @@ Quiz runs under Compose project `webostics_quiz`. Only its gateway is bound to `
 
 Nginx changes are limited to `/etc/nginx/conf.d/webostics-quiz.conf`. Configuration is checked before a graceful reload, and the prior Quiz configuration is restored on failure. Certbot obtains certificates through a dedicated webroot without stopping Nginx, retaining its normal interactive account/terms prompts. A matching valid certificate and an active standard Certbot systemd timer are reused. If no active standard timer is detected, a Quiz-only timer is added without changing existing cron jobs. Any added reload hook acts only on the Quiz certificate.
 
+Nginx reloads are asynchronous. The installer waits until the Quiz virtual host serves the exact challenge token locally, then verifies the public challenge before calling Certbot. HTTPS checks also wait for the new workers. Temporary responses from the previous default site during reload no longer abort setup; persistent local routing failures and public DNS/routing failures are reported separately.
+
 Updates build commit-tagged images before placing **only Quiz** in maintenance mode. The installer pauses its worker, backs up its database and media, applies migrations explicitly, checks health, configures HTTPS, and resumes the worker. The initial question bank remains draft; administrator creation is interactive and optional. If failure occurs after migrations begin, Quiz stays in maintenance mode; the script does not automatically reverse migrations or restore the database. Correct the logged issue and rerun the installer. The last successful deployment and failed candidate configurations remain available under the private deployment directory.
 
 The API service explicitly starts `php-fpm`; overriding a Compose entrypoint alone discards the image's default command. If an earlier installation stopped at API readiness, rerun the corrected installer. It uses a one-off Artisan command to enter maintenance even when the old API container is stopped or restarting, and preserves existing database/media volumes and production secrets. Startup failures now record the container state and recent health/container output in the private deployment log. Do not paste `environment.json` or the full generated Compose configuration into support messages because they contain credentials.
@@ -132,10 +134,17 @@ The API service explicitly starts `php-fpm`; overriding a Compose entrypoint alo
 # Re-run to update to the latest master; this does not run application test suites.
 sudo bash /opt/webostics-quiz/bin/deploy-vps.sh
 
+# Retry an incomplete deployment using its saved commit, images, and SMTP settings.
+# Use the corrected installer from master or a downloaded standalone copy.
+# No GitHub login, fetch, image build, or package installation is performed.
+sudo bash scripts/deploy-vps.sh --resume
+
 sudo bash /opt/webostics-quiz/bin/deploy-vps.sh --status
 sudo bash /opt/webostics-quiz/bin/deploy-vps.sh --logs
 sudo bash /opt/webostics-quiz/bin/deploy-vps.sh --backup
 ```
+
+`--resume` requires an incomplete deployment, its matching production keys, all three existing Quiz volumes, and its cached images. It stops if any are missing rather than creating replacement storage. It backs up the existing database/media, retries migrations explicitly, then completes HTTPS, worker startup, and scheduled backups. Use the normal installer for a new release or to change SMTP with `--env-file`.
 
 Deployment logs and paired backups are under `/opt/webostics-quiz/shared/`, with restricted permissions. Daily backups run at **02:30 UTC / 07:30 Pakistan time** and retain the latest seven complete pairs (`.dump`, `.media.tar.gz`, and `.complete`). Copy them to separate storage for protection against VPS loss, and securely back up `shared/environment.json` separately to retain production keys and mail settings. A `.complete` marker identifies a successfully created pair. Status output includes the active configuration path; use it with `docker compose --env-file /dev/null -p webostics_quiz -f PATH` for manual administration or recovery. Never use `down -v` or automatic database rollback as an update step.
 

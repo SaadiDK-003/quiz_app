@@ -7,6 +7,7 @@ usage() {
 Little Quest · Hostinger VPS deployer
 
   sudo bash deploy-vps.sh [--env-file /root/quiz.env]
+  sudo bash deploy-vps.sh --resume
   sudo bash deploy-vps.sh --check
   sudo bash deploy-vps.sh --status
   sudo bash deploy-vps.sh --logs
@@ -16,6 +17,7 @@ Default: install/update quiz.webostics.com from master.
 Existing checkout: /var/www/html/quiz_app
 Private deployment data: /opt/webostics-quiz
 --check is read-only: it does not install packages, fetch code, or change services.
+--resume finishes the saved incomplete deployment without fetching or rebuilding.
 GitHub credentials are optional for the public repository; use a token, not your
 GitHub account password. No application test suites are run by this installer.
 HELP
@@ -30,7 +32,7 @@ message() {
 }
 
 fail() { message ERROR "$*" >&2; return 1; }
-step() { STAGE=$((STAGE + 1)); message INFO "${STAGE}/10 · $*"; }
+step() { STAGE=$((STAGE + 1)); message INFO "${STAGE}/${TOTAL_STAGES:-10} · $*"; }
 
 run() {
   local label=$1 status=0 frame=0
@@ -781,8 +783,28 @@ apply_nginx() {
   run 'Gracefully reload Nginx; keep existing connections' systemctl reload nginx
 }
 
+wait_http() {
+  local label=$1 url=$2 expected=$3 attempts=$4 status=000 i
+  shift 4
+  message INFO "Waiting for $label…"
+  for ((i = 1; i <= attempts; i++)); do
+    if status=$(curl --noproxy '*' -sS --connect-timeout 3 --max-time 5 \
+      --output "$RUN_DIR/http-response" --write-out '%{http_code}' "$@" "$url" 2> "$RUN_DIR/http-error"); then
+      if [[ $status == 200 ]] && { [[ -z $expected ]] || [[ $(cat "$RUN_DIR/http-response") == "$expected" ]]; }; then
+        message OK "$label is ready."
+        return 0
+      fi
+    fi
+    printf '[HTTP] %s attempt %s/%s: status=%s\n' "$label" "$i" "$attempts" "$status" >> "$LOG_FILE"
+    cat "$RUN_DIR/http-error" >> "$LOG_FILE"
+    if ((i < attempts)); then sleep 1; fi
+  done
+  message WARN "$label did not become ready (last HTTP status: $status). See $LOG_FILE."
+  return 1
+}
+
 ensure_https() {
-  local cert=/etc/letsencrypt/live/$DOMAIN/fullchain.pem email challenge token response
+  local cert=/etc/letsencrypt/live/$DOMAIN/fullchain.pem email challenge token url
   if [[ -f $cert ]] && openssl x509 -in "$cert" -noout -checkend 604800 >/dev/null 2>&1 && \
     openssl x509 -in "$cert" -noout -checkhost "$DOMAIN" >/dev/null 2>&1; then
     message OK 'Reusing the valid certificate for the Quiz domain.'
@@ -793,14 +815,23 @@ ensure_https() {
       [[ $domains == "$DOMAIN" ]] || fail 'The existing certificate covers other domains. Renew it through its current management process; its domain list will not be changed.'
     fi
     getent ahosts "$DOMAIN" >/dev/null || fail "DNS does not resolve for $DOMAIN."
-    write_host_nginx bootstrap
-    apply_nginx
     token=$(openssl rand -hex 16)
     challenge=$ROOT/acme/.well-known/acme-challenge/quiz-$token
     printf '%s' "$token" > "$challenge"
     chmod 644 "$challenge"
-    response=$(curl -fsS --connect-timeout 10 --max-time 20 "http://$DOMAIN/.well-known/acme-challenge/quiz-$token") || fail 'HTTP challenge probe failed. Check DNS, IPv6 records, proxy settings, and inbound port 80; no firewall is changed.'
-    [[ $response == "$token" ]] || fail 'The domain does not serve the Quiz ACME webroot on this VPS.'
+    write_host_nginx bootstrap
+    apply_nginx
+    url=http://$DOMAIN/.well-known/acme-challenge/quiz-$token
+    # Reload returns before new Nginx workers necessarily accept requests. Confirm
+    # this virtual host locally before checking DNS/public routing or calling Certbot.
+    if ! wait_http 'Quiz local HTTP challenge' "$url" "$token" 30 --resolve "$DOMAIN:80:127.0.0.1"; then
+      rm -f -- "$challenge"
+      fail 'Quiz HTTP routing did not become ready on this VPS. Check the private log and Nginx error log; other sites are unchanged.'
+    fi
+    if ! wait_http 'Quiz public HTTP challenge' "$url" "$token" 5; then
+      rm -f -- "$challenge"
+      fail 'Quiz works locally but its public challenge failed. Check DNS, IPv6 records, proxy settings, and inbound port 80; no firewall is changed.'
+    fi
     rm -f -- "$challenge"
     prompt email 'SSL renewal contact email'
     [[ $email == *@*.* ]] || fail 'A valid SSL contact email is required.'
@@ -810,8 +841,8 @@ ensure_https() {
   fi
   write_host_nginx tls
   apply_nginx
-  curl -fsS --max-time 15 --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/up" >/dev/null
-  curl -fsS --max-time 15 --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" >/dev/null
+  wait_http 'Quiz HTTPS health' "https://$DOMAIN/up" '' 30 --resolve "$DOMAIN:443:127.0.0.1"
+  wait_http 'Quiz HTTPS home' "https://$DOMAIN/" '' 5 --resolve "$DOMAIN:443:127.0.0.1"
   message OK "HTTPS is serving $DOMAIN."
 }
 
@@ -911,7 +942,7 @@ PY
 current_config() {
   check_workdir_ownership
   [[ -f $ROOT/.managed-by-webostics-quiz && ! -L $ROOT ]] || fail 'No managed Quiz deployment was found.'
-  local state=$ROOT/shared/current.json
+  local state=${1:-$ROOT/shared/current.json}
   if [[ ! -f $state && -f $ROOT/shared/pending.json ]]; then
     state=$ROOT/shared/pending.json
     message WARN 'Showing the last incomplete Quiz deployment; consult its private log before retrying.'
@@ -944,7 +975,55 @@ setup_workdir() {
   fi
   # Bounded, Quiz-only diagnostic log retention.
   find "$ROOT/shared/logs" -regextype posix-extended -maxdepth 1 -type f \
-    -regex '.*/[0-9]{8}T[0-9]{6}Z-(deploy|backup)-[0-9]+\.log' -mtime +30 -delete
+    -regex '.*/[0-9]{8}T[0-9]{6}Z-(deploy|resume|backup)-[0-9]+\.log' -mtime +30 -delete
+}
+
+prepare_resume() {
+  TOTAL_STAGES=7
+  step 'Check the saved incomplete Quiz deployment'
+  require_ubuntu
+  check_workdir_ownership
+  [[ -f $ROOT/shared/pending.json && -f $ROOT/shared/environment.json ]] || fail 'No incomplete Quiz deployment with saved secrets was found. Run the normal installer.'
+  setup_workdir
+  local tool volume image
+  for tool in docker nginx certbot curl python3 openssl ss flock; do
+    command -v "$tool" >/dev/null || fail "Missing $tool. Run the normal installer to check dependencies."
+  done
+  docker info >/dev/null 2>&1 || fail 'Docker is unavailable; it will not be restarted.'
+  check_local_docker
+  check_ports_and_nginx
+  check_docker_ownership
+  current_config "$ROOT/shared/pending.json"
+  COMMIT=$(python3 - "$OLD_CONFIG" "$ROOT/shared/environment.json" "$RUN_DIR/mail.json" <<'PY'
+import json, pathlib, re, sys
+config_path, saved_path, mail_path = map(pathlib.Path, sys.argv[1:])
+config = json.loads(config_path.read_text())
+image = config["services"]["api"]["image"]
+match = re.fullmatch(r"webostics-quiz-api:([0-9a-f]{40})", image)
+if not match or config["services"]["web"]["image"] != "webostics-quiz-web:" + match[1]:
+    sys.exit("Saved Quiz image tags are invalid. Run the normal installer.")
+environment_path = config_path.parent / "environment.json"
+if environment_path.is_symlink():
+    sys.exit("Refusing a symlink at the saved Quiz environment.")
+environment = json.loads(environment_path.read_text())
+saved = json.loads(saved_path.read_text())
+if any(not saved.get(key) or environment.get(key) != saved[key] for key in ("APP_KEY", "DB_PASSWORD")):
+    sys.exit("Saved production keys do not match the incomplete deployment. Restore the matching keys before proceeding.")
+mail_path.write_text(json.dumps({key: value for key, value in environment.items() if key.startswith("MAIL_")}))
+mail_path.chmod(0o600)
+print(match[1])
+PY
+  )
+  for image in "webostics-quiz-api:$COMMIT" "webostics-quiz-web:$COMMIT" postgres:18 nginx:stable-alpine; do
+    docker image inspect "$image" >/dev/null 2>&1 || fail "Saved image $image is missing. Run the normal installer to rebuild or pull it."
+  done
+  for volume in database media runtime; do
+    docker volume inspect "${PROJECT}_$volume" >/dev/null 2>&1 || fail "Quiz $volume storage is missing. Restore it before resuming; no empty replacement will be created."
+  done
+  if [[ -f $ROOT/shared/current.json ]]; then FIRST_DEPLOY=0; fi
+  if [[ -f $NGINX_FILE ]]; then cp "$NGINX_FILE" "$RUN_DIR/nginx.before"; fi
+  step 'Reuse saved images and production settings; skip Git and builds'
+  message OK "Resuming commit ${COMMIT:0:12}. Database and media will be backed up before retrying migrations."
 }
 
 main() {
@@ -959,7 +1038,7 @@ main() {
   BUILDER=webostics-quiz-builder
   NGINX_FILE=/etc/nginx/conf.d/webostics-quiz.conf
   MODE=deploy ENV_SOURCE='' LOG_FILE='' RUN_DIR='' TASK_PID='' OLD_CONFIG='' CANDIDATE_CONFIG=''
-  STAGE=0 MIGRATION_STARTED=0 QUIESCED=0 NGINX_CHANGED=0 ENABLE_RENEW=0 FIRST_DEPLOY=1 BUILDER_ACTIVE=0
+  STAGE=0 TOTAL_STAGES=10 MIGRATION_STARTED=0 QUIESCED=0 NGINX_CHANGED=0 ENABLE_RENEW=0 FIRST_DEPLOY=1 BUILDER_ACTIVE=0
   C_BLUE='' C_GREEN='' C_YELLOW='' C_RED='' C_RESET=''
   if [[ -t 1 && -z ${NO_COLOR:-} && ${TERM:-dumb} != dumb ]]; then
     C_BLUE=$'\033[1;36m'; C_GREEN=$'\033[1;32m'; C_YELLOW=$'\033[1;33m'; C_RED=$'\033[1;31m'; C_RESET=$'\033[0m'
@@ -967,7 +1046,7 @@ main() {
   local selected_mode=0
   while (($#)); do
     case $1 in
-      --check|--status|--logs|--backup)
+      --check|--status|--logs|--backup|--resume)
         ((selected_mode == 0)) || fail 'Select only one operation.'
         MODE=${1#--}; selected_mode=1; shift ;;
       --env-file) (($# >= 2)) || fail '--env-file requires a path.'; ENV_SOURCE=$2; shift 2 ;;
@@ -980,8 +1059,9 @@ main() {
     ENV_SOURCE=$(realpath "$ENV_SOURCE")
   fi
   ((EUID == 0)) || fail 'Run with sudo or as root. Use --help for commands.'
-  if [[ $MODE == deploy ]]; then
-    if ! ( : < /dev/tty ) 2>/dev/null; then fail 'Deployment requires an interactive terminal for GitHub, SMTP, and Certbot prompts.'; fi
+  if [[ $MODE == resume && -n $ENV_SOURCE ]]; then fail '--resume reuses saved settings. Use the normal installer with --env-file to change SMTP.'; fi
+  if [[ $MODE == deploy || $MODE == resume ]]; then
+    if ! ( : < /dev/tty ) 2>/dev/null; then fail 'Deployment requires an interactive terminal for setup and Certbot prompts.'; fi
   fi
   trap cleanup EXIT
   trap 'on_error $? $LINENO' ERR
@@ -1030,28 +1110,32 @@ main() {
     backup_quiz "$OLD_CONFIG"
     return 0
   fi
-  step 'Preflight and ownership checks'
-  require_ubuntu
-  check_resources
-  if command -v git >/dev/null; then check_checkout; fi
-  setup_workdir
-  step 'Install missing dependencies; preserve existing infrastructure'
-  check_ports_and_nginx
-  install_dependencies
-  check_ports_and_nginx
-  check_docker_ownership
-  check_resources
-  select_port
-  message OK "Quiz ingress: 127.0.0.1:$PORT; other application ports remain allocated to their owners."
-  if [[ -f $NGINX_FILE ]]; then cp "$NGINX_FILE" "$RUN_DIR/nginx.before"; fi
-  if [[ -f $ROOT/shared/current.json ]]; then FIRST_DEPLOY=0; fi
-  if [[ -f $ROOT/shared/current.json || -f $ROOT/shared/pending.json ]]; then current_config; fi
-  step 'Update the existing master checkout'
-  fetch_checkout
-  step 'Build isolated, commit-tagged production images'
-  build_images
-  step 'Prepare private production configuration'
-  prepare_environment
+  if [[ $MODE == resume ]]; then
+    prepare_resume
+  else
+    step 'Preflight and ownership checks'
+    require_ubuntu
+    check_resources
+    if command -v git >/dev/null; then check_checkout; fi
+    setup_workdir
+    step 'Install missing dependencies; preserve existing infrastructure'
+    check_ports_and_nginx
+    install_dependencies
+    check_ports_and_nginx
+    check_docker_ownership
+    check_resources
+    select_port
+    message OK "Quiz ingress: 127.0.0.1:$PORT; other application ports remain allocated to their owners."
+    if [[ -f $NGINX_FILE ]]; then cp "$NGINX_FILE" "$RUN_DIR/nginx.before"; fi
+    if [[ -f $ROOT/shared/current.json ]]; then FIRST_DEPLOY=0; fi
+    if [[ -f $ROOT/shared/current.json || -f $ROOT/shared/pending.json ]]; then current_config; fi
+    step 'Update the existing master checkout'
+    fetch_checkout
+    step 'Build isolated, commit-tagged production images'
+    build_images
+    step 'Prepare private production configuration'
+    prepare_environment
+  fi
   # Builds can take several minutes; recheck the allocation before creating containers.
   select_port
   DEPLOY_DIR=$(mktemp -d "$ROOT/shared/deployments/$(date -u +%Y%m%dT%H%M%SZ)-${COMMIT:0:12}.XXXXXX")
@@ -1064,7 +1148,9 @@ path = pathlib.Path(sys.argv[1])
 path.write_text(json.dumps({"config": sys.argv[2]}) + "\n")
 path.chmod(0o600)
 PY
-  run 'Pull only Quiz infrastructure images' compose "$CANDIDATE_CONFIG" --profile tools pull database gateway backup
+  if [[ $MODE != resume ]]; then
+    run 'Pull only Quiz infrastructure images' compose "$CANDIDATE_CONFIG" --profile tools pull database gateway backup
+  fi
   step 'Back up, migrate, and start only Quiz'
   activate_application
   step 'Configure the Quiz virtual host and HTTPS'
