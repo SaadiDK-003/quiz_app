@@ -444,10 +444,11 @@ PHP
       "$API_IMAGE" /input/parse-env.php
     rm -f -- "$RUN_DIR/source.env"
   elif [[ ! -f $ROOT/shared/environment.json ]]; then
-    local host port scheme username password sender name
+    local host port scheme scheme_default=smtp username password sender name
     prompt host 'SMTP host'
     prompt port 'SMTP port' 587
-    prompt scheme 'SMTP scheme (smtp for STARTTLS, smtps for implicit TLS)' smtp
+    if [[ $port =~ ^[[:space:]]*465[[:space:]]*$ ]]; then scheme_default=smtps; fi
+    prompt scheme 'SMTP scheme (smtp for STARTTLS, smtps for implicit TLS)' "$scheme_default"
     prompt username 'SMTP username (empty if not required)'
     prompt_secret password 'SMTP password (hidden)'
     prompt sender 'Sender email'
@@ -560,8 +561,12 @@ try:
     assert 1 <= mail_port <= 65535
 except (ValueError, AssertionError):
     sys.exit("MAIL_PORT must be between 1 and 65535.")
+env["MAIL_PORT"] = str(mail_port)
 if env.get("MAIL_SCHEME") in (None, "", "null"):
     env["MAIL_SCHEME"] = "smtps" if mail_port == 465 else "smtp"
+if mail_port == 465 and env.get("MAIL_SCHEME") == "smtp":
+    print("[WARN]  SMTP port 465 uses implicit TLS; selecting MAIL_SCHEME=smtps.")
+    env["MAIL_SCHEME"] = "smtps"
 if env["MAIL_SCHEME"] not in ("smtp", "smtps"):
     sys.exit("MAIL_SCHEME must be smtp or smtps.")
 env.setdefault("APP_KEY", "base64:" + base64.b64encode(secrets.token_bytes(32)).decode())
@@ -577,7 +582,7 @@ def literal(values):
     return {k: str(v).replace("$", "$$") for k, v in values.items() if v is not None}
 labels = {"org.webostics.quiz.owner": project}
 logging = {"driver": "json-file", "options": {"max-size": "10m", "max-file": "3"}}
-api = {"image": "webostics-quiz-api:" + commit, "entrypoint": ["docker-php-entrypoint"],
+api = {"image": "webostics-quiz-api:" + commit, "entrypoint": ["docker-php-entrypoint"], "command": ["php-fpm"],
        "environment": literal(env), "restart": "unless-stopped", "labels": labels, "logging": logging,
        "mem_limit": "512m", "cpus": 0.5,
        "volumes": ["media:/var/www/html/storage/app/public", "runtime:/var/www/html/storage/framework",
@@ -633,26 +638,44 @@ backup_quiz() {
   run 'Back up Quiz database and media (retain seven complete pairs)' compose "$config" --profile tools run --rm --no-deps backup
 }
 
+service_diagnostics() {
+  local config=$1 service=$2 id=$3 summary
+  summary=$(docker inspect --format 'status={{.State.Status}} exit={{.State.ExitCode}} oom={{.State.OOMKilled}} restarts={{.RestartCount}}' "$id")
+  message WARN "Quiz $service: $summary"
+  if [[ -n ${LOG_FILE:-} ]]; then
+    printf '\n--- Quiz %s startup diagnostics ---\n' "$service" >> "$LOG_FILE"
+    docker inspect --format '{{if .State.Health}}{{range .State.Health.Log}}{{.ExitCode}} {{.Output}}{{end}}{{end}}' "$id" >> "$LOG_FILE" 2>&1 || true
+    compose "$config" logs --no-color --tail 60 "$service" >> "$LOG_FILE" 2>&1 || true
+  fi
+}
+
 wait_service() {
-  local config=$1 service=$2 id state i
-  id=$(compose "$config" ps -q "$service")
+  local config=$1 service=$2 id state lifecycle restarts i
+  id=$(compose "$config" ps --all -q "$service")
   [[ -n $id ]] || fail "Quiz $service container is missing."
   message INFO "Waiting for Quiz $service readiness…"
   for i in {1..90}; do
     state=$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$id")
     if [[ $state == healthy || $state == running ]]; then message OK "Quiz $service is ready."; return 0; fi
-    [[ $state != exited && $state != dead ]] || fail "Quiz $service exited. See the private deployment log."
+    lifecycle=$(docker inspect --format '{{.State.Status}}' "$id")
+    restarts=$(docker inspect --format '{{.RestartCount}}' "$id")
+    if [[ $lifecycle == exited || $lifecycle == dead || $state == unhealthy ]] || \
+      { [[ $lifecycle == restarting ]] && ((restarts >= 3)); }; then
+      service_diagnostics "$config" "$service" "$id"
+      fail "Quiz $service failed startup. Container and health-check details are in the private deployment log."
+    fi
     sleep 2
   done
+  service_diagnostics "$config" "$service" "$id"
   fail "Quiz $service did not become healthy."
 }
 
 activate_application() {
   if [[ -n $OLD_CONFIG ]]; then
     local old_api
-    old_api=$(compose "$OLD_CONFIG" ps -q api)
+    old_api=$(compose "$OLD_CONFIG" ps --all -q api)
     if [[ -n $old_api ]]; then
-      run 'Pause only Quiz for the update' compose "$OLD_CONFIG" exec -T api php artisan down
+      run 'Pause only Quiz for the update' compose "$OLD_CONFIG" run --rm --no-deps api php artisan down
       QUIESCED=1
       run 'Pause Quiz queue worker' compose "$OLD_CONFIG" stop worker
     fi
