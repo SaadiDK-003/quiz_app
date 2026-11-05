@@ -9,9 +9,15 @@ import {
   Plus,
   Save,
   Upload,
+  Download,
   X,
 } from "lucide-react";
-import type { AdminQuestion, Skill, Subject } from "@little-quest/api-client";
+import type {
+  AdminQuestion,
+  QuestionImportResult,
+  Skill,
+  Subject,
+} from "@little-quest/api-client";
 import { api, Dialog, type Notice } from "./quiz-app";
 interface Meta {
   subjects: Subject[];
@@ -29,6 +35,10 @@ export function AdminPanel({
     [meta, setMeta] = useState<Meta | null>(null),
     [filter, setFilter] = useState("all"),
     [skill, setSkill] = useState("all"),
+    [difficulty, setDifficulty] = useState("all"),
+    [importOpen, setImportOpen] = useState(false),
+    [importing, setImporting] = useState(false),
+    [importError, setImportError] = useState(""),
     [editing, setEditing] = useState<AdminQuestion | null>(null),
     [preview, setPreview] = useState<AdminQuestion | null>(null),
     [metadata, setMetadata] = useState(false),
@@ -78,10 +88,34 @@ export function AdminPanel({
       version: 0,
     });
   }
+  async function importQuestions() {
+    if (importing) return;
+    setImporting(true);
+    setImportError("");
+    try {
+      const result = await api.post<QuestionImportResult>(
+        "/admin/questions/import",
+      );
+      await load();
+      setImportOpen(false);
+      notify(
+        `${result.created} new draft questions added. ${result.skipped} existing questions kept.`,
+      );
+    } catch (e) {
+      setImportError(
+        e instanceof Error
+          ? e.message
+          : "Questions could not be imported. Please try again.",
+      );
+    } finally {
+      setImporting(false);
+    }
+  }
   const shown = questions.filter(
     (q) =>
       (filter === "all" || q.status === filter) &&
-      (skill === "all" || q.skill_id === Number(skill)),
+      (skill === "all" || q.skill_id === Number(skill)) &&
+      (difficulty === "all" || q.difficulty === difficulty),
   );
   return (
     <>
@@ -95,6 +129,15 @@ export function AdminPanel({
           </p>
         </div>
         <div className="button-group">
+          <button
+            className="button secondary"
+            onClick={() => {
+              setImportError("");
+              setImportOpen(true);
+            }}
+          >
+            <Download size={17} /> Import bundled questions
+          </button>
           <button className="button secondary" onClick={() => setInvite(true)}>
             <Mail size={17} />
             Invite family
@@ -134,7 +177,24 @@ export function AdminPanel({
             ))}
           </select>
         </label>
+        <label>
+          Difficulty
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+          >
+            <option value="all">All difficulties</option>
+            {["starter", "growing", "challenge"].map((level) => (
+              <option key={level} value={level}>
+                {level[0].toUpperCase() + level.slice(1)}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
+      <p className="muted" aria-live="polite">
+        Showing {shown.length} of {questions.length} questions
+      </p>
       <div className="question-list">
         {shown.map((q) => (
           <div className="question-row" key={q.id}>
@@ -142,7 +202,9 @@ export function AdminPanel({
             <div>
               <strong>{q.prompt}</strong>
               <small>
-                {q.skill_name} · Revision {q.version}
+                {q.skill_name} ·{" "}
+                {q.difficulty[0].toUpperCase() + q.difficulty.slice(1)} ·
+                Revision {q.version}
               </small>
             </div>
             <span className={`status-tag ${q.status}`}>{q.status}</span>
@@ -166,6 +228,44 @@ export function AdminPanel({
           <p className="muted">No questions match these filters.</p>
         )}
       </div>
+      {importOpen && (
+        <Dialog
+          title="Add new questions to your library?"
+          onClose={() => {
+            if (!importing) setImportOpen(false);
+          }}
+        >
+          <p>
+            Add missing questions from the bundled Maths and English bank.
+            Existing questions, edits, and review decisions will be kept.
+          </p>
+          <p>
+            New questions are drafts. Review the answers and explanations, add
+            narration, and complete the review checks before publishing.
+          </p>
+          {importError && (
+            <p className="form-error" role="alert">
+              {importError}
+            </p>
+          )}
+          <div className="button-group">
+            <button
+              className="button secondary"
+              disabled={importing}
+              onClick={() => setImportOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="button primary"
+              disabled={importing}
+              onClick={importQuestions}
+            >
+              {importing ? "Adding questions…" : "Import draft questions"}
+            </button>
+          </div>
+        </Dialog>
+      )}
       {editing && meta && (
         <QuestionEditor
           question={editing}

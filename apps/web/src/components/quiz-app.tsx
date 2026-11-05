@@ -37,7 +37,14 @@ import {
   type Skill,
   type Subject,
 } from "@little-quest/api-client";
-import { demoCatalog, demoQuestions, englishDemo } from "@/lib/demo";
+import { demoCatalog } from "@/lib/demo";
+import {
+  emptyDemo,
+  restoreDemo,
+  startDemo,
+  answerDemo,
+  nextDemo,
+} from "@/lib/demo-state";
 import { Fox, MathWorld, EnglishWorld, DiscoveryWorld } from "./illustrations";
 import { AuthDialog, ParentPanel } from "./parent-panel";
 export const api = createClient();
@@ -54,8 +61,8 @@ type Destination = "home" | "explore" | "stickers" | "parent" | "picker";
 export default function QuizApp() {
   const [session, setSession] = useState<Session | null>(null),
     [catalog, setCatalog] = useState<Subject[]>(demoCatalog),
-    [progress, setProgress] = useState<Progress>(emptyProgress),
-    [attempt, setAttempt] = useState<Attempt | null>(null),
+    [liveProgress, setLiveProgress] = useState<Progress>(emptyProgress),
+    [liveAttempt, setLiveAttempt] = useState<Attempt | null>(null),
     [view, setView] = useState("home"),
     [subject, setSubject] = useState<number | null>(null),
     [auth, setAuth] = useState<string | null>(null),
@@ -65,7 +72,7 @@ export default function QuizApp() {
     [picker, setPicker] = useState(false),
     [selected, setSelected] = useState<string | null>(null),
     [online, setOnline] = useState(true),
-    [demoAvatar, setDemoAvatar] = useState("fox"),
+    [demoState, setDemoState] = useState(() => emptyDemo(emptyProgress)),
     [demoHydrated, setDemoHydrated] = useState(false);
   const [leaveDestination, setLeaveDestination] = useState<Destination | null>(
     null,
@@ -84,13 +91,23 @@ export default function QuizApp() {
     noticeTimer.current = setTimeout(() => setNotice(""), 6500);
   }, []);
   const demo = !session,
+    attempt = demo ? demoState.attempt : liveAttempt,
+    progress = demo ? demoState.progress : liveProgress,
+    demoAvatar = demoState.avatar,
     child = session?.child,
     nickname = child?.nickname || "explorer";
+  const setDemoAvatar = (avatar: string) =>
+    setDemoState((state) => ({ ...state, avatar }));
+  const clearAdventure = () => {
+    if (demo)
+      setDemoState((state) => ({ ...state, attempt: null, sequence: [] }));
+    else setLiveAttempt(null);
+  };
   const refresh = useCallback(async (s: Session) => {
     setSession(s);
     if (s.mode === "adult") {
-      setProgress(emptyProgress);
-      setAttempt(null);
+      setLiveProgress(emptyProgress);
+      setLiveAttempt(null);
     }
     if (!s.user.email_verified_at) {
       setView("parent");
@@ -103,8 +120,8 @@ export default function QuizApp() {
         api.get<Progress>(`/children/${s.child.id}/progress`),
         api.get<Attempt | null>("/attempts/active"),
       ]);
-      setProgress(p);
-      setAttempt(a);
+      setLiveProgress(p);
+      setLiveAttempt(a);
       setView("home");
     } else setView("parent");
   }, []);
@@ -120,13 +137,9 @@ export default function QuizApp() {
     if (params.has("verified"))
       notify("Email verified. Welcome to your next adventure!");
     try {
-      const saved = localStorage.getItem("little-quest-demo");
-      if (saved) {
-        const d = JSON.parse(saved);
-        setAttempt(d.attempt || null);
-        setProgress(d.progress || emptyProgress);
-        setDemoAvatar(d.avatar || "fox");
-      }
+      setDemoState(
+        restoreDemo(localStorage.getItem("little-quest-demo"), emptyProgress),
+      );
     } catch {}
     setDemoHydrated(true);
     api
@@ -148,12 +161,12 @@ export default function QuizApp() {
     };
   }, [refresh, notify]);
   useEffect(() => {
-    if (demo && demoHydrated)
-      localStorage.setItem(
-        "little-quest-demo",
-        JSON.stringify({ attempt, progress, avatar: demoAvatar }),
-      );
-  }, [attempt, progress, demo, demoAvatar, demoHydrated]);
+    if (demo && demoHydrated) {
+      try {
+        localStorage.setItem("little-quest-demo", JSON.stringify(demoState));
+      } catch {}
+    }
+  }, [demoState, demo, demoHydrated]);
   useEffect(() => {
     setSelected(attempt?.feedback?.selected_choice_id || null);
     audioRef.current?.pause();
@@ -179,7 +192,7 @@ export default function QuizApp() {
       void api
         .get<Attempt | null>("/attempts/active")
         .then((current) => {
-          setAttempt(current);
+          setLiveAttempt(current);
           setLeaveDestination(null);
           setSwitchTarget(null);
           if (!current) setView("home");
@@ -188,8 +201,8 @@ export default function QuizApp() {
     }
     if (e instanceof ApiError && e.status === 401 && session) {
       setSession(null);
-      setProgress(emptyProgress);
-      setAttempt(null);
+      setLiveProgress(emptyProgress);
+      setLiveAttempt(null);
       setLeaveDestination(null);
       setSwitchTarget(null);
       setAuth("login");
@@ -259,7 +272,7 @@ export default function QuizApp() {
         (!skill || skill.id === attempt.skill_id)
       ) {
         if (!demo)
-          setAttempt(await api.get<Attempt>(`/attempts/${attempt.id}`));
+          setLiveAttempt(await api.get<Attempt>(`/attempts/${attempt.id}`));
         setView("quiz");
         return;
       }
@@ -269,24 +282,10 @@ export default function QuizApp() {
         return;
       }
       if (demo) {
-        const english = target?.subject_id === 2;
-        setAttempt({
-          id: Date.now(),
-          skill_id: target?.id || 2,
-          skill_name: english ? "English sampler" : "Maths sampler",
-          subject_slug: english ? "english" : "maths",
-          status: "active",
-          position: 0,
-          total: 5,
-          answered: 0,
-          score: 0,
-          question: (english ? englishDemo : demoQuestions)[0],
-          feedback: null,
-          reward: null,
-        });
+        setDemoState((state) => startDemo(state, target));
       } else {
         const a = await api.post<Attempt>("/attempts", { skill_id: target.id });
-        setAttempt(a);
+        setLiveAttempt(a);
         if (a.skill_id !== target.id) {
           setSwitchTarget(target);
           return;
@@ -304,22 +303,10 @@ export default function QuizApp() {
     setBusy(true);
     try {
       if (demo) {
-        const q = (
-          attempt.subject_slug === "english" ? englishDemo : demoQuestions
-        )[attempt.position];
-        setAttempt({
-          ...attempt,
-          answered: attempt.position + 1,
-          score: attempt.score + (q.choices[q.answer].id === selected ? 1 : 0),
-          feedback: {
-            correct: q.choices[q.answer].id === selected,
-            correct_choice_id: q.choices[q.answer].id,
-            selected_choice_id: selected,
-            explanation: q.explanation,
-          },
-        });
+        const checkedAt = Date.now();
+        setDemoState((state) => answerDemo(state, selected, checkedAt));
       } else
-        setAttempt(
+        setLiveAttempt(
           await api.post<Attempt>(`/attempts/${attempt.id}/answers`, {
             position: attempt.position,
             question_id: attempt.question!.id,
@@ -337,45 +324,15 @@ export default function QuizApp() {
     setBusy(true);
     try {
       if (demo) {
-        if (attempt.position === 4) {
-          const p = {
-            ...progress,
-            completed: progress.completed + 1,
-            stars: progress.stars + 1,
-            stickers: [
-              {
-                id: attempt.id,
-                name: attempt.skill_name + " explorer",
-                icon: attempt.subject_slug === "maths" ? "star" : "book",
-                earned_at: new Date().toISOString(),
-              },
-              ...progress.stickers,
-            ],
-          };
-          setProgress(p);
-          setAttempt({
-            ...attempt,
-            status: "completed",
-            question: null,
-            feedback: null,
-            reward: attempt.skill_name + " explorer",
-          });
-        } else
-          setAttempt({
-            ...attempt,
-            position: attempt.position + 1,
-            question: (attempt.subject_slug === "english"
-              ? englishDemo
-              : demoQuestions)[attempt.position + 1],
-            feedback: null,
-          });
+        const advancedAt = Date.now();
+        setDemoState((state) => nextDemo(state, advancedAt));
       } else {
         const a = await api.post<Attempt>(`/attempts/${attempt.id}/next`, {
           position: attempt.position,
         });
-        setAttempt(a);
+        setLiveAttempt(a);
         if (a.status === "completed" && child) {
-          setProgress(
+          setLiveProgress(
             await api.get<Progress>(`/children/${child.id}/progress`),
           );
           setCatalog(await api.get<Subject[]>("/catalog"));
@@ -878,7 +835,7 @@ export default function QuizApp() {
                     <button
                       className="button primary"
                       onClick={() => {
-                        setAttempt(null);
+                        clearAdventure();
                         navigate("home");
                       }}
                     >
@@ -887,7 +844,7 @@ export default function QuizApp() {
                     <button
                       className="text-button"
                       onClick={() => {
-                        setAttempt(null);
+                        clearAdventure();
                         navigate("explore");
                       }}
                     >
@@ -1034,8 +991,8 @@ export default function QuizApp() {
               onLogout={() => {
                 setSession(null);
                 setCatalog(demoCatalog);
-                setProgress(emptyProgress);
-                setAttempt(null);
+                setLiveProgress(emptyProgress);
+                setLiveAttempt(null);
                 navigate("home");
               }}
               notify={notify}

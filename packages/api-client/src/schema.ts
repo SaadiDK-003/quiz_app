@@ -292,7 +292,7 @@ export interface paths {
         put?: never;
         /**
          * Start adventure
-         * @description Resumes an active attempt for the same skill. A different skill replaces the active attempt only before its first accepted answer, after validating that five published questions are available. Replaced empty attempts are retained internally as superseded. Once any answer is accepted, returns the existing active attempt even if a different skill was requested; clients must explain that adventure should be continued. New attempts snapshot five published question revisions.
+         * @description Resumes an active attempt for the same skill. A different skill replaces the active attempt only before its first accepted answer, after validating that five published questions are available. Replaced empty attempts are retained internally as superseded. Once any answer is accepted, returns the existing active attempt even if a different skill was requested; clients must explain that adventure should be continued. New attempts snapshot five published question revisions. New adventures aim for two Starter, two Growing, and one Challenge question, ordered from simpler to harder. Within each level, unchecked questions are preferred, then those checked longest ago by this child. Sparse levels use other available questions, preferring easier levels. Existing active attempts retain their snapshots.
          */
         post: operations["start_adventure"];
         delete?: never;
@@ -390,6 +390,26 @@ export interface paths {
         put?: never;
         /** Create question revision */
         post: operations["create_question_revision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/questions/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import missing bundled questions as drafts
+         * @description Administrator in verified adult mode only. Validates the entire bundled pack before inserting missing questions. Repeated and concurrent requests never overwrite existing questions or revisions. No request body is accepted as question content.
+         */
+        post: operations["import_bundled_questions"];
         delete?: never;
         options?: never;
         head?: never;
@@ -610,6 +630,10 @@ export interface components {
                 icon: string;
                 earned_at: string;
             }[];
+        };
+        QuestionImportResult: {
+            created: number;
+            skipped: number;
         };
         AdminQuestion: {
             id: number;
@@ -2597,6 +2621,63 @@ export interface operations {
                 };
             };
             /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    import_bundled_questions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description New drafts added; existing records preserved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionImportResult"];
+                };
+            };
+            /** @description Sign in required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Verified administrator in adult mode required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Refresh the CSRF cookie and retry */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid bundled pack or missing required skills; no questions imported */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Too many import requests */
             429: {
                 headers: {
                     [name: string]: unknown;

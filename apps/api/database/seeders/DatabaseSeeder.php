@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Question;
 use App\Models\Skill;
 use App\Models\Subject;
 use App\Models\Topic;
+use App\Services\QuestionBankImporter;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -22,14 +22,6 @@ class DatabaseSeeder extends Seeder
                 Skill::firstOrCreate(['slug' => $slug], ['subject_id' => $subject->id, 'topic_id' => $topic->id, 'name' => $name, 'description' => $description, 'position' => $i + 1]);
             }
         }
-        $skills = Skill::pluck('id', 'slug');
-        $rows = json_decode(file_get_contents(database_path('content/questions.json')), true, 512, JSON_THROW_ON_ERROR);
-        foreach ($rows as $row) {
-            $q = Question::firstOrCreate(['seed_key' => $row['seed_key']], ['skill_id' => $skills[$row['skill']], 'status' => 'draft']);
-            if (! $q->wasRecentlyCreated) {
-                continue;
-            }$content = collect($row)->except(['seed_key', 'skill'])->all();
-            $q->revisions()->create(array_merge($content, ['version' => 1]));
-        }
+        app(QuestionBankImporter::class)->bundled();
     }
 }

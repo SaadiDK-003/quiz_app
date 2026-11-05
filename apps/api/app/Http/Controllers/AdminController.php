@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\Skill;
 use App\Models\Subject;
 use App\Models\Topic;
+use App\Services\QuestionBankImporter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -29,6 +30,11 @@ class AdminController extends Controller
         }
 
         return $q->get()->map(fn ($q) => $this->present($q));
+    }
+
+    public function import(QuestionBankImporter $importer): array
+    {
+        return $importer->bundled();
     }
 
     public function metadata(): array
