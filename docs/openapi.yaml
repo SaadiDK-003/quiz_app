@@ -125,11 +125,27 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Child"
+        verification_resend_available_at:
+          type: [string, "null"]
+          format: date-time
+          description: End of the parent's verification-email cooldown, or null when ready or already verified. Reading the session never sends email.
       required:
         - user
         - mode
         - child
         - children
+        - verification_resend_available_at
+    VerificationEmailResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        verification_resend_available_at:
+          type: [string, "null"]
+          format: date-time
+      required:
+        - message
+        - verification_resend_available_at
     Question:
       type: object
       properties:
@@ -712,7 +728,7 @@ paths:
     post:
       operationId: send_verification
       summary: Send verification
-      description: ""
+      description: Sends at most one verification email per parent per 60 seconds, shared with the initial registration email. Concurrent requests are guarded by a shared cache lock. Already-verified parents receive a success response without sending an email. Failed sends release the lock and do not start a cooldown.
       security:
         - cookieAuth: []
       responses:
@@ -721,7 +737,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Message"
+                $ref: "#/components/schemas/VerificationEmailResponse"
         "422":
           description: Validation failed
           content:
@@ -739,7 +755,17 @@ paths:
         "419":
           description: Refresh the CSRF cookie and retry
         "429":
-          description: Too many requests
+          description: A send is pending or the parent's 60-second cooldown is active. No email is sent for this request.
+          headers:
+            Retry-After:
+              description: Seconds to wait before trying again; 1 when another send is still pending.
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /auth/verify/{id}/{hash}:
     get:
       operationId: verify_email

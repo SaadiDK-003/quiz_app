@@ -98,7 +98,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Send verification */
+        /**
+         * Send verification
+         * @description Sends at most one verification email per parent per 60 seconds, shared with the initial registration email. Concurrent requests are guarded by a shared cache lock. Already-verified parents receive a success response without sending an email. Failed sends release the lock and do not start a cooldown.
+         */
         post: operations["send_verification"];
         delete?: never;
         options?: never;
@@ -575,6 +578,16 @@ export interface components {
             mode: "adult" | "child";
             child: components["schemas"]["Child"] | null;
             children: components["schemas"]["Child"][];
+            /**
+             * Format: date-time
+             * @description End of the parent's verification-email cooldown, or null when ready or already verified. Reading the session never sends email.
+             */
+            verification_resend_available_at: string | null;
+        };
+        VerificationEmailResponse: {
+            message: string;
+            /** Format: date-time */
+            verification_resend_available_at: string | null;
         };
         Question: {
             id: number;
@@ -1149,7 +1162,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Message"];
+                    "application/json": components["schemas"]["VerificationEmailResponse"];
                 };
             };
             /** @description Sign in required */
@@ -1196,12 +1209,16 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Too many requests */
+            /** @description A send is pending or the parent's 60-second cooldown is active. No email is sent for this request. */
             429: {
                 headers: {
+                    /** @description Seconds to wait before trying again; 1 when another send is still pending. */
+                    "Retry-After"?: number;
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
         };
     };
