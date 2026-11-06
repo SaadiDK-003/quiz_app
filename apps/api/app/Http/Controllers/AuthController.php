@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invitation;
 use App\Models\User;
+use App\Services\VerificationEmailSender;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
@@ -20,13 +21,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
+    public function __construct(private VerificationEmailSender $verificationEmails) {}
+
     public function session(Request $r): array
     {
         $u = $r->user();
         $children = $u->children()->get();
         $mode = $r->session()->get('mode', 'adult');
 
-        return ['user' => $u, 'mode' => $mode, 'children' => $children, 'child' => $mode === 'child' ? $children->firstWhere('id', $r->session()->get('child_id')) : null];
+        return ['user' => $u, 'mode' => $mode, 'children' => $children, 'child' => $mode === 'child' ? $children->firstWhere('id', $r->session()->get('child_id')) : null, 'verification_resend_available_at' => $this->verificationEmails->availableAt($u)?->toIso8601String()];
     }
 
     public function login(Request $r): array
@@ -81,13 +84,22 @@ class AuthController extends Controller
         return $this->session($r);
     }
 
-    public function resend(Request $r): array
+    public function resend(Request $r): JsonResponse
     {
-        if (! $r->user()->hasVerifiedEmail()) {
-            $r->user()->sendEmailVerificationNotification();
+        $user = $r->user();
+        $sent = $this->verificationEmails->send($user);
+        $user->refresh();
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Your email is already verified.', 'verification_resend_available_at' => null]);
         }
 
-        return ['message' => 'A verification email is on its way.'];
+        if (! $sent) {
+            $retryAfter = $this->verificationEmails->retryAfter($user);
+
+            return response()->json(['message' => 'A verification email was just requested. Please wait a moment before trying again.'], 429, ['Retry-After' => (string) $retryAfter]);
+        }
+
+        return response()->json(['message' => 'A verification email is on its way.', 'verification_resend_available_at' => $this->verificationEmails->availableAt($user)?->toIso8601String()]);
     }
 
     public function verify(Request $r, string $id, string $hash): RedirectResponse

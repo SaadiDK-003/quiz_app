@@ -311,7 +311,7 @@ class AdventureTest extends TestCase
         Invitation::create(['email' => 'family@example.test', 'token_hash' => hash('sha256', $token), 'expires_at' => now()->addDay()]);
         $p = ['name' => 'Parent', 'email' => 'family@example.test', 'invite' => $token, 'password' => 'SafePassword42', 'password_confirmation' => 'SafePassword42'];
         $this->postJson('/api/v1/auth/register', $p)->assertCreated()->assertJsonPath('mode', 'adult');
-        Notification::assertSentTo(User::where('email', 'family@example.test')->first(), VerifyEmail::class);
+        Notification::assertSentToTimes(User::where('email', 'family@example.test')->first(), VerifyEmail::class, 1);
         $this->assertNotNull(Invitation::first()->used_at);
         $this->postJson('/api/v1/auth/register', $p)->assertUnprocessable();
     }

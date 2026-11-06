@@ -17,7 +17,7 @@ Route::prefix('api/v1')->group(function () {
         Route::get('session', [AuthController::class, 'session']);
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::post('auth/reauthenticate', [AuthController::class, 'reauthenticate'])->middleware('throttle:5,1');
-        Route::post('auth/verification-notification', [AuthController::class, 'resend'])->middleware(['adult', 'throttle:3,1']);
+        Route::post('auth/verification-notification', [AuthController::class, 'resend'])->middleware('adult');
         Route::get('auth/verify/{id}/{hash}', [AuthController::class, 'verify'])->middleware(['signed:relative', 'throttle:6,1'])->name('verification.verify');
         Route::middleware('verified')->group(function () {
             Route::get('catalog', [FamilyController::class, 'catalog']);

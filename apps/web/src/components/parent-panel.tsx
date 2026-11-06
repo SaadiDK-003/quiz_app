@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Check,
@@ -14,11 +14,13 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import type {
-  Child,
-  Progress,
-  Session,
-  Subject,
+import {
+  ApiError,
+  type VerificationEmailResponse,
+  type Child,
+  type Progress,
+  type Session,
+  type Subject,
 } from "@little-quest/api-client";
 import { api, Dialog, type Notice } from "./quiz-app";
 import { AdminPanel } from "./admin-panel";
@@ -320,30 +322,11 @@ export function ParentPanel({
         </button>
       </div>
       {!session.user.email_verified_at ? (
-        <div className="empty-state">
-          <Mail size={50} />
-          <h2>One little check before we begin.</h2>
-          <p>
-            Please open the verification email sent to {session.user.email}.
-            <br />
-            Then refresh this page to set up your explorers.
-          </p>
-          <button
-            className="button primary"
-            onClick={async () => {
-              try {
-                const r = await api.post<{ message: string }>(
-                  "/auth/verification-notification",
-                );
-                notify(r.message);
-              } catch (e) {
-                notify((e as Error).message);
-              }
-            }}
-          >
-            Send verification email
-          </button>
-        </div>
+        <VerificationNotice
+          key={session.user.id}
+          session={session}
+          notify={notify}
+        />
       ) : (
         <>
           <div className="filter-tabs">
@@ -624,6 +607,94 @@ export function ParentPanel({
         </Dialog>
       )}
     </>
+  );
+}
+function VerificationNotice({
+  session,
+  notify,
+}: {
+  session: Session;
+  notify: Notice;
+}) {
+  const [availableAt, setAvailableAt] = useState(
+      session.verification_resend_available_at,
+    ),
+    [now, setNow] = useState(Date.now),
+    [sending, setSending] = useState(false);
+  const sendingRef = useRef(false);
+  const seconds = Math.max(
+    0,
+    Math.ceil(((availableAt ? Date.parse(availableAt) : 0) - now) / 1000),
+  );
+  useEffect(() => {
+    setAvailableAt(session.verification_resend_available_at);
+    setNow(Date.now());
+  }, [session.verification_resend_available_at]);
+  useEffect(() => {
+    if (!availableAt) return;
+    const timer = setInterval(() => {
+      const time = Date.now();
+      setNow(time);
+      if (time >= Date.parse(availableAt)) clearInterval(timer);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [availableAt]);
+  async function resend() {
+    if (
+      sendingRef.current ||
+      (availableAt && Date.parse(availableAt) > Date.now())
+    )
+      return;
+    sendingRef.current = true;
+    setSending(true);
+    try {
+      const result = await api.post<VerificationEmailResponse>(
+        "/auth/verification-notification",
+      );
+      setAvailableAt(result.verification_resend_available_at);
+      setNow(Date.now());
+      notify(result.message);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 429) {
+        const time = Date.now();
+        setAvailableAt(
+          new Date(time + (error.retryAfterSeconds ?? 1) * 1000).toISOString(),
+        );
+        setNow(time);
+      }
+      notify(
+        error instanceof Error
+          ? error.message
+          : "We couldn’t send the email. Please try again.",
+      );
+    } finally {
+      sendingRef.current = false;
+      setSending(false);
+    }
+  }
+  return (
+    <div className="empty-state">
+      <Mail size={50} />
+      <h2>One little check before we begin.</h2>
+      <p>
+        Please open the verification email sent to {session.user.email}.
+        <br />
+        Then refresh this page to set up your explorers.
+      </p>
+      <button
+        type="button"
+        className="button primary"
+        disabled={sending || seconds > 0}
+        aria-busy={sending}
+        onClick={resend}
+      >
+        {sending
+          ? "Sending…"
+          : seconds > 0
+            ? `Resend available in ${seconds}s`
+            : "Send verification email"}
+      </button>
+    </div>
   );
 }
 function FlagIcon() {

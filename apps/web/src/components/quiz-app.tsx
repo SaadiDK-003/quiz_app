@@ -134,8 +134,6 @@ export default function QuizApp() {
     });
     if (params.has("invite")) setAuth("register");
     if (params.has("reset_token")) setAuth("reset");
-    if (params.has("verified"))
-      notify("Email verified. Welcome to your next adventure!");
     try {
       setDemoState(
         restoreDemo(localStorage.getItem("little-quest-demo"), emptyProgress),
@@ -144,7 +142,22 @@ export default function QuizApp() {
     setDemoHydrated(true);
     api
       .get<Session>("/session")
-      .then(refresh)
+      .then(async (s) => {
+        await refresh(s);
+        if (
+          new URLSearchParams(location.search).has("verified") &&
+          s.user.email_verified_at
+        ) {
+          notify("Email verified. Welcome to your next adventure!");
+          const url = new URL(location.href);
+          url.searchParams.delete("verified");
+          history.replaceState(
+            history.state,
+            "",
+            `${url.pathname}${url.search}${url.hash}`,
+          );
+        }
+      })
       .catch((e) => {
         if (!(e instanceof ApiError && e.status === 401))
           notify("We can’t connect right now. You can still explore the demo.");
