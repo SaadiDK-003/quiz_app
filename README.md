@@ -100,6 +100,19 @@ docker compose exec api php artisan pilot:report
 
 Use the standalone [VPS installer](scripts/deploy-vps.sh) for **quiz.webostics.com** when the server already hosts projects such as School Van Tracking. It supports Ubuntu 22.04, 24.04, and 26.04 LTS. It reuses the clean `master` checkout at `/var/www/html/quiz_app` and keeps private deployment state under `/opt/webostics-quiz`. The existing Caddy Compose setup above is for a separate deployment arrangement; do not start it alongside host Nginx on this shared VPS.
 
+Preview the terminal interface before deploying (no root privileges, Git access, deployment-state reads, or service calls):
+
+```bash
+bash scripts/deploy-vps.sh --preview-ui
+bash scripts/deploy-vps.sh --preview-ui --plain
+```
+
+The preview shows labelled success and failure examples and exits successfully. On an interactive UTF-8 terminal, the deployer uses coloured stage panels, task timers, and live activity; narrow terminals use a compact layout. `--plain` disables deployer colours, Unicode, and animations in any mode. Piped output automatically uses plain formatting, and `NO_COLOR` disables colours. The `--logs` command keeps native service-log content.
+
+The release report compares the **last successful deployment** with the target commit, so changed filenames and statistics remain visible even after a manual `git pull`. It lists additions, modifications, deletions, renames, binary files, aggregate line counts, and up to five commit subjects. Initial deployments show an inventory; missing history is reported as unavailable. Resume reports its saved target without fetching. Metadata control characters are escaped and common credential patterns are redacted. File patches and environment contents are not printed.
+
+Builds show curated BuildKit stage/step metadata and elapsed time, with heartbeats during quiet periods. Detailed command output remains in the private deployment log. The final panel reports the release, changed-file count, readiness, backup result, duration, and useful commands; failure panels include the failed task, exit status, and confirmed or unconfirmed maintenance state.
+
 Once this script is available on `master`, run on the VPS:
 
 ```bash
@@ -151,7 +164,7 @@ sudo bash /opt/webostics-quiz/bin/deploy-vps.sh --backup
 
 Deployment logs and paired backups are under `/opt/webostics-quiz/shared/`, with restricted permissions. Daily backups run at **02:30 UTC / 07:30 Pakistan time** and retain the latest seven complete pairs (`.dump`, `.media.tar.gz`, and `.complete`). Copy them to separate storage for protection against VPS loss, and securely back up `shared/environment.json` separately to retain production keys and mail settings. A `.complete` marker identifies a successfully created pair. Status output includes the active configuration path; use it with `docker compose --env-file /dev/null -p webostics_quiz -f PATH` for manual administration or recovery. Never use `down -v` or automatic database rollback as an update step.
 
-`--check` performs a read-only preflight. Actual deployment performs only required configuration validation and service/HTTPS health checks, with no application test suites or automatic test email. The installer is not a remote SSH tool; run it on the VPS in an interactive root/sudo terminal.
+`--check` performs a read-only preflight. Focused renderer, Git-report, runner, and preflight fixtures can be checked with `python3 scripts/tests/test_deploy_vps_ui.py`; these use temporary data and do not deploy. Actual deployment performs only required configuration validation and service/HTTPS health checks, with no application test suites or automatic test email. The installer is not a remote SSH tool; run it on the VPS in an interactive root/sudo terminal.
 
 ## Backups and restore
 

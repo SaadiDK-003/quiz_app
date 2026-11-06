@@ -12,53 +12,377 @@ Little Quest · Hostinger VPS deployer
   sudo bash deploy-vps.sh --status
   sudo bash deploy-vps.sh --logs
   sudo bash deploy-vps.sh --backup
+  bash deploy-vps.sh --preview-ui [--plain]
 
 Default: install/update quiz.webostics.com from master.
 Existing checkout: /var/www/html/quiz_app
 Private deployment data: /opt/webostics-quiz
 --check is read-only: it does not install packages, fetch code, or change services.
 --resume finishes the saved incomplete deployment without fetching or rebuilding.
+--preview-ui shows success/failure examples without root, Git, or service access.
+--plain uses ASCII output without colours or animations; combine with any mode.
 GitHub credentials are optional for the public repository; use a token, not your
 GitHub account password. No application test suites are run by this installer.
 HELP
 }
 
+ui_init() {
+  UI_WIDTH=${COLUMNS:-80}
+  UI_ANIMATE=0 UI_UNICODE=0 UI_LIVE=0
+  C_BLUE='' C_GREEN='' C_YELLOW='' C_RED='' C_RESET='' C_DIM='' C_PURPLE=''
+  if [[ -t 1 ]] && command -v tput >/dev/null; then
+    local terminal_fd
+    if exec {terminal_fd}>&1; then
+      UI_WIDTH=$(tput cols <&"$terminal_fd" 2>/dev/null) || UI_WIDTH=80
+      exec {terminal_fd}>&-
+    fi
+  fi
+  if [[ -t 1 && ${TERM:-dumb} != dumb && ${UI_PLAIN:-0} != 1 ]]; then
+    UI_ANIMATE=1
+    if [[ -z ${NO_COLOR+x} ]]; then
+      C_BLUE=$'\033[1;36m'; C_GREEN=$'\033[32m'; C_YELLOW=$'\033[33m'; C_RED=$'\033[1;31m'
+      C_PURPLE=$'\033[1;35m'; C_DIM=$'\033[2m'; C_RESET=$'\033[0m'
+    fi
+    case ${LC_ALL:-${LC_CTYPE:-${LANG:-}}} in *[Uu][Tt][Ff]*8*) UI_UNICODE=1 ;; esac
+  fi
+  [[ $UI_WIDTH =~ ^[0-9]{1,4}$ ]] || UI_WIDTH=80
+  ((UI_WIDTH > 0)) || UI_WIDTH=80
+  ((UI_WIDTH >= 24)) || UI_WIDTH=24
+  ((UI_WIDTH <= 100)) || UI_WIDTH=100
+  UI_OK='+' UI_RUNNING='>' UI_SKIP='-' UI_INFO='.' UI_WARN='!' UI_ERROR='x'
+  UI_H='-' UI_TL='+' UI_TR='+' UI_BL='+' UI_BR='+' UI_V='|'
+  if ((UI_UNICODE)); then
+    UI_OK='✓'; UI_RUNNING='◌'; UI_SKIP='↷'; UI_INFO='·'; UI_ERROR='✕'
+    UI_H='─'; UI_TL='╭'; UI_TR='╮'; UI_BL='╰'; UI_BR='╯'; UI_V='│'
+  fi
+}
+
+ui_safe() {
+  UI_TEXT=$1
+  UI_TEXT=${UI_TEXT//\\/\\\\}
+  UI_TEXT=${UI_TEXT//$'\e'/\\e}
+  UI_TEXT=${UI_TEXT//$'\n'/\\n}
+  UI_TEXT=${UI_TEXT//$'\r'/\\r}
+  UI_TEXT=${UI_TEXT//$'\t'/\\t}
+  local control
+  while [[ $UI_TEXT =~ [[:cntrl:]] ]]; do
+    control=${BASH_REMATCH[0]}
+    UI_TEXT=${UI_TEXT//"$control"/?}
+  done
+}
+
+ui_line() {
+  local prefix=$1 text=$2 colour=${3:-} suffix=${4:-} width part rest continuation
+  ui_safe "$text"
+  rest=$UI_TEXT
+  width=$((${UI_WIDTH:-80} - ${#prefix} - ${#suffix}))
+  ((width > 0)) || width=16
+  printf -v continuation '%*s' "${#prefix}" ''
+  while :; do
+    part=${rest:0:width}
+    if ((${#rest} > width)) && [[ $part == *' '* && -n ${part% *} ]]; then
+      part=${part% *}
+    fi
+    rest=${rest:${#part}}
+    rest=${rest# }
+    if [[ -n $suffix ]]; then
+      printf '%s%s%-*s%s%s\n' "$colour" "$prefix" "$width" "$part" "$suffix" "${C_RESET:-}"
+    else
+      printf '%s%s%s%s\n' "$colour" "$prefix" "$part" "${C_RESET:-}"
+    fi
+    [[ -n $rest ]] || break
+    prefix=$continuation
+  done
+}
+
+ui_panel() {
+  local title=$1 colour=${2:-${C_BLUE:-}} border
+  printf '\n'
+  if ((${UI_WIDTH:-80} < 70)); then
+    ui_line '  ' "$title" "$colour"
+    printf -v border '%*s' "$((${UI_WIDTH:-80} - 4))" ''
+    printf '%s  %s%s\n' "$colour" "${border// /$UI_H}" "${C_RESET:-}"
+  else
+    printf -v border '%*s' "$((UI_WIDTH - 2))" ''
+    border=${border// /$UI_H}
+    printf '%s%s%s%s%s\n' "$colour" "$UI_TL" "$border" "$UI_TR" "$C_RESET"
+    ui_line "$UI_V " "$title" "$colour" " $UI_V"
+    printf '%s%s%s%s%s\n' "$colour" "$UI_BL" "$border" "$UI_BR" "$C_RESET"
+  fi
+}
+
+ui_pair() { ui_line '  ' "$1: $2" "${3:-}"; }
+ui_duration() { printf '%02d:%02d' "$(($1 / 60))" "$(($1 % 60))"; }
+ui_clear_live() {
+  if [[ ${UI_LIVE:-0} == 1 ]]; then printf '\r\033[K'; UI_LIVE=0; fi
+}
+
 message() {
-  local level=$1 colour=$C_BLUE
+  local level=$1 colour=${C_DIM:-} mark=${UI_INFO:-.}
   shift
-  case $level in OK) colour=$C_GREEN ;; WARN) colour=$C_YELLOW ;; ERROR) colour=$C_RED ;; esac
-  printf '%s%-7s%s %s\n' "$colour" "[$level]" "$C_RESET" "$*"
+  ui_clear_live
+  case $level in
+    OK) colour=${C_GREEN:-}; mark=${UI_OK:-+} ;;
+    RUN) colour=${C_BLUE:-}; mark=${UI_RUNNING:->} ;;
+    SKIP) mark=${UI_SKIP:--} ;;
+    WARN) colour=${C_YELLOW:-}; mark=${UI_WARN:-!} ;;
+    ERROR) colour=${C_RED:-}; mark=${UI_ERROR:-x} ;;
+  esac
+  ui_line "  $mark " "$*" "$colour"
   if [[ -n ${LOG_FILE:-} ]]; then printf '[%s] %s %s\n' "$(date -u +%FT%TZ)" "$level" "$*" >> "$LOG_FILE"; fi
 }
 
-fail() { message ERROR "$*" >&2; return 1; }
-step() { STAGE=$((STAGE + 1)); message INFO "${STAGE}/${TOTAL_STAGES:-10} · $*"; }
+fail() { UI_ERROR_REASON=$*; message ERROR "$*" >&2; return 1; }
+
+step() {
+  ui_clear_live
+  if ((${STAGE:-0} > 0)); then
+    ui_line '    ' "Stage $STAGE finished in $(ui_duration "$((SECONDS - UI_STAGE_STARTED))")" "$C_DIM"
+  fi
+  STAGE=$((${STAGE:-0} + 1)) UI_STAGE_STARTED=$SECONDS CURRENT_STAGE=$*
+  local title bar='' i
+  printf -v title '%02d / %02d  %s' "$STAGE" "${TOTAL_STAGES:-10}" "$*"
+  ui_panel "$title"
+  for ((i = 1; i <= ${TOTAL_STAGES:-10}; i++)); do
+    if ((i < STAGE)); then bar+='#'; elif ((i == STAGE)); then bar+='>'; else bar+='.'; fi
+  done
+  ui_line '  ' "[$bar]  Elapsed $(ui_duration "$((SECONDS - ${UI_STARTED:-0}))")" "$C_DIM"
+  if [[ -n ${LOG_FILE:-} ]]; then printf '[STAGE] %s/%s %s\n' "$STAGE" "${TOTAL_STAGES:-10}" "$*" >> "$LOG_FILE"; fi
+}
+
+ui_header() {
+  local operation
+  case ${MODE:-deploy} in
+    preview) operation='PREVIEW / NO CHANGES' ;;
+    deploy) operation='INSTALL / UPDATE' ;;
+    resume) operation='RESUME SAVED RELEASE' ;;
+    check) operation='READ-ONLY PREFLIGHT' ;;
+    status) operation='DEPLOYMENT STATUS' ;;
+    logs) operation='SERVICE LOGS' ;;
+    backup) operation='DATABASE + MEDIA BACKUP' ;;
+  esac
+  ui_panel 'LITTLE QUEST / VPS DEPLOYER' "$C_PURPLE"
+  ui_pair 'Domain' "$DOMAIN"
+  ui_pair 'Operation' "$operation" "$C_BLUE"
+  ui_pair 'Repository' 'SaadiDK-003/quiz_app / master'
+  ui_pair 'Last successful release' "${BASE_RELEASE:-Not recorded}" "$C_DIM"
+  if [[ -n ${PENDING_RELEASE:-} ]]; then ui_pair 'Pending release' "$PENDING_RELEASE" "$C_YELLOW"; fi
+  ui_pair 'Checkout' "$SOURCE_DIR" "$C_DIM"
+  ui_pair 'Private runtime' "$ROOT" "$C_DIM"
+}
+
+ui_build_activity() {
+  local fd=$1 line count=0 id stage part total
+  while ((count++ < 500)) && IFS= read -r line <&"$fd"; do
+    if [[ $line =~ ^#([0-9]+)[[:space:]]+\[([a-zA-Z0-9_.-]{1,40})([[:space:]]+([0-9]+)/([0-9]+))?\] ]]; then
+      id=${BASH_REMATCH[1]} stage=${BASH_REMATCH[2]} part=${BASH_REMATCH[4]:-} total=${BASH_REMATCH[5]:-}
+      case $stage in internal|auth|base|production|development|deps|builder|runner|build) ;; *) stage='image stage' ;; esac
+      BUILD_ACTIVITY="BuildKit #$id / $stage"
+      if [[ -n $part ]]; then BUILD_ACTIVITY+=" step $part/$total"; fi
+    elif [[ $line =~ ^#([0-9]+)[[:space:]]+(CACHED|DONE|ERROR|CANCELED)([[:space:]]|$) ]]; then
+      BUILD_ACTIVITY="BuildKit #${BASH_REMATCH[1]} / ${BASH_REMATCH[2],,}"
+    fi
+  done
+  return 0
+}
+
+ui_task_frame() {
+  local label=$1 elapsed=$2 frame=$3 activity=$4 text width spinner
+  local frames='|/-\'
+  spinner=${frames:frame%4:1}
+  text=$label
+  if [[ -n $activity ]]; then text+=" / $activity"; fi
+  ui_safe "$text"
+  width=$((${UI_WIDTH:-80} - 14))
+  text=$UI_TEXT
+  if ((${#text} > width)); then text="${text:0:width-3}..."; fi
+  printf '\r\033[K%s  %s %-*s %s%s' "$C_BLUE" "$spinner" "$width" "$text" "$(ui_duration "$elapsed")" "$C_RESET"
+  UI_LIVE=1
+}
+
+ui_wait_start() {
+  CURRENT_TASK=$1 UI_WAIT_STARTED=$SECONDS UI_WAIT_NOTICE=0
+  message RUN "$CURRENT_TASK / waiting"
+}
+
+ui_wait_tick() {
+  local elapsed=$((SECONDS - UI_WAIT_STARTED))
+  if [[ ${UI_ANIMATE:-0} == 1 ]]; then
+    ui_task_frame "$CURRENT_TASK" "$elapsed" "$1" "probe $1/$2"
+  elif ((elapsed - UI_WAIT_NOTICE >= 30)); then
+    message RUN "$CURRENT_TASK / still waiting / $(ui_duration "$elapsed") / probe $1/$2"
+    UI_WAIT_NOTICE=$elapsed
+  fi
+}
+
+ui_wait_done() {
+  message OK "$CURRENT_TASK / ready in $(ui_duration "$((SECONDS - UI_WAIT_STARTED))")"
+  CURRENT_TASK=''
+}
 
 run() {
-  local label=$1 status=0 frame=0
+  local label=$1 status=0 frame=0 started=$SECONDS last_tick=-1 last_notice=0 progress_fd='' _ignored
   shift
-  printf '%s  … %s%s\n' "$C_BLUE" "$label" "$C_RESET"
+  CURRENT_TASK=$label BUILD_ACTIVITY='' FAILED_TASK=''
+  if [[ ${RUN_KIND:-} == build ]]; then
+    if exec {progress_fd}< "$LOG_FILE"; then
+      while IFS= read -r _ignored <&"$progress_fd"; do :; done
+    else
+      progress_fd=''
+    fi
+  fi
+  if [[ ${UI_ANIMATE:-0} != 1 ]]; then message RUN "$label / started"; fi
   (
     trap - ERR EXIT INT TERM
     set +e
-    "$@"
+    # Give only this task its own job group, including function-launched children.
+    set -m
+    task_child='' task_signal=0
+    stop_run_task() {
+      task_signal=$1
+      [[ -n $task_child ]] || return 0
+      trap - INT TERM
+      kill -TERM -- "-$task_child" 2>/dev/null || true
+      exit "$task_signal"
+    }
+    trap 'stop_run_task 143' TERM
+    trap 'stop_run_task 130' INT
+    "$@" &
+    task_child=$!
+    if ((task_signal)); then stop_run_task "$task_signal"; fi
+    wait "$task_child"
+    task_status=$?
+    trap - INT TERM
+    exit "$task_status"
   ) >> "$LOG_FILE" 2>&1 &
   TASK_PID=$!
-  if [[ -t 1 ]]; then
-    local frames='|/-\'
-    while kill -0 "$TASK_PID" 2>/dev/null; do
-      printf '\r  %s %s' "${frames:frame++%4:1}" "$label"
-      sleep 0.2
-    done
-    printf '\r\033[K'
-  fi
+  local elapsed
+  while kill -0 "$TASK_PID" 2>/dev/null; do
+    elapsed=$((SECONDS - started))
+    if ((elapsed != last_tick)); then
+      if [[ -n $progress_fd ]]; then ui_build_activity "$progress_fd"; fi
+      last_tick=$elapsed
+    fi
+    if [[ ${UI_ANIMATE:-0} == 1 ]]; then
+      ui_task_frame "$label" "$elapsed" "$frame" "$BUILD_ACTIVITY"
+    elif ((elapsed - last_notice >= 30)); then
+      message RUN "$label / still working / $(ui_duration "$elapsed")${BUILD_ACTIVITY:+ / $BUILD_ACTIVITY}"
+      last_notice=$elapsed
+    fi
+    frame=$((frame + 1))
+    sleep 0.2
+  done
   wait "$TASK_PID" || status=$?
   TASK_PID=
+  if [[ -n $progress_fd ]]; then exec {progress_fd}<&-; fi
+  ui_clear_live
   if ((status != 0)); then
-    message ERROR "$label failed. Private details: $LOG_FILE"
+    FAILED_TASK=$label
+    message ERROR "$label / failed after $(ui_duration "$((SECONDS - started))") / exit $status"
     return "$status"
   fi
-  message OK "$label"
+  CURRENT_TASK=''
+  message OK "$label / $(ui_duration "$((SECONDS - started))")"
+}
+
+ui_command() {
+  ui_safe "$1"
+  printf '    %s\n' "$UI_TEXT"
+}
+
+ui_finish() {
+  local title=$1 colour=${2:-$C_GREEN}
+  ui_panel "$title" "$colour"
+  if ((${STAGE:-0} > 0)); then
+    local completed
+    printf -v completed '%*s' "${TOTAL_STAGES:-10}" ''
+    ui_line '  ' "[${completed// /#}] $STAGE/${TOTAL_STAGES:-10} stages complete" "$C_GREEN"
+  fi
+  ui_pair 'Duration' "$(ui_duration "$((SECONDS - ${UI_STARTED:-0}))")"
+  if [[ ${MODE:-} == deploy || ${MODE:-} == resume || ${MODE:-} == preview ]]; then
+    ui_pair 'Release' "${COMMIT:0:12} / master"
+    ui_pair 'Changed files' "${CHANGE_COUNT:-Unavailable}"
+    ui_pair 'URL' "https://$DOMAIN" "$C_GREEN"
+    ui_pair 'Ingress' "127.0.0.1:${PORT:-unknown}"
+    ui_pair 'Services' "${SERVICE_SUMMARY:-Readiness checks completed}"
+    ui_pair 'HTTPS' "${HTTPS_SUMMARY:-Not checked in this mode}"
+  fi
+  if [[ -n ${BACKUP_RESULT:-} ]]; then ui_pair 'Backup' "$BACKUP_RESULT"; fi
+  if [[ ${MODE:-} == deploy || ${MODE:-} == resume || ${MODE:-} == backup || ${MODE:-} == preview ]]; then
+    ui_pair 'Retention' 'Latest seven complete database/media backup pairs'
+    ui_pair 'Backups' "$ROOT/shared/backups" "$C_DIM"
+    if [[ ${MODE:-} != backup ]]; then ui_pair 'Daily schedule' '02:30 UTC / 07:30 Pakistan time'; fi
+    ui_line '  ' 'Useful commands' "$C_BLUE"
+    ui_command "sudo bash $ROOT/bin/deploy-vps.sh --status"
+    ui_command "sudo bash $ROOT/bin/deploy-vps.sh --logs"
+    ui_command "sudo bash $ROOT/bin/deploy-vps.sh --backup"
+  fi
+  if [[ -n ${LOG_FILE:-} ]]; then
+    ui_pair 'Private log' "$LOG_FILE" "$C_DIM"
+    printf '[SUMMARY] operation=%s release=%s changed-files=%s duration=%s backup=%s\n' "${MODE:-unknown}" "${COMMIT:-unspecified}" "${CHANGE_COUNT:-unavailable}" "$(ui_duration "$((SECONDS - ${UI_STARTED:-0}))")" "${BACKUP_RESULT:-not checked}" >> "$LOG_FILE"
+  fi
+}
+
+ui_failure() {
+  local status=$1 line=$2 title='DEPLOYMENT STOPPED'
+  ui_clear_live
+  case ${MODE:-} in
+    preview) title='EXAMPLE / DEPLOYMENT STOPPED' ;;
+    status) title='STATUS CHECK STOPPED' ;;
+    check) title='PREFLIGHT STOPPED' ;;
+    backup) title='BACKUP STOPPED' ;;
+    logs) title='LOG STREAM STOPPED' ;;
+  esac
+  ui_panel "$title" "$C_RED"
+  if ((${STAGE:-0} > 0)); then ui_pair 'Stage' "$STAGE/${TOTAL_STAGES:-10} / ${CURRENT_STAGE:-Preflight}"
+  else ui_pair 'Operation' "${MODE:-deployment}"; fi
+  ui_pair 'Task' "${FAILED_TASK:-${CURRENT_TASK:-${CURRENT_STAGE:-Preflight check}}}"
+  ui_pair 'Exit status' "$status / script line $line"
+  if [[ -n ${UI_ERROR_REASON:-} ]]; then ui_pair 'Reason' "$UI_ERROR_REASON" "$C_RED"; fi
+  ui_pair 'Duration' "$(ui_duration "$((SECONDS - ${UI_STARTED:-0}))")"
+  ui_pair 'Maintenance' "${MAINTENANCE_SUMMARY:-Not changed by this run}"
+  if [[ ${MIGRATION_STARTED:-0} == 1 ]]; then
+    message WARN 'Migration stage began. No automatic database rollback or restore was performed.'
+  fi
+  if [[ -n ${LOG_FILE:-} ]]; then
+    ui_pair 'Private log' "$LOG_FILE" "$C_DIM"
+    ui_pair 'Backups' "$ROOT/shared/backups" "$C_DIM"
+    ui_line '  ' 'Inspect before retrying' "$C_BLUE"
+    ui_command "sudo bash $ROOT/bin/deploy-vps.sh --status"
+    ui_command "sudo bash $ROOT/bin/deploy-vps.sh --logs"
+    ui_line '  ' 'After correcting the cause, retry saved setup with --resume, or run a normal deployment for updated code.' "$C_DIM"
+    printf '[FAILURE] stage=%s task=%s exit=%s line=%s maintenance=%s\n' "${STAGE:-0}" "${FAILED_TASK:-${CURRENT_TASK:-check}}" "$status" "$line" "${MAINTENANCE_SUMMARY:-not changed}" >> "$LOG_FILE"
+  fi
+}
+
+ui_preview() {
+  MODE=preview BASE_RELEASE='1b5d5f19b285' PENDING_RELEASE='' COMMIT='87798ea0000000000000000000000000000000000'
+  CHANGE_COUNT=20 PORT=18080 TOTAL_STAGES=3 STAGE=0 LOG_FILE=''
+  ui_header
+  message INFO 'Illustrative output only. No deployment state, Git, network, or services are accessed.'
+  step 'Release changes / example'
+  ui_pair 'Previous -> target' '1b5d5f19b285 -> 87798ea00000'
+  ui_pair 'Changes' '20 files / +8,089 lines / -127 lines / 3 commits'
+  ui_line '  + ' 'apps/api/app/Services/QuestionBankImporter.php' "$C_GREEN"
+  ui_line '  ~ ' 'apps/web/src/components/admin-panel.tsx' "$C_BLUE"
+  ui_line '  > ' 'old-question-pack.json -> questions.json' "$C_PURPLE"
+  ui_line '  - ' 'retired-example.txt' "$C_RED"
+  step 'Build application images / example'
+  message SKIP 'Dependencies already available / existing infrastructure reused'
+  message OK 'Laravel image / 00:42'
+  message INFO 'Next.js image / BuildKit #14 / builder step 6/6 / 01:18'
+  message WARN 'Example warning / a missing optional asset needs attention'
+  message OK 'Next.js image / 01:23'
+  step 'Health and backups / example'
+  SERVICE_SUMMARY='PostgreSQL, Laravel, Next.js, gateway, worker: ready'
+  HTTPS_SUMMARY='Healthy / certificate verified' BACKUP_RESULT='Database + media / complete'
+  message OK "$SERVICE_SUMMARY"
+  ui_finish 'EXAMPLE / DEPLOYMENT COMPLETE'
+  CURRENT_STAGE='Configure HTTPS / example' FAILED_TASK='Quiz public HTTP challenge / example'
+  UI_ERROR_REASON='The local challenge passed; the public challenge did not become ready.'
+  MAINTENANCE_SUMMARY='Enabled for Quiz / example only' MIGRATION_STARTED=1
+  ui_failure 1 0
+  message INFO 'End of preview. The failure above is an example; preview exits successfully.'
 }
 
 compose() {
@@ -76,18 +400,229 @@ with open(sys.argv[1], encoding="utf-8") as source:
 PY
 }
 
+ui_release_context() {
+  BASE_RELEASE='Not recorded' PENDING_RELEASE=''
+  command -v python3 >/dev/null || { BASE_RELEASE='Unavailable until Python is ready'; return 0; }
+  local metadata kind value
+  metadata=$(python3 - "$ROOT" <<'PY'
+import json, pathlib, re, sys
+root = pathlib.Path(sys.argv[1])
+def read(path):
+    try:
+        if path.is_symlink():
+            return None
+        return json.loads(path.read_text())
+    except (OSError, ValueError):
+        return None
+if root.is_symlink() or (root / "shared").is_symlink():
+    print("BASE\tUnavailable")
+    sys.exit(0)
+current = root / "shared/current.json"
+state = read(current)
+commit = state.get("commit") if isinstance(state, dict) else None
+if isinstance(commit, str) and re.fullmatch(r"[0-9a-f]{40}", commit):
+    print("BASE\t" + commit[:12])
+elif current.exists():
+    print("BASE\tUnavailable")
+pending = read(root / "shared/pending.json")
+if isinstance(pending, dict):
+    try:
+        config = pathlib.Path(pending["config"])
+        if config.name == "compose.json" and config.resolve().is_relative_to((root / "shared/deployments").resolve()):
+            candidate = read(config)
+            image = candidate["services"]["api"]["image"]
+            match = re.fullmatch(r"webostics-quiz-api:([0-9a-f]{40})", image)
+            print("PENDING\t" + (match[1][:12] if match else "Unavailable"))
+        else:
+            print("PENDING\tUnavailable")
+    except (KeyError, TypeError, ValueError, OSError):
+        print("PENDING\tUnavailable")
+PY
+  ) || { BASE_RELEASE='Unavailable'; return 0; }
+  while IFS=$'\t' read -r kind value; do
+    case $kind in BASE) BASE_RELEASE=$value ;; PENDING) PENDING_RELEASE=$value ;; esac
+  done <<< "$metadata"
+}
+
+release_changes() {
+  local report kind value detail colour mark listed=0
+  CHANGE_COUNT='Unavailable'
+  ui_panel 'RELEASE CHANGES' "$C_PURPLE"
+  if ! command -v git >/dev/null || ! command -v python3 >/dev/null; then
+    message WARN 'Git comparison unavailable. Resume continues using its saved images; no history will be fetched.'
+    return 0
+  fi
+  if ! report=$(python3 - "$SOURCE_DIR" "$ROOT/shared/current.json" "$COMMIT" <<'PY'
+import json, os, pathlib, re, subprocess, sys
+source, state_file, target = sys.argv[1:]
+def emit(kind, value, detail=""):
+    print(kind + "\t" + str(value) + ("\t" + detail if detail else ""))
+def safe(value):
+    value = re.sub(r"(?i)\b(?:github_pat_|gh[pousr]_)[a-z0-9_]+", "[redacted]", value)
+    value = re.sub(r"(?i)(\b(?:password|token|secret|MAIL_PASSWORD|DB_PASSWORD|APP_KEY)\s*[:=]\s*)(?:\"[^\"]*\"|'[^']*'|\S+)", r"\1[redacted]", value)
+    value = re.sub(r"(https?://)[^\s/@]+:[^\s/@]+@", r"\1[redacted]@", value)
+    return json.dumps(value, ensure_ascii=True)
+def git(*args):
+    return subprocess.run(["git", "--no-pager", "-c", "color.ui=false", "-C", source, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True).stdout
+def available(commit):
+    if not re.fullmatch(r"[0-9a-f]{40}", commit):
+        return False
+    try:
+        git("cat-file", "-e", commit + "^{commit}")
+        return True
+    except subprocess.CalledProcessError:
+        return False
+state_path = pathlib.Path(state_file)
+base = None
+if state_path.exists():
+    try:
+        if state_path.is_symlink() or state_path.parent.is_symlink():
+            raise ValueError()
+        base = json.loads(state_path.read_text())["commit"]
+        if not isinstance(base, str) or not re.fullmatch(r"[0-9a-f]{40}", base):
+            raise ValueError()
+    except (OSError, ValueError, KeyError, TypeError):
+        emit("WARN", "Saved deployed baseline is unavailable; no change count can be calculated.")
+        sys.exit(0)
+if not available(target):
+    emit("WARN", "Target Git history is unavailable locally; no comparison is shown and no history is fetched.")
+    sys.exit(0)
+emit("TARGET", target[:12])
+if base is None:
+    files = [os.fsdecode(name) for name in git("ls-tree", "-r", "--name-only", "-z", target).split(b"\0") if name]
+    emit("BASE", "Initial installation / no previous successful deployment")
+    emit("COUNT", str(len(files)) + " / initial inventory")
+    emit("SUMMARY", f"Initial release inventory / {len(files):,} tracked files / line comparison not applicable")
+    for name in files:
+        emit("FILE", "A", safe(name))
+    sys.exit(0)
+emit("BASE", base[:12])
+if not available(base):
+    emit("WARN", "Previous deployed commit is missing from local Git history; change count is unavailable.")
+    sys.exit(0)
+if base == target:
+    emit("COUNT", 0)
+    emit("SUMMARY", "Already up to date / 0 changed files / 0 new commits")
+    sys.exit(0)
+options = ["--no-ext-diff", "--no-textconv", "--find-renames"]
+raw = iter(git("diff", *options, "--name-status", "-z", base, target, "--").split(b"\0"))
+files = []
+for status in raw:
+    if not status:
+        continue
+    code = status.decode("ascii")
+    path = os.fsdecode(next(raw))
+    name = safe(path)
+    if code[0] in ("R", "C"):
+        path = os.fsdecode(next(raw))
+        name += " -> " + safe(path)
+    files.append((code[0], name, path))
+added = deleted = binary = 0
+binary_paths = set()
+stats = iter(git("diff", *options, "--numstat", "-z", base, target, "--").split(b"\0"))
+for row in stats:
+    if not row:
+        continue
+    plus, minus, name = row.split(b"\t", 2)
+    if not name:
+        next(stats)
+        name = next(stats)
+    if plus == b"-" or minus == b"-":
+        binary += 1
+        binary_paths.add(os.fsdecode(name))
+    else:
+        added += int(plus)
+        deleted += int(minus)
+count = int(git("rev-list", "--count", base + ".." + target).strip())
+emit("COUNT", len(files))
+emit("SUMMARY", f"{len(files):,} files / +{added:,} lines / -{deleted:,} lines / {binary} binary files / {count} commits")
+for code, name, path in files:
+    emit("FILE", code, name + (" [binary]" if path in binary_paths else ""))
+if count:
+    emit("HEADING", "Recent commits / up to five")
+    for commit in git("log", "-5", "--format=%h %s", "--no-show-signature", base + ".." + target).decode("utf-8", "replace").splitlines():
+        emit("COMMIT", safe(commit))
+PY
+  ); then
+    message WARN 'Git comparison could not be read. Deployment decisions are unchanged; change count is unavailable.'
+    return 0
+  fi
+  while IFS=$'\t' read -r kind value detail; do
+    case $kind in
+      BASE) ui_pair 'Previous successful release' "$value" "$C_DIM" ;;
+      TARGET) ui_pair 'Target release' "$value" "$C_BLUE" ;;
+      COUNT) CHANGE_COUNT=$value ;;
+      SUMMARY) message INFO "$value" ;;
+      WARN) message WARN "$value" ;;
+      HEADING) ui_line '  ' "$value" "$C_DIM" ;;
+      COMMIT) ui_line '    ' "$value" "$C_DIM" ;;
+      FILE)
+        if ((listed == 0)); then
+          ui_line '  ' 'Files: + added / ~ modified / - removed / > renamed / = copied' "$C_DIM"
+          listed=1
+        fi
+        colour=$C_BLUE mark='~'
+        case $value in A) colour=$C_GREEN; mark='+' ;; D) colour=$C_RED; mark='-' ;; R) colour=$C_PURPLE; mark='>' ;; C) mark='=' ;; M) mark='~' ;; *) mark=$value ;; esac
+        ui_line "  $mark " "$detail" "$colour"
+        ;;
+    esac
+    if [[ -n ${LOG_FILE:-} ]]; then printf '[RELEASE] %s %s %s\n' "$kind" "$value" "$detail" >> "$LOG_FILE"; fi
+  done <<< "$report"
+}
+
+ui_status() {
+  local rows rendered row
+  ui_panel 'QUIZ SERVICES'
+  CURRENT_TASK='Read Quiz service state'
+  rows=$(compose "$OLD_CONFIG" ps --all --format json)
+  rendered=$(python3 - 3<<< "$rows" <<'PY'
+import json, os
+text = os.fdopen(3).read()
+try:
+    rows = json.loads(text or "[]")
+except ValueError:
+    rows = [json.loads(line) for line in text.splitlines() if line.strip()]
+if isinstance(rows, dict):
+    rows = [rows]
+for row in rows:
+    name = row.get("Service", "unknown")
+    state = row.get("State", "unknown")
+    health = row.get("Health")
+    info = f"{name}: {state}" + (f" / {health}" if health else "")
+    ports = row.get("Publishers") or []
+    published = [f"{port.get('URL', '')}:{port['PublishedPort']}" for port in ports if port.get("PublishedPort")]
+    if published:
+        info += " / " + ", ".join(published)
+    print(json.dumps(info, ensure_ascii=True)[1:-1])
+if not rows:
+    print("No Quiz containers were found.")
+PY
+  )
+  while IFS= read -r row; do ui_line '  ' "$row"; done <<< "$rendered"
+  ui_panel 'BACKUPS AND CERTIFICATE RENEWAL'
+  if systemctl is-active --quiet webostics-quiz-backup.timer; then message OK 'Daily Quiz backup timer is active.'
+  else message WARN 'Daily Quiz backup timer is not active. Inspect its systemd status.'; fi
+  if systemctl is-active --quiet certbot.timer || systemctl is-active --quiet snap.certbot.renew.timer || systemctl is-active --quiet webostics-quiz-renew.timer; then
+    message OK 'Certificate renewal scheduling is active.'
+  else message WARN 'No supported active renewal timer detected. Check existing renewal arrangements.'; fi
+  ui_pair 'Configuration' "$OLD_CONFIG" "$C_DIM"
+  ui_pair 'Logs' "$ROOT/shared/logs" "$C_DIM"
+  ui_pair 'Paired backups' "$ROOT/shared/backups" "$C_DIM"
+  CURRENT_TASK=''
+}
+
 prompt() {
   local target=$1 label=$2 default=${3:-} value
   [[ -r /dev/tty ]] || fail 'An interactive terminal is required for initial setup.'
   if [[ -n $default ]]; then label="$label [$default]"; fi
-  printf '%s: ' "$label" > /dev/tty
+  printf '%s  ? %s%s: ' "$C_BLUE" "$label" "$C_RESET" > /dev/tty
   IFS= read -r value < /dev/tty
   printf -v "$target" '%s' "${value:-$default}"
 }
 
 prompt_secret() {
   local target=$1 label=$2 value
-  printf '%s: ' "$label" > /dev/tty
+  printf '%s  ? %s%s: ' "$C_BLUE" "$label" "$C_RESET" > /dev/tty
   IFS= read -rs value < /dev/tty
   printf '\n' > /dev/tty
   printf -v "$target" '%s' "$value"
@@ -113,7 +648,11 @@ check_workdir_ownership() {
 
 cleanup() {
   ((BASH_SUBSHELL == 0)) || return 0
-  if [[ -n ${TASK_PID:-} ]]; then kill "$TASK_PID" 2>/dev/null || true; fi
+  ui_clear_live
+  if [[ -n ${TASK_PID:-} ]]; then
+    kill -TERM "$TASK_PID" 2>/dev/null || true
+    wait "$TASK_PID" 2>/dev/null || true
+  fi
   if [[ ${BUILDER_ACTIVE:-0} == 1 ]]; then docker buildx stop "$BUILDER" >/dev/null 2>&1 || true; fi
   if [[ -n ${RUN_DIR:-} && -d $RUN_DIR ]]; then rm -rf -- "$RUN_DIR"; fi
 }
@@ -138,19 +677,20 @@ on_error() {
   if ((BASH_SUBSHELL > 0)); then trap - ERR; exit "$status"; fi
   trap - ERR INT TERM
   set +e
+  ui_clear_live
   if [[ ${MIGRATION_STARTED:-0} == 1 && -f ${CANDIDATE_CONFIG:-} ]]; then
-    compose "$CANDIDATE_CONFIG" run --rm --no-deps api php artisan down >> "$LOG_FILE" 2>&1
+    if compose "$CANDIDATE_CONFIG" run --rm --no-deps api php artisan down >> "$LOG_FILE" 2>&1; then
+      MAINTENANCE_SUMMARY='Enabled for Quiz'
+    else MAINTENANCE_SUMMARY='Requested for Quiz; could not confirm. Inspect the private log.'; fi
     compose "$CANDIDATE_CONFIG" stop worker >> "$LOG_FILE" 2>&1
-    message WARN 'Quiz remains in maintenance mode. Database migrations are NOT automatically reversed.'
-    message WARN "Recovery: sudo bash $ROOT/bin/deploy-vps.sh --status"
-    message WARN "Backups: $ROOT/shared/backups. Fix the reported issue and rerun this installer."
   elif [[ ${QUIESCED:-0} == 1 && -f ${OLD_CONFIG:-} ]]; then
-    compose "$OLD_CONFIG" exec -T api php artisan up >> "$LOG_FILE" 2>&1
+    if compose "$OLD_CONFIG" exec -T api php artisan up >> "$LOG_FILE" 2>&1; then
+      MAINTENANCE_SUMMARY='Disabled for the previous release'
+    else MAINTENANCE_SUMMARY='Could not confirm previous release recovery. Inspect the private log.'; fi
     compose "$OLD_CONFIG" up -d --no-build worker >> "$LOG_FILE" 2>&1
   fi
   if [[ -n ${LOG_FILE:-} ]]; then restore_nginx; fi
-  message ERROR "Stopped at stage ${STAGE:-0}, line $line (exit $status)."
-  if [[ -n ${LOG_FILE:-} ]]; then message INFO "Private diagnostic log: $LOG_FILE"; fi
+  ui_failure "$status" "$line"
   exit "$status"
 }
 
@@ -253,12 +793,13 @@ safe_apt_install() {
 }
 
 install_dependencies() {
-  local missing=() pair command package
+  local missing=() reused=() pair command package
   for pair in git:git curl:curl gpg:gnupg python3:python3 openssl:openssl ss:iproute2 flock:util-linux nginx:nginx certbot:certbot; do
     command=${pair%%:*}; package=${pair#*:}
-    if command -v "$command" >/dev/null; then message OK "$command already installed; skipped."
+    if command -v "$command" >/dev/null; then reused+=("$command")
     else missing+=("$package"); fi
   done
+  if ((${#reused[@]})); then message SKIP "Reusing ${#reused[@]} installed tools: ${reused[*]}"; fi
   if [[ ! -s /etc/ssl/certs/ca-certificates.crt ]]; then missing+=(ca-certificates); fi
   if ((${#missing[@]})); then
     run 'Refresh package metadata' apt-get update
@@ -308,6 +849,7 @@ EOF
     safe_apt_install "${missing[@]}"
   fi
   docker compose version >/dev/null && docker buildx version >/dev/null || fail 'Compatible Docker Compose and Buildx plugins are required.'
+  message OK 'Docker engine, Compose, and Buildx are available.'
   if ! systemctl is-active --quiet nginx; then
     [[ -z $(ss -H -ltn '( sport = :80 or sport = :443 )') ]] || fail 'Nginx is inactive while web ports are occupied. Resolve this manually.'
     run 'Start Nginx on free web ports' systemctl start nginx
@@ -393,7 +935,8 @@ ASKPASS
     printf '%s\n' "$COMMIT" > "$RELEASE/.quiz-release"
   fi
   [[ -f $RELEASE/.quiz-release && $(cat "$RELEASE/.quiz-release") == "$COMMIT" ]] || fail 'Existing release directory is not managed by this installer.'
-  message OK "Commit: ${COMMIT:0:12} · master"
+  message OK "Target commit: ${COMMIT:0:12} / master"
+  release_changes
 }
 
 build_images() {
@@ -411,10 +954,10 @@ build_images() {
   [[ $limits == '2147483648 2147483648 100000 100000' ]] || fail 'The Quiz builder does not have the required resource limits; deployment stopped.'
   API_IMAGE=webostics-quiz-api:$COMMIT
   WEB_IMAGE=webostics-quiz-web:$COMMIT
-  run 'Build Laravel / PHP 8.4 production image' docker buildx build --builder "$BUILDER" --load \
+  RUN_KIND=build run 'Laravel image (PHP 8.4)' docker buildx build --progress plain --builder "$BUILDER" --load \
     --label "org.webostics.quiz.owner=$PROJECT" --label "org.opencontainers.image.revision=$COMMIT" \
     --target production --file "$RELEASE/infrastructure/Dockerfile.api" --tag "$API_IMAGE" "$RELEASE"
-  run 'Build Next.js production image' docker buildx build --builder "$BUILDER" --load \
+  RUN_KIND=build run 'Next.js image' docker buildx build --progress plain --builder "$BUILDER" --load \
     --label "org.webostics.quiz.owner=$PROJECT" --label "org.opencontainers.image.revision=$COMMIT" \
     --file "$RELEASE/infrastructure/Dockerfile.web" --tag "$WEB_IMAGE" "$RELEASE"
   run 'Stop the idle Quiz build worker' docker buildx stop "$BUILDER"
@@ -627,9 +1170,10 @@ PY
 
 wait_database() {
   local i
-  message INFO 'Waiting for Quiz PostgreSQL readiness…'
+  ui_wait_start 'Quiz PostgreSQL'
   for i in {1..60}; do
-    if compose "$CANDIDATE_CONFIG" exec -T database pg_isready -U quiz -d quiz >/dev/null 2>&1; then message OK 'Quiz PostgreSQL is ready.'; return; fi
+    ui_wait_tick "$i" 60
+    if compose "$CANDIDATE_CONFIG" exec -T database pg_isready -U quiz -d quiz >/dev/null 2>&1; then ui_wait_done; return; fi
     sleep 2
   done
   fail 'Quiz PostgreSQL did not become ready.'
@@ -637,7 +1181,8 @@ wait_database() {
 
 backup_quiz() {
   local config=$1
-  run 'Back up Quiz database and media (retain seven complete pairs)' compose "$config" --profile tools run --rm --no-deps backup
+  run 'Back up Quiz database and media (retain seven complete pairs)' compose "$config" --profile tools run --rm --no-deps backup || return $?
+  BACKUP_RESULT='Database + media / complete'
 }
 
 service_diagnostics() {
@@ -655,10 +1200,11 @@ wait_service() {
   local config=$1 service=$2 id state lifecycle restarts i
   id=$(compose "$config" ps --all -q "$service")
   [[ -n $id ]] || fail "Quiz $service container is missing."
-  message INFO "Waiting for Quiz $service readiness…"
+  ui_wait_start "Quiz $service"
   for i in {1..90}; do
+    ui_wait_tick "$i" 90
     state=$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$id")
-    if [[ $state == healthy || $state == running ]]; then message OK "Quiz $service is ready."; return 0; fi
+    if [[ $state == healthy || $state == running ]]; then ui_wait_done; return 0; fi
     lifecycle=$(docker inspect --format '{{.State.Status}}' "$id")
     restarts=$(docker inspect --format '{{.RestartCount}}' "$id")
     if [[ $lifecycle == exited || $lifecycle == dead || $state == unhealthy ]] || \
@@ -712,9 +1258,10 @@ activate_application() {
   wait_service "$CANDIDATE_CONFIG" gateway
   run 'Leave Quiz maintenance mode' compose "$CANDIDATE_CONFIG" exec -T api php artisan up
   local i
+  ui_wait_start 'Laravel API routing'
   for i in {1..30}; do
+    ui_wait_tick "$i" 30
     if curl -fsS --max-time 5 -H "Host: $DOMAIN" -H 'X-Forwarded-Proto: https' "http://127.0.0.1:$PORT/up" >/dev/null 2>&1; then break; fi
-    if ((i % 10 == 0)); then message INFO "Waiting for Laravel health ($i/30)…"; fi
     sleep 2
   done
   curl -fsS --max-time 10 -H "Host: $DOMAIN" -H 'X-Forwarded-Proto: https' "http://127.0.0.1:$PORT/up" >/dev/null || fail 'Laravel health did not become ready.'
@@ -725,6 +1272,7 @@ import json, sys
 with open(sys.argv[1]) as source:
     assert isinstance(json.load(source).get("message"), str), "Expected a JSON API response."
 PY
+  ui_wait_done
 }
 
 write_host_nginx() {
@@ -786,12 +1334,13 @@ apply_nginx() {
 wait_http() {
   local label=$1 url=$2 expected=$3 attempts=$4 status=000 i
   shift 4
-  message INFO "Waiting for $label…"
+  ui_wait_start "$label"
   for ((i = 1; i <= attempts; i++)); do
+    ui_wait_tick "$i" "$attempts"
     if status=$(curl --noproxy '*' -sS --connect-timeout 3 --max-time 5 \
       --output "$RUN_DIR/http-response" --write-out '%{http_code}' "$@" "$url" 2> "$RUN_DIR/http-error"); then
       if [[ $status == 200 ]] && { [[ -z $expected ]] || [[ $(cat "$RUN_DIR/http-response") == "$expected" ]]; }; then
-        message OK "$label is ready."
+        ui_wait_done
         return 0
       fi
     fi
@@ -843,6 +1392,7 @@ ensure_https() {
   apply_nginx
   wait_http 'Quiz HTTPS health' "https://$DOMAIN/up" '' 30 --resolve "$DOMAIN:443:127.0.0.1"
   wait_http 'Quiz HTTPS home' "https://$DOMAIN/" '' 5 --resolve "$DOMAIN:443:127.0.0.1"
+  HTTPS_SUMMARY='Healthy / certificate verified'
   message OK "HTTPS is serving $DOMAIN."
 }
 
@@ -1024,6 +1574,7 @@ PY
   if [[ -f $NGINX_FILE ]]; then cp "$NGINX_FILE" "$RUN_DIR/nginx.before"; fi
   step 'Reuse saved images and production settings; skip Git and builds'
   message OK "Resuming commit ${COMMIT:0:12}. Database and media will be backed up before retrying migrations."
+  release_changes
 }
 
 main() {
@@ -1039,21 +1590,28 @@ main() {
   NGINX_FILE=/etc/nginx/conf.d/webostics-quiz.conf
   MODE=deploy ENV_SOURCE='' LOG_FILE='' RUN_DIR='' TASK_PID='' OLD_CONFIG='' CANDIDATE_CONFIG=''
   STAGE=0 TOTAL_STAGES=10 MIGRATION_STARTED=0 QUIESCED=0 NGINX_CHANGED=0 ENABLE_RENEW=0 FIRST_DEPLOY=1 BUILDER_ACTIVE=0
-  C_BLUE='' C_GREEN='' C_YELLOW='' C_RED='' C_RESET=''
-  if [[ -t 1 && -z ${NO_COLOR:-} && ${TERM:-dumb} != dumb ]]; then
-    C_BLUE=$'\033[1;36m'; C_GREEN=$'\033[1;32m'; C_YELLOW=$'\033[1;33m'; C_RED=$'\033[1;31m'; C_RESET=$'\033[0m'
-  fi
+  UI_PLAIN=0 UI_STARTED=$SECONDS UI_STAGE_STARTED=$SECONDS CURRENT_STAGE='' CURRENT_TASK='' FAILED_TASK=''
+  UI_ERROR_REASON='' MAINTENANCE_SUMMARY='Not changed by this run' BACKUP_RESULT='' CHANGE_COUNT='Unavailable'
+  HTTPS_SUMMARY='' SERVICE_SUMMARY='' BASE_RELEASE='Not recorded' PENDING_RELEASE=''
+  ui_init
   local selected_mode=0
   while (($#)); do
     case $1 in
-      --check|--status|--logs|--backup|--resume)
+      --check|--status|--logs|--backup|--resume|--preview-ui)
         ((selected_mode == 0)) || fail 'Select only one operation.'
         MODE=${1#--}; selected_mode=1; shift ;;
+      --plain) UI_PLAIN=1; ui_init; shift ;;
       --env-file) (($# >= 2)) || fail '--env-file requires a path.'; ENV_SOURCE=$2; shift 2 ;;
       --help|-h) usage; return 0 ;;
       *) usage >&2; fail "Unknown argument: $1" ;;
     esac
   done
+  ui_init
+  if [[ $MODE == preview-ui ]]; then
+    [[ -z $ENV_SOURCE ]] || fail '--preview-ui does not accept --env-file.'
+    ui_preview
+    return 0
+  fi
   if [[ -n $ENV_SOURCE ]]; then
     [[ -f $ENV_SOURCE && -r $ENV_SOURCE ]] || fail 'The supplied SMTP environment file is not readable.'
     ENV_SOURCE=$(realpath "$ENV_SOURCE")
@@ -1067,39 +1625,47 @@ main() {
   trap 'on_error $? $LINENO' ERR
   trap 'on_error 130 $LINENO' INT
   trap 'on_error 143 $LINENO' TERM
-  printf '\n%s╭──────────────────────────────────────────────────╮\n│  LITTLE QUEST · shared VPS deployer              │\n╰──────────────────────────────────────────────────╯%s\n' "$C_BLUE" "$C_RESET"
-  message INFO "Domain: $DOMAIN · repository: SaadiDK-003/quiz_app · branch: master"
-  message INFO "Checkout: $SOURCE_DIR · private runtime: $ROOT"
+  ui_release_context
+  ui_header
   if [[ $MODE == check ]]; then
+    ui_panel 'READ-ONLY PREFLIGHT'
     check_workdir_ownership
     require_ubuntu
     check_resources
     if command -v git >/dev/null; then check_checkout; else message WARN 'Missing: git'; fi
     check_ports_and_nginx
     local tool
+    local found=() absent=()
     for tool in git curl gpg python3 openssl ss flock nginx certbot docker; do
-      if command -v "$tool" >/dev/null; then message OK "$tool found"; else message WARN "Missing: $tool"; fi
+      if command -v "$tool" >/dev/null; then found+=("$tool"); else absent+=("$tool"); message WARN "Missing: $tool"; fi
     done
+    message SKIP "${#found[@]} tools available: ${found[*]}"
+    if ((${#absent[@]})); then message WARN "${#absent[@]} tools are missing; normal deployment installs missing dependencies only."; fi
     if command -v docker >/dev/null; then
       docker info >/dev/null 2>&1 || fail 'Existing Docker is unavailable; it will not be restarted.'
       check_local_docker
-      docker compose version || fail 'Docker Compose plugin is required.'
-      docker buildx version || fail 'Docker Buildx plugin is required.'
+      local version
+      version=$(docker compose version) || fail 'Docker Compose plugin is required.'
+      message OK "$version"
+      version=$(docker buildx version) || fail 'Docker Buildx plugin is required.'
+      message OK "$version"
       check_docker_ownership
       if command -v ss >/dev/null; then select_port; message INFO "Proposed Quiz localhost port: $PORT"; fi
     fi
+    if ((${#absent[@]})); then ui_finish 'PREFLIGHT COMPLETE / DEPENDENCIES NEEDED' "$C_YELLOW"
+    else ui_finish 'PREFLIGHT COMPLETE'; fi
     message OK 'Read-only preflight finished. No packages, checkout, services, or Nginx files were changed.'
     return 0
   fi
   if [[ $MODE == status || $MODE == logs ]]; then
     current_config
     check_docker_ownership
-    if [[ $MODE == logs ]]; then compose "$OLD_CONFIG" logs --tail 100 -f api web gateway worker
+    if [[ $MODE == logs ]]; then
+      ui_panel 'FOLLOWING QUIZ SERVICE LOGS / CTRL+C TO LEAVE'
+      if [[ -z $C_RESET ]]; then compose "$OLD_CONFIG" logs --no-color --tail 100 -f api web gateway worker
+      else compose "$OLD_CONFIG" logs --tail 100 -f api web gateway worker; fi
     else
-      compose "$OLD_CONFIG" ps
-      systemctl list-timers --all webostics-quiz-backup.timer webostics-quiz-renew.timer --no-pager
-      message INFO "Configuration: $OLD_CONFIG"
-      message INFO "Logs: $ROOT/shared/logs · paired backups: $ROOT/shared/backups"
+      ui_status
     fi
     return 0
   fi
@@ -1107,7 +1673,9 @@ main() {
     current_config
     setup_workdir
     check_docker_ownership
+    ui_panel 'BACK UP QUIZ'
     backup_quiz "$OLD_CONFIG"
+    ui_finish 'BACKUP COMPLETE'
     return 0
   fi
   if [[ $MODE == resume ]]; then
@@ -1171,13 +1739,13 @@ PY
     fi
   fi
   step 'Ready'
-  message OK "Live at https://$DOMAIN · commit ${COMMIT:0:12}"
-  message INFO 'Daily backups: 02:30 UTC / 07:30 Pakistan time; latest seven complete pairs retained.'
-  message INFO "Status: sudo bash $ROOT/bin/deploy-vps.sh --status"
-  message INFO "Logs:   sudo bash $ROOT/bin/deploy-vps.sh --logs"
-  message INFO "Backup: sudo bash $ROOT/bin/deploy-vps.sh --backup"
-  message INFO "Admin: docker compose --env-file /dev/null -p $PROJECT -f $CANDIDATE_CONFIG exec api php artisan pilot:admin YOUR_EMAIL"
-  message INFO "Private deployment log: $LOG_FILE"
+  SERVICE_SUMMARY='PostgreSQL, Laravel, Next.js, gateway, worker: ready'
+  ui_finish 'DEPLOYMENT COMPLETE'
+  if [[ $FIRST_DEPLOY == 1 ]]; then
+    ui_line '  ' 'Administrator setup command' "$C_BLUE"
+    ui_command "docker compose --env-file /dev/null -p $PROJECT -f $CANDIDATE_CONFIG exec api php artisan pilot:admin YOUR_EMAIL"
+  fi
+
 }
 
 if [[ ${BASH_SOURCE[0]} == "$0" ]]; then main "$@"; fi
