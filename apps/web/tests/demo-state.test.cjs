@@ -46,6 +46,9 @@ const progress = {
 };
 const maths = demoCatalog[0].skills[0],
   english = demoCatalog[1].skills[0];
+const { explorerRank, adventurePoints } = load(
+  path.resolve(__dirname, "../src/lib/explorer-rank.ts"),
+);
 
 test("each public subject has 15 unique samples with all skills and a 6/6/3 mix", () => {
   for (const pool of [demoQuestions, englishDemo]) {
@@ -168,4 +171,133 @@ test("malformed stored sequences cannot crash the demo and progress is retained"
   assert.equal(restored.attempt, null);
   assert.equal(restored.progress.completed, 2);
   assert.deepEqual(restoreDemo("{broken", progress), emptyDemo(progress));
+});
+
+test("option shuffles preserve correct identities, content, and their saved order", () => {
+  const original = JSON.stringify(demoQuestions);
+  const state = startDemo(emptyDemo(progress), maths, 1000, () => 0);
+  for (const question of state.sequence) {
+    const source = demoQuestions.find((q) => q.id === question.id);
+    assert.notDeepEqual(
+      question.choices.map((c) => c.id),
+      source.choices.map((c) => c.id),
+    );
+    assert.equal(
+      question.choices[question.answer].id,
+      source.choices[source.answer].id,
+    );
+    assert.deepEqual(
+      [...question.choices].sort((a, b) => a.id.localeCompare(b.id)),
+      source.choices,
+    );
+  }
+  const checked = answerDemo(
+    state,
+    state.sequence[0].choices[state.sequence[0].answer].id,
+  );
+  assert.equal(checked.attempt.feedback.correct, true);
+  assert.equal(checked.progress.explorer_rank.points, 0);
+  const restored = restoreDemo(JSON.stringify(checked), progress);
+  assert.deepEqual(restored.sequence, state.sequence);
+  assert.deepEqual(restored.attempt.feedback, checked.attempt.feedback);
+  assert.equal(JSON.stringify(demoQuestions), original);
+});
+
+test("each rank boundary matches the lifetime milestones and retains points above 1000", () => {
+  for (const [points, title, next] of [
+    [0, "Curious Cub", 100],
+    [99, "Curious Cub", 100],
+    [100, "Trail Finder", 250],
+    [249, "Trail Finder", 250],
+    [250, "Bright Explorer", 500],
+    [499, "Bright Explorer", 500],
+    [500, "Star Adventurer", 1000],
+    [999, "Star Adventurer", 1000],
+    [1000, "Quest Champion", null],
+    [1200, "Quest Champion", null],
+  ]) {
+    const rank = explorerRank(points);
+    assert.equal(rank.points, points);
+    assert.equal(rank.title, title);
+    assert.equal(rank.next_min_points, next);
+  }
+  assert.equal(adventurePoints(0), 10);
+  assert.equal(adventurePoints(5), 20);
+});
+
+test("points arrive only on completion, cross ranks, and do not duplicate on retry or refresh", () => {
+  let state = startDemo(
+    emptyDemo({ ...progress, completed: 4, stars: 4 }),
+    english,
+    1000,
+    () => 0,
+  );
+  assert.equal(state.progress.explorer_rank.points, 40);
+  for (let round = 0; round < 3; round++) {
+    for (let i = 0; i < 5; i++) {
+      const question = state.sequence[i];
+      state = answerDemo(
+        state,
+        question.choices[question.answer].id,
+        2000 + round * 10 + i,
+      );
+      assert.equal(state.progress.explorer_rank.points, 40 + round * 20);
+      const checked = state;
+      state = nextDemo(state, 3000 + round * 10 + i);
+      if (i === 4) {
+        assert.equal(state.progress.explorer_rank.points, 60 + round * 20);
+        assert.equal(nextDemo(state), state);
+        state = restoreDemo(JSON.stringify(state), progress);
+        assert.equal(state.progress.explorer_rank.points, 60 + round * 20);
+      } else
+        assert.equal(
+          checked.progress.explorer_rank.points,
+          state.progress.explorer_rank.points,
+        );
+    }
+    if (round < 2) state = startDemo(state, english, 4000 + round, () => 0);
+  }
+  assert.equal(state.progress.explorer_rank.title, "Trail Finder");
+});
+
+test("version-two upgrades credit old completions once and retain active snapshots and feedback", () => {
+  let saved = startDemo(
+    emptyDemo({ ...progress, completed: 2, stars: 2 }),
+    maths,
+    1000,
+    () => 0,
+  );
+  saved = answerDemo(
+    saved,
+    saved.sequence[0].choices[saved.sequence[0].answer].id,
+    2000,
+  );
+  const old = {
+    ...saved,
+    version: 2,
+    progress: { ...saved.progress, explorer_rank: undefined },
+  };
+  let restored = restoreDemo(JSON.stringify(old), progress);
+  assert.equal(restored.version, 3);
+  assert.equal(restored.progress.explorer_rank.points, 20);
+  assert.deepEqual(restored.sequence, saved.sequence);
+  assert.deepEqual(restored.attempt.feedback, saved.attempt.feedback);
+  restored = restoreDemo(JSON.stringify(restored), progress);
+  assert.equal(restored.progress.explorer_rank.points, 20);
+  restored = nextDemo(restored, 3000);
+  for (let i = 1; i < 5; i++) {
+    const question = restored.sequence[i];
+    restored = answerDemo(
+      restored,
+      question.choices[question.answer].id,
+      4000 + i,
+    );
+    restored = nextDemo(restored, 5000 + i);
+  }
+  assert.equal(restored.progress.explorer_rank.points, 40);
+  assert.equal(
+    restoreDemo(JSON.stringify(restored), progress).progress.explorer_rank
+      .points,
+    40,
+  );
 });

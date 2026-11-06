@@ -12,6 +12,7 @@ export type Question = components["schemas"]["Question"];
 export type Feedback = components["schemas"]["Feedback"];
 export type Attempt = components["schemas"]["Attempt"];
 export type Progress = components["schemas"]["Progress"];
+export type ExplorerRank = components["schemas"]["ExplorerRank"];
 export type QuestionImportResult =
   components["schemas"]["QuestionImportResult"];
 export type AdminQuestion = components["schemas"]["AdminQuestion"];

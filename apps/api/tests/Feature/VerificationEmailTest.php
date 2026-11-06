@@ -25,15 +25,19 @@ class VerificationEmailTest extends TestCase
         $this->freezeSecond();
     }
 
-    public function test_registration_sends_exactly_one_email_and_shares_its_cooldown_with_resends(): void
+    public function test_registration_waits_for_one_manual_email_and_then_enforces_the_cooldown(): void
     {
         Invitation::create(['email' => 'family@example.test', 'token_hash' => hash('sha256', 'family-invite'), 'expires_at' => now()->addDay()]);
         $registration = ['name' => 'Parent', 'email' => 'family@example.test', 'invite' => 'family-invite', 'password' => 'SafePassword42', 'password_confirmation' => 'SafePassword42'];
 
         $this->postJson('/api/v1/auth/register', $registration)
             ->assertCreated()
-            ->assertJsonPath('verification_resend_available_at', now()->addSeconds(60)->toIso8601String());
+            ->assertJsonPath('verification_resend_available_at', null);
         $user = User::where('email', 'family@example.test')->firstOrFail();
+        $this->getJson('/api/v1/session')->assertJsonPath('verification_resend_available_at', null);
+        Notification::assertNothingSent();
+        $this->postJson('/api/v1/auth/verification-notification')->assertOk()
+            ->assertJsonPath('verification_resend_available_at', now()->addSeconds(60)->toIso8601String());
         Notification::assertSentToTimes($user, VerifyEmail::class, 1);
 
         event(new Registered($user));

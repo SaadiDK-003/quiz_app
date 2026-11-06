@@ -223,6 +223,8 @@ components:
         completed: *id002
         stars: *id002
         accuracy: *id002
+        explorer_rank:
+          $ref: "#/components/schemas/ExplorerRank"
         skills:
           type: array
           items:
@@ -276,6 +278,24 @@ components:
         - skills
         - recent
         - stickers
+        - explorer_rank
+    ExplorerRank:
+      type: object
+      description: Lifetime personal rank from completed adventures only. Each completion earns 10 points plus 2 per correct answer, including previous completions and replays. Incomplete and superseded adventures earn no points.
+      required: [points, title, min_points, next_title, next_min_points]
+      properties:
+        points:
+          type: integer
+          minimum: 0
+        title:
+          type: string
+        min_points:
+          type: integer
+          minimum: 0
+        next_title:
+          type: [string, "null"]
+        next_min_points:
+          type: [integer, "null"]
     QuestionImportResult:
       type: object
       required: [created, skipped]
@@ -609,7 +629,7 @@ paths:
     post:
       operationId: accept_invitation
       summary: Accept invitation
-      description: ""
+      description: Creates an unverified parent account from an invitation and signs the parent into adult mode. Does not send verification email; the parent requests it through /auth/verification-notification.
       security: []
       responses:
         "201":
@@ -728,7 +748,7 @@ paths:
     post:
       operationId: send_verification
       summary: Send verification
-      description: Sends at most one verification email per parent per 60 seconds, shared with the initial registration email. Concurrent requests are guarded by a shared cache lock. Already-verified parents receive a success response without sending an email. Failed sends release the lock and do not start a cooldown.
+      description: Sends verification email only when requested by the signed-in parent; opening an invitation and registering do not send verification email. At most one email per parent per 60 seconds. Concurrent requests are guarded by a shared cache lock. Already-verified parents receive a success response without sending an email. Failed sends release the lock and do not start a cooldown.
       security:
         - cookieAuth: []
       responses:
@@ -1238,7 +1258,9 @@ paths:
         retained internally as superseded. Once any answer is accepted, returns
         the existing active attempt even if a different skill was requested;
         clients must explain that adventure should be continued. New attempts
-        snapshot five published question revisions.
+        snapshot five published question revisions and a shuffled choice-ID order
+        for each question. Choice IDs and scoring stay unchanged. Reads, retries,
+        and resume retain the saved order; legacy attempts keep revision order.
         New adventures aim for two Starter, two Growing, and one Challenge question,
         ordered from simpler to harder. Within each level, unchecked questions are
         preferred, then those checked longest ago by this child. Sparse levels use

@@ -6,7 +6,6 @@ use App\Models\Invitation;
 use App\Models\User;
 use App\Services\VerificationEmailSender;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -59,7 +58,6 @@ class AuthController extends Controller
         Auth::login($user);
         $r->session()->regenerate();
         $r->session()->put('mode', 'adult');
-        event(new Registered($user));
 
         return response()->json($this->session($r), 201);
     }

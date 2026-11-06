@@ -47,7 +47,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Accept invitation */
+        /**
+         * Accept invitation
+         * @description Creates an unverified parent account from an invitation and signs the parent into adult mode. Does not send verification email; the parent requests it through /auth/verification-notification.
+         */
         post: operations["accept_invitation"];
         delete?: never;
         options?: never;
@@ -100,7 +103,7 @@ export interface paths {
         put?: never;
         /**
          * Send verification
-         * @description Sends at most one verification email per parent per 60 seconds, shared with the initial registration email. Concurrent requests are guarded by a shared cache lock. Already-verified parents receive a success response without sending an email. Failed sends release the lock and do not start a cooldown.
+         * @description Sends verification email only when requested by the signed-in parent; opening an invitation and registering do not send verification email. At most one email per parent per 60 seconds. Concurrent requests are guarded by a shared cache lock. Already-verified parents receive a success response without sending an email. Failed sends release the lock and do not start a cooldown.
          */
         post: operations["send_verification"];
         delete?: never;
@@ -295,7 +298,7 @@ export interface paths {
         put?: never;
         /**
          * Start adventure
-         * @description Resumes an active attempt for the same skill. A different skill replaces the active attempt only before its first accepted answer, after validating that five published questions are available. Replaced empty attempts are retained internally as superseded. Once any answer is accepted, returns the existing active attempt even if a different skill was requested; clients must explain that adventure should be continued. New attempts snapshot five published question revisions. New adventures aim for two Starter, two Growing, and one Challenge question, ordered from simpler to harder. Within each level, unchecked questions are preferred, then those checked longest ago by this child. Sparse levels use other available questions, preferring easier levels. Existing active attempts retain their snapshots.
+         * @description Resumes an active attempt for the same skill. A different skill replaces the active attempt only before its first accepted answer, after validating that five published questions are available. Replaced empty attempts are retained internally as superseded. Once any answer is accepted, returns the existing active attempt even if a different skill was requested; clients must explain that adventure should be continued. New attempts snapshot five published question revisions and a shuffled choice-ID order for each question. Choice IDs and scoring stay unchanged. Reads, retries, and resume retain the saved order; legacy attempts keep revision order. New adventures aim for two Starter, two Growing, and one Challenge question, ordered from simpler to harder. Within each level, unchecked questions are preferred, then those checked longest ago by this child. Sparse levels use other available questions, preferring easier levels. Existing active attempts retain their snapshots.
          */
         post: operations["start_adventure"];
         delete?: never;
@@ -623,6 +626,7 @@ export interface components {
             completed: number;
             stars: number;
             accuracy: number;
+            explorer_rank: components["schemas"]["ExplorerRank"];
             skills: {
                 id: number;
                 name: string;
@@ -643,6 +647,14 @@ export interface components {
                 icon: string;
                 earned_at: string;
             }[];
+        };
+        /** @description Lifetime personal rank from completed adventures only. Each completion earns 10 points plus 2 per correct answer, including previous completions and replays. Incomplete and superseded adventures earn no points. */
+        ExplorerRank: {
+            points: number;
+            title: string;
+            min_points: number;
+            next_title: string | null;
+            next_min_points: number | null;
         };
         QuestionImportResult: {
             created: number;

@@ -5,6 +5,7 @@ import {
   Check,
   ChevronRight,
   LogOut,
+  LoaderCircle,
   Mail,
   Pencil,
   Plus,
@@ -24,6 +25,7 @@ import {
 } from "@little-quest/api-client";
 import { api, Dialog, type Notice } from "./quiz-app";
 import { AdminPanel } from "./admin-panel";
+import { ExplorerRankCard } from "./explorer-rank-card";
 export function AuthDialog({
   mode,
   params,
@@ -97,7 +99,7 @@ export function AuthDialog({
         if (mode === "register") {
           history.replaceState(null, "", "/");
           notify(
-            "Your account is ready. Please verify your email to add explorers.",
+            "Your account is ready. Send a verification email from the Parent corner to get started.",
           );
         }
       }
@@ -249,20 +251,30 @@ export function ParentPanel({
     [editor, setEditor] = useState<Child | true | null>(null),
     [tab, setTab] = useState("family"),
     [busy, setBusy] = useState(false),
+    [openingChild, setOpeningChild] = useState<number | null>(null),
     [deleteAccount, setDeleteAccount] = useState(false),
     [password, setPassword] = useState(""),
     [error, setError] = useState("");
+  const openingRef = useRef<number | null>(null);
   useEffect(() => {
     setChildren(session.children);
   }, [session.children]);
   useEffect(() => {
+    let current = true;
     setProgress(null);
-    if (chosen && session.user.email_verified_at)
+    if (chosen && session.user.email_verified_at && openingChild === null)
       api
         .get<Progress>(`/children/${chosen}/progress`)
-        .then(setProgress)
-        .catch((e) => notify(e.message));
-  }, [chosen, session.user.email_verified_at, notify]);
+        .then((value) => {
+          if (current) setProgress(value);
+        })
+        .catch((e) => {
+          if (current) notify(e.message);
+        });
+    return () => {
+      current = false;
+    };
+  }, [chosen, session.user.email_verified_at, notify, openingChild]);
   async function loadChildren() {
     const c = await api.get<Child[]>("/children");
     setChildren(c);
@@ -279,13 +291,16 @@ export function ParentPanel({
     }
   }
   async function enter(c: Child) {
-    setBusy(true);
+    if (openingRef.current !== null || busy) return;
+    openingRef.current = c.id;
+    setOpeningChild(c.id);
     try {
       await onSession(await api.post<Session>(`/children/${c.id}/enter`));
     } catch (e) {
       notify((e as Error).message);
     } finally {
-      setBusy(false);
+      openingRef.current = null;
+      setOpeningChild(null);
     }
   }
   async function remove(c: Child) {
@@ -316,7 +331,11 @@ export function ParentPanel({
             growing.
           </p>
         </div>
-        <button className="button secondary" onClick={logout}>
+        <button
+          className="button secondary"
+          onClick={logout}
+          disabled={openingChild !== null}
+        >
           <LogOut size={17} />
           Sign out
         </button>
@@ -360,6 +379,7 @@ export function ParentPanel({
                 <button
                   className="button secondary"
                   onClick={() => setEditor(true)}
+                  disabled={openingChild !== null}
                 >
                   <Plus size={18} />
                   Add explorer
@@ -374,6 +394,7 @@ export function ParentPanel({
                     <button
                       className="child-select"
                       onClick={() => setChosen(c.id)}
+                      disabled={openingChild !== null}
                     >
                       <span>
                         {
@@ -391,18 +412,43 @@ export function ParentPanel({
                       <small>Ages {c.age_band}</small>
                     </button>
                     <button
-                      className="button primary"
-                      disabled={busy}
+                      className="button primary explorer-entry"
+                      disabled={busy || openingChild !== null}
+                      aria-busy={openingChild === c.id}
+                      aria-label={
+                        openingChild === c.id
+                          ? `Opening ${c.nickname}`
+                          : `Let’s explore with ${c.nickname}`
+                      }
                       onClick={() => enter(c)}
                     >
-                      Let’s explore <ArrowRight size={16} />
+                      {openingChild === c.id ? (
+                        <>
+                          Opening…{" "}
+                          <LoaderCircle
+                            size={18}
+                            className="entry-spinner"
+                            aria-hidden="true"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          Let’s explore <ArrowRight size={16} />
+                        </>
+                      )}
                     </button>
                     <div className="child-actions">
-                      <button onClick={() => setEditor(c)}>
+                      <button
+                        onClick={() => setEditor(c)}
+                        disabled={openingChild !== null}
+                      >
                         <Pencil size={14} />
                         Edit
                       </button>
-                      <button onClick={() => remove(c)}>
+                      <button
+                        onClick={() => remove(c)}
+                        disabled={openingChild !== null}
+                      >
                         <Trash2 size={14} />
                         Delete
                       </button>
@@ -441,6 +487,9 @@ export function ParentPanel({
                       </p>
                     </div>
                   </div>
+                  {progress && (
+                    <ExplorerRankCard rank={progress.explorer_rank} />
+                  )}
                   <div className="stats-grid">
                     <div>
                       <span>
@@ -677,9 +726,10 @@ function VerificationNotice({
       <Mail size={50} />
       <h2>One little check before we begin.</h2>
       <p>
-        Please open the verification email sent to {session.user.email}.
+        Request a verification email for {session.user.email}, then open its
+        link.
         <br />
-        Then refresh this page to set up your explorers.
+        After verifying, refresh this page to set up your explorers.
       </p>
       <button
         type="button"
