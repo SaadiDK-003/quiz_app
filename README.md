@@ -19,7 +19,7 @@ cd ../..
 npm run dev:all
 ```
 
-Open **http://localhost:3000**. The public, labelled demo uses device-local storage and a mixed five-question sampler for each subject. It does not create family learning records or expose draft questions. The signed-in experience uses the Laravel API and skill-specific published content.
+Open **http://localhost:3000**. The public, labelled demo uses device-local storage and a mixed five-question sampler drawn from 15 samples per subject. It does not create family learning records or expose draft questions. The signed-in experience uses the Laravel API and skill-specific published content.
 
 For separate terminals, run `php artisan serve --host=127.0.0.1 --port=8000` from `apps/api` and `npm run dev` from the repository root. Use `localhost:3000` consistently rather than switching between localhost and 127.0.0.1, because cookies are host-specific.
 
@@ -33,7 +33,7 @@ php artisan pilot:admin your-email@example.com
 ```
 
 1. Open **Parent corner** and sign in with that account.
-2. Open **Content studio** to review the 120 draft questions. Each of the 12 skills has ten questions.
+2. Open **Content studio** to review the 360 bundled draft questions. Each of the 12 skills has 30 questions: ten Starter, ten Growing, and ten Challenge. On an existing installation, select **Import bundled questions** first; it adds missing drafts and preserves all existing edits and review decisions.
 3. Check each answer and explanation, upload narration, listen to it, and select the three adult-review checks. Audio for reading activities must not reveal the word or passage being assessed. Upload optional illustrations with a description.
 4. Publish at least **five questions per skill** to make that adventure playable. Each save creates a revision; active adventures retain their original revisions.
 5. Add child profiles, choose starting skills, and enter an explorer's learning area.
@@ -52,11 +52,14 @@ Locally, `MAIL_MAILER=log` writes verification, invitation, and recovery message
 
 The versioned API is `/api/v1`. Before browser mutations, the client obtains `/sanctum/csrf-cookie` and sends the decoded `XSRF-TOKEN` cookie in `X-XSRF-TOKEN`. Expired CSRF tokens refresh once automatically. Protected requests require verified email and server-side ownership checks. Child mode is enforced by the server and requires password reauthentication to return to adult mode.
 
-Answers are first-submission-only. Requests carry the attempt position and revision ID; retries cannot change accepted answers or award duplicate stickers. Completion and progress records are transactional. Starting an adventure reuses the child's existing active attempt.
+Answers are first-submission-only. Requests carry the attempt position and revision ID; retries cannot change accepted answers or award duplicate stickers. Completion and progress records are transactional. Starting an adventure reuses the child's existing active attempt. New adventures aim for two Starter, two Growing, and one Challenge question, ordered from simpler to harder. Within each difficulty, unchecked questions are preferred, then those checked longest ago by that child. Sparse difficulty pools use other available questions, preferring easier levels.
+
+The demo stores its selected sequence and checked-question history on the device, preserving legacy unfinished samplers across upgrades. Its separate public sample pack must receive adult approval before a production release; private draft bank content is never imported into the demo.
 
 ```bash
 npm run generate:api
 npm run typecheck
+node apps/web/tests/demo-state.test.cjs
 npm run build
 npm run test:api
 ```

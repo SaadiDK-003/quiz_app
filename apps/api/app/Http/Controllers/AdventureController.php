@@ -6,9 +6,9 @@ use App\Models\ActivityEvent;
 use App\Models\Attempt;
 use App\Models\AttemptQuestion;
 use App\Models\ChildProfile;
-use App\Models\Question;
 use App\Models\Reward;
 use App\Models\Skill;
+use App\Services\AdventureQuestionSelector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -49,7 +49,7 @@ class AdventureController extends Controller
             }
             $skill = Skill::with('subject')->findOrFail($v['skill_id']);
             abort_unless($skill->active && $skill->subject->active, 422, 'This skill is taking a little rest.');
-            $questions = Question::where('skill_id', $skill->id)->where('status', 'published')->with('latestRevision')->inRandomOrder()->limit(5)->get();
+            $questions = app(AdventureQuestionSelector::class)->select($child, $skill->id);
             abort_unless($questions->count() === 5, 422, 'This adventure is still being prepared. Try another skill soon.');
             if ($old) {
                 $old->update(['status' => 'superseded']);

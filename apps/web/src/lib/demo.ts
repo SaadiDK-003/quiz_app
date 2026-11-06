@@ -28,7 +28,7 @@ export const demoCatalog: Subject[] = [
         "Explore parts of a whole",
       ][i],
       position: i + 1,
-      question_count: 10,
+      question_count: 15,
     })),
   },
   {
@@ -59,17 +59,28 @@ export const demoCatalog: Subject[] = [
         "Find the story inside the words",
       ][i],
       position: i + 1,
-      question_count: 10,
+      question_count: 15,
     })),
   },
 ];
+export type Difficulty = "starter" | "growing" | "challenge";
+export type DemoQuestion = Question & {
+  answer: number;
+  explanation: string;
+  difficulty: Difficulty;
+  skill: string;
+};
 const q = (
   id: number,
   prompt: string,
   options: string[],
   answer: number,
   explanation: string,
-) => ({
+  difficulty: Difficulty = "starter",
+  skill = "",
+): DemoQuestion => ({
+  difficulty,
+  skill,
   id,
   prompt,
   choices: options.map((text, i) => ({
@@ -83,10 +94,7 @@ const q = (
   answer,
   explanation,
 });
-export const demoQuestions: (Question & {
-  answer: number;
-  explanation: string;
-})[] = [
+export const legacyMathsDemo = [
   q(
     1,
     "What is 24 + 13?",
@@ -123,7 +131,7 @@ export const demoQuestions: (Question & {
     "Share 10 equally into 2 groups. Each group has 5.",
   ),
 ];
-export const englishDemo = [
+export const legacyEnglishDemo = [
   q(
     11,
     "Which word means the opposite of “happy”?",
@@ -158,5 +166,231 @@ export const englishDemo = [
     ["A pencil", "Water", "A shoe", "A blanket"],
     1,
     "The story tells us Sam watered the seed. Plants need water to grow.",
+  ),
+];
+
+const annotate = (
+  questions: DemoQuestion[],
+  skills: string[],
+  levels: Difficulty[],
+) =>
+  questions.map((question, i) => ({
+    ...question,
+    skill: skills[i],
+    difficulty: levels[i],
+  }));
+export const demoQuestions: DemoQuestion[] = [
+  ...annotate(
+    legacyMathsDemo,
+    ["addition", "place-value", "subtraction", "multiplication", "fractions"],
+    ["growing", "starter", "starter", "growing", "starter"],
+  ),
+  q(
+    101,
+    "Share 6 pears equally between 2 bowls. How many pears go in each bowl?",
+    ["2", "3", "4", "8"],
+    1,
+    "6 divided into 2 equal groups gives 3 pears in each bowl.",
+    "starter",
+    "division",
+  ),
+  q(
+    102,
+    "You have 6 shells and find 7 more. How many shells now?",
+    ["12", "14", "13", "1"],
+    2,
+    "6 + 7 = 13 shells altogether.",
+    "starter",
+    "addition",
+  ),
+  q(
+    103,
+    "Four bicycles each have 2 wheels. How many wheels altogether?",
+    ["8", "6", "4", "10"],
+    0,
+    "Four groups of 2 make 8 wheels.",
+    "starter",
+    "multiplication",
+  ),
+  q(
+    104,
+    "What is 52 − 18?",
+    ["44", "36", "24", "34"],
+    3,
+    "52 − 10 = 42. Take away 8 more to get 34.",
+    "growing",
+    "subtraction",
+  ),
+  q(
+    105,
+    "Which number has 2 hundreds, 4 tens and 3 ones?",
+    ["234", "243", "423", "203"],
+    1,
+    "200 + 40 + 3 = 243.",
+    "growing",
+    "place-value",
+  ),
+  q(
+    106,
+    "Share 36 beads equally among 6 children. How many beads each?",
+    ["5", "7", "6", "30"],
+    2,
+    "6 × 6 = 36, so each child gets 6 beads.",
+    "growing",
+    "division",
+  ),
+  q(
+    107,
+    "What is one quarter of 20?",
+    ["5", "4", "10", "16"],
+    0,
+    "A quarter is one of 4 equal groups. 20 ÷ 4 = 5.",
+    "growing",
+    "fractions",
+  ),
+  q(
+    108,
+    "What is 164 + 58?",
+    ["212", "232", "221", "222"],
+    3,
+    "164 + 50 = 214. Add 8 more to make 222.",
+    "challenge",
+    "addition",
+  ),
+  q(
+    109,
+    "Seven trays each hold 8 cups. How many cups altogether?",
+    ["54", "56", "48", "15"],
+    1,
+    "7 × 8 = 56 cups. You can add 40 and 16 to find the answer.",
+    "challenge",
+    "multiplication",
+  ),
+  q(
+    110,
+    "What is three quarters of 20?",
+    ["5", "10", "15", "18"],
+    2,
+    "One quarter of 20 is 5. Three quarters is 3 × 5 = 15.",
+    "challenge",
+    "fractions",
+  ),
+];
+export const englishDemo: DemoQuestion[] = [
+  ...annotate(
+    legacyEnglishDemo,
+    [
+      "synonyms-opposites",
+      "spelling",
+      "punctuation",
+      "vocabulary",
+      "reading-comprehension",
+    ],
+    ["starter", "growing", "starter", "starter", "growing"],
+  ),
+  q(
+    201,
+    "Choose the word that completes: “The birds ___ singing.”",
+    ["is", "are", "am", "be"],
+    1,
+    "Birds is plural, so we say the birds are singing.",
+    "starter",
+    "sentence-structure",
+  ),
+  q(
+    202,
+    "Which word means the opposite of “closed”?",
+    ["Shut", "Empty", "Open", "Quiet"],
+    2,
+    "Open is the opposite of closed.",
+    "starter",
+    "synonyms-opposites",
+  ),
+  q(
+    203,
+    "Choose the correctly spelled word for a green living thing in a pot.",
+    ["Plant", "Plent", "Plannt", "Pllant"],
+    0,
+    "Plant is spelled p-l-a-n-t.",
+    "starter",
+    "spelling",
+  ),
+  q(
+    204,
+    "Jo put soil in a pot, planted a seed, then watered it. What did Jo do just before watering?",
+    ["Picked a flower", "Filled a bowl", "Read a book", "Planted a seed"],
+    3,
+    "The order was soil, seed, then water. Planting came just before watering.",
+    "growing",
+    "reading-comprehension",
+  ),
+  q(
+    205,
+    "Choose the joining word: “I wore boots ___ the path was muddy.”",
+    ["but", "because", "or", "whose"],
+    1,
+    "Because introduces the reason for wearing boots.",
+    "growing",
+    "sentence-structure",
+  ),
+  q(
+    206,
+    "Which sentence uses a comma correctly in its list?",
+    [
+      "We, packed bread cheese and pears.",
+      "We packed, bread cheese and pears.",
+      "We packed bread, cheese and pears.",
+      "We packed bread cheese, and, pears.",
+    ],
+    2,
+    "The comma separates bread and cheese in the list.",
+    "growing",
+    "punctuation",
+  ),
+  q(
+    207,
+    "Which word means the same as “brave”?",
+    ["Courageous", "Afraid", "Careless", "Sleepy"],
+    0,
+    "A brave or courageous person faces something frightening with courage.",
+    "growing",
+    "synonyms-opposites",
+  ),
+  q(
+    208,
+    "Which phrase says the bags belong to the children?",
+    [
+      "the childrens bags",
+      "the childrens’ bags",
+      "the children bag’s",
+      "the children’s bags",
+    ],
+    3,
+    "Children is already plural. Add apostrophe s to show the bags belong to them.",
+    "challenge",
+    "punctuation",
+  ),
+  q(
+    209,
+    "The instructions were precise. What does precise mean?",
+    ["Very funny", "Exact and clear", "Hard to hear", "Full of guesses"],
+    1,
+    "Precise instructions explain exactly what to do.",
+    "challenge",
+    "vocabulary",
+  ),
+  q(
+    210,
+    "Dark clouds gathered. Asha put an umbrella in her bag before leaving. Why did she probably pack it?",
+    [
+      "She wanted to plant a tree",
+      "She was going to bed",
+      "She thought it might rain",
+      "She needed a pencil",
+    ],
+    2,
+    "The dark clouds suggest rain, so Asha prepared by taking an umbrella.",
+    "challenge",
+    "reading-comprehension",
   ),
 ];

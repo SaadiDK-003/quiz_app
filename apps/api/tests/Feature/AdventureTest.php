@@ -58,13 +58,13 @@ class AdventureTest extends TestCase
         return $this->learner()->postJson('/api/v1/attempts', ['skill_id' => $this->skillId])->assertOk()->json();
     }
 
-    public function test_seed_has_120_drafts_and_is_idempotent(): void
+    public function test_seed_has_360_drafts_and_is_idempotent(): void
     {
-        $this->assertDatabaseCount('questions', 120);
+        $this->assertDatabaseCount('questions', 360);
         $this->assertDatabaseCount('skills', 12);
-        $this->assertSame(120, Question::where('status', 'draft')->count());
+        $this->assertSame(360, Question::where('status', 'draft')->count());
         $this->seed();
-        $this->assertDatabaseCount('question_revisions', 120);
+        $this->assertDatabaseCount('question_revisions', 360);
     }
 
     public function test_seed_choices_are_unique_and_answers_valid(): void
@@ -301,7 +301,7 @@ class AdventureTest extends TestCase
         $this->actingAs($this->parent)->withSession(['mode' => 'adult'])->putJson('/api/v1/admin/questions/'.$q->id, $p)->assertForbidden();
         $this->parent->forceFill(['role' => 'admin'])->save();
         $this->putJson('/api/v1/admin/questions/'.$q->id, $p)->assertOk()->assertJsonPath('version', 2);
-        $this->assertDatabaseCount('question_revisions', 121);
+        $this->assertDatabaseCount('question_revisions', 361);
     }
 
     public function test_registration_consumes_invite_and_sends_verification(): void

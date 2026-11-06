@@ -32,6 +32,7 @@ Route::prefix('api/v1')->group(function () {
                 Route::middleware('admin')->prefix('admin')->group(function () {
                     Route::get('questions', [AdminController::class, 'index']);
                     Route::post('questions', [AdminController::class, 'save']);
+                    Route::post('questions/import', [AdminController::class, 'import'])->middleware('throttle:5,1');
                     Route::put('questions/{question}', [AdminController::class, 'save']);
                     Route::get('metadata', [AdminController::class, 'metadata']);
                     Route::post('metadata/{kind}', [AdminController::class, 'saveMetadata']);

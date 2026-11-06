@@ -260,6 +260,16 @@ components:
         - skills
         - recent
         - stickers
+    QuestionImportResult:
+      type: object
+      required: [created, skipped]
+      properties:
+        created:
+          type: integer
+          minimum: 0
+        skipped:
+          type: integer
+          minimum: 0
     AdminQuestion:
       type: object
       properties:
@@ -1195,7 +1205,7 @@ paths:
     post:
       operationId: start_adventure
       summary: Start adventure
-      description:
+      description: >-
         Resumes an active attempt for the same skill. A different skill replaces
         the active attempt only before its first accepted answer, after validating
         that five published questions are available. Replaced empty attempts are
@@ -1203,6 +1213,11 @@ paths:
         the existing active attempt even if a different skill was requested;
         clients must explain that adventure should be continued. New attempts
         snapshot five published question revisions.
+        New adventures aim for two Starter, two Growing, and one Challenge question,
+        ordered from simpler to harder. Within each level, unchecked questions are
+        preferred, then those checked longest ago by this child. Sparse levels use
+        other available questions, preferring easier levels. Existing active attempts
+        retain their snapshots.
       security:
         - cookieAuth: []
       responses:
@@ -1504,6 +1519,34 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/QuestionInput"
+  /admin/questions/import:
+    post:
+      operationId: import_bundled_questions
+      summary: Import missing bundled questions as drafts
+      description: Administrator in verified adult mode only. Validates the entire bundled pack before inserting missing questions. Repeated and concurrent requests never overwrite existing questions or revisions. No request body is accepted as question content.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: New drafts added; existing records preserved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionImportResult"
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified administrator in adult mode required
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "422":
+          description: Invalid bundled pack or missing required skills; no questions imported
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Too many import requests
   /admin/questions/{question}:
     put:
       operationId: save_question_revision
