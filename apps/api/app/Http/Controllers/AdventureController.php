@@ -49,14 +49,15 @@ class AdventureController extends Controller
             }
             $skill = Skill::with('subject')->findOrFail($v['skill_id']);
             abort_unless($skill->active && $skill->subject->active, 422, 'This skill is taking a little rest.');
-            $questions = app(AdventureQuestionSelector::class)->select($child, $skill->id);
+            $selector = app(AdventureQuestionSelector::class);
+            $questions = $selector->select($child, $skill->id);
             abort_unless($questions->count() === 5, 422, 'This adventure is still being prepared. Try another skill soon.');
             if ($old) {
                 $old->update(['status' => 'superseded']);
             }
             $a = Attempt::create(['child_profile_id' => $child->id, 'skill_id' => $skill->id, 'position' => 0, 'status' => 'active', 'score' => 0]);
             foreach ($questions as $position => $q) {
-                AttemptQuestion::create(['attempt_id' => $a->id, 'question_revision_id' => $q->latestRevision->id, 'position' => $position]);
+                AttemptQuestion::create(['attempt_id' => $a->id, 'question_revision_id' => $q->latestRevision->id, 'position' => $position, 'choice_order' => $selector->choiceOrder($q->latestRevision)]);
             }ActivityEvent::create(['child_profile_id' => $child->id, 'attempt_id' => $a->id, 'event' => 'started']);
 
             return $this->present($a);
@@ -125,6 +126,6 @@ class AdventureController extends Controller
         $q = $item?->revision;
         $complete = $a->status === 'completed';
 
-        return ['id' => $a->id, 'skill_id' => $a->skill_id, 'skill_name' => $a->skill->name, 'subject_slug' => $a->skill->subject->slug, 'status' => $a->status, 'position' => $a->position, 'total' => 5, 'answered' => $a->items()->whereNotNull('answered_at')->count(), 'score' => $complete ? $a->score : 0, 'question' => $complete ? null : ['id' => $q->id, 'prompt' => $q->prompt, 'instruction' => $q->instruction, 'choices' => array_map(fn (array $choice): array => Arr::only($choice, ['id', 'text', 'image_url']), $q->choices), 'image_url' => $q->image_path ? Storage::disk('public')->url($q->image_path) : null, 'image_alt' => $q->image_alt, 'audio_url' => $q->audio_path ? Storage::disk('public')->url($q->audio_path) : null], 'feedback' => ! $complete && $item->answered_at ? ['correct' => $item->correct, 'explanation' => $q->explanation, 'correct_choice_id' => $q->correct_choice_id, 'selected_choice_id' => $item->selected_choice_id] : null, 'reward' => $complete ? $a->skill->name.' explorer' : null];
+        return ['id' => $a->id, 'skill_id' => $a->skill_id, 'skill_name' => $a->skill->name, 'subject_slug' => $a->skill->subject->slug, 'status' => $a->status, 'position' => $a->position, 'total' => 5, 'answered' => $a->items()->whereNotNull('answered_at')->count(), 'score' => $complete ? $a->score : 0, 'question' => $complete ? null : ['id' => $q->id, 'prompt' => $q->prompt, 'instruction' => $q->instruction, 'choices' => array_map(fn (array $choice): array => Arr::only($choice, ['id', 'text', 'image_url']), $item->orderedChoices()), 'image_url' => $q->image_path ? Storage::disk('public')->url($q->image_path) : null, 'image_alt' => $q->image_alt, 'audio_url' => $q->audio_path ? Storage::disk('public')->url($q->audio_path) : null], 'feedback' => ! $complete && $item->answered_at ? ['correct' => $item->correct, 'explanation' => $q->explanation, 'correct_choice_id' => $q->correct_choice_id, 'selected_choice_id' => $item->selected_choice_id] : null, 'reward' => $complete ? $a->skill->name.' explorer' : null];
     }
 }

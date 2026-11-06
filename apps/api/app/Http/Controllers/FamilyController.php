@@ -8,6 +8,7 @@ use App\Models\ChildProfile;
 use App\Models\Reward;
 use App\Models\Skill;
 use App\Models\Subject;
+use App\Services\ExplorerRank;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -85,6 +86,6 @@ class FamilyController extends Controller
         $attempts = $child->attempts()->where('status', 'completed')->with('skill.subject')->get();
         $count = $attempts->count();
 
-        return ['completed' => $count, 'stars' => $count, 'accuracy' => $count ? (int) round($attempts->sum('score') / ($count * 5) * 100) : 0, 'skills' => $attempts->groupBy('skill_id')->map(fn ($rows) => ['id' => $rows->first()->skill_id, 'name' => $rows->first()->skill->name, 'subject' => $rows->first()->skill->subject->name, 'completed' => $rows->count(), 'accuracy' => (int) round($rows->sum('score') / ($rows->count() * 5) * 100)])->values(), 'recent' => $attempts->sortByDesc('completed_at')->take(10)->map(fn ($a) => ['id' => $a->id, 'skill_name' => $a->skill->name, 'score' => $a->score, 'total' => 5, 'completed_at' => $a->completed_at->toIso8601String()])->values(), 'stickers' => Reward::where('child_profile_id', $child->id)->latest()->get()->map(fn ($x) => ['id' => $x->id, 'name' => $x->name, 'icon' => $x->icon, 'earned_at' => $x->created_at->toIso8601String()])];
+        return ['completed' => $count, 'stars' => $count, 'accuracy' => $count ? (int) round($attempts->sum('score') / ($count * 5) * 100) : 0, 'explorer_rank' => ExplorerRank::forPoints(10 * $count + 2 * (int) $attempts->sum('score')), 'skills' => $attempts->groupBy('skill_id')->map(fn ($rows) => ['id' => $rows->first()->skill_id, 'name' => $rows->first()->skill->name, 'subject' => $rows->first()->skill->subject->name, 'completed' => $rows->count(), 'accuracy' => (int) round($rows->sum('score') / ($rows->count() * 5) * 100)])->values(), 'recent' => $attempts->sortByDesc('completed_at')->take(10)->map(fn ($a) => ['id' => $a->id, 'skill_name' => $a->skill->name, 'score' => $a->score, 'total' => 5, 'completed_at' => $a->completed_at->toIso8601String()])->values(), 'stickers' => Reward::where('child_profile_id', $child->id)->latest()->get()->map(fn ($x) => ['id' => $x->id, 'name' => $x->name, 'icon' => $x->icon, 'earned_at' => $x->created_at->toIso8601String()])];
     }
 }

@@ -47,6 +47,8 @@ import {
 } from "@/lib/demo-state";
 import { Fox, MathWorld, EnglishWorld, DiscoveryWorld } from "./illustrations";
 import { AuthDialog, ParentPanel } from "./parent-panel";
+import { ExplorerRankCard } from "./explorer-rank-card";
+import { adventurePoints, explorerRank } from "@/lib/explorer-rank";
 export const api = createClient();
 const emptyProgress: Progress = {
   completed: 0,
@@ -55,6 +57,7 @@ const emptyProgress: Progress = {
   skills: [],
   recent: [],
   stickers: [],
+  explorer_rank: explorerRank(0),
 };
 export type Notice = (message: string) => void;
 type Destination = "home" | "explore" | "stickers" | "parent" | "picker";
@@ -78,6 +81,11 @@ export default function QuizApp() {
     null,
   );
   const [switchTarget, setSwitchTarget] = useState<Skill | null>(null);
+  const [completionSummary, setCompletionSummary] = useState<{
+    attemptId: number;
+    points: number;
+    previousTitle: string;
+  } | null>(null);
   const [authParams, setAuthParams] = useState({
     invite: "",
     email: "",
@@ -99,6 +107,7 @@ export default function QuizApp() {
   const setDemoAvatar = (avatar: string) =>
     setDemoState((state) => ({ ...state, avatar }));
   const clearAdventure = () => {
+    setCompletionSummary(null);
     if (demo)
       setDemoState((state) => ({ ...state, attempt: null, sequence: [] }));
     else setLiveAttempt(null);
@@ -134,8 +143,6 @@ export default function QuizApp() {
     });
     if (params.has("invite")) setAuth("register");
     if (params.has("reset_token")) setAuth("reset");
-    if (params.has("verified"))
-      notify("Email verified. Welcome to your next adventure!");
     try {
       setDemoState(
         restoreDemo(localStorage.getItem("little-quest-demo"), emptyProgress),
@@ -144,7 +151,22 @@ export default function QuizApp() {
     setDemoHydrated(true);
     api
       .get<Session>("/session")
-      .then(refresh)
+      .then(async (s) => {
+        await refresh(s);
+        if (
+          new URLSearchParams(location.search).has("verified") &&
+          s.user.email_verified_at
+        ) {
+          notify("Email verified. Welcome to your next adventure!");
+          const url = new URL(location.href);
+          url.searchParams.delete("verified");
+          history.replaceState(
+            history.state,
+            "",
+            `${url.pathname}${url.search}${url.hash}`,
+          );
+        }
+      })
       .catch((e) => {
         if (!(e instanceof ApiError && e.status === 401))
           notify("We can’t connect right now. You can still explore the demo.");
@@ -266,6 +288,7 @@ export default function QuizApp() {
       return;
     }
     setBusy(true);
+    setCompletionSummary(null);
     try {
       if (
         attempt?.status === "active" &&
@@ -325,6 +348,17 @@ export default function QuizApp() {
     try {
       if (demo) {
         const advancedAt = Date.now();
+        if (
+          attempt.position === 4 &&
+          attempt.feedback &&
+          attempt.status === "active"
+        ) {
+          setCompletionSummary({
+            attemptId: attempt.id,
+            points: adventurePoints(attempt.score),
+            previousTitle: progress.explorer_rank.title,
+          });
+        }
         setDemoState((state) => nextDemo(state, advancedAt));
       } else {
         const a = await api.post<Attempt>(`/attempts/${attempt.id}/next`, {
@@ -332,6 +366,11 @@ export default function QuizApp() {
         });
         setLiveAttempt(a);
         if (a.status === "completed" && child) {
+          setCompletionSummary({
+            attemptId: a.id,
+            points: adventurePoints(a.score),
+            previousTitle: progress.explorer_rank.title,
+          });
           setLiveProgress(
             await api.get<Progress>(`/children/${child.id}/progress`),
           );
@@ -578,6 +617,7 @@ export default function QuizApp() {
                   </span>
                 </div>
               </section>
+              <ExplorerRankCard rank={progress.explorer_rank} />
               <section className="subject-section">
                 <div className="section-heading">
                   <div>
@@ -831,6 +871,20 @@ export default function QuizApp() {
                     </span>
                     <Sparkles />
                   </div>
+                  {completionSummary?.attemptId === attempt.id && (
+                    <div className="earned-points" role="status">
+                      <strong>
+                        +{completionSummary.points} adventure points
+                      </strong>
+                      <span>
+                        {progress.explorer_rank.title !==
+                        completionSummary.previousTitle
+                          ? `New rank! You’re a ${progress.explorer_rank.title}.`
+                          : `Every little step counts, ${progress.explorer_rank.title}!`}
+                      </span>
+                    </div>
+                  )}
+                  <ExplorerRankCard rank={progress.explorer_rank} />
                   <div className="celebration-actions">
                     <button
                       className="button primary"

@@ -4,11 +4,18 @@ namespace App\Services;
 
 use App\Models\ChildProfile;
 use App\Models\Question;
+use App\Models\QuestionRevision;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class AdventureQuestionSelector
 {
+    /** @return array<int, string> */
+    public function choiceOrder(QuestionRevision $revision): array
+    {
+        return collect($revision->choices)->pluck('id')->shuffle()->all();
+    }
+
     /** @return Collection<int, Question> */
     public function select(ChildProfile $child, int $skillId): Collection
     {

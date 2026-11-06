@@ -5,11 +5,14 @@ export type Skill = components["schemas"]["Skill"];
 export type Child = components["schemas"]["Child"];
 export type User = components["schemas"]["User"];
 export type Session = components["schemas"]["Session"];
+export type VerificationEmailResponse =
+  components["schemas"]["VerificationEmailResponse"];
 export type Choice = components["schemas"]["Choice"];
 export type Question = components["schemas"]["Question"];
 export type Feedback = components["schemas"]["Feedback"];
 export type Attempt = components["schemas"]["Attempt"];
 export type Progress = components["schemas"]["Progress"];
+export type ExplorerRank = components["schemas"]["ExplorerRank"];
 export type QuestionImportResult =
   components["schemas"]["QuestionImportResult"];
 export type AdminQuestion = components["schemas"]["AdminQuestion"];
@@ -18,6 +21,7 @@ export class ApiError extends Error {
     message: string,
     public status: number,
     public errors?: Record<string, string[]>,
+    public retryAfterSeconds?: number,
   ) {
     super(message);
   }
@@ -70,12 +74,15 @@ export function createClient(base = "") {
         : await res.json().catch(() => ({
             message: "We couldn’t connect. Please try again.",
           }));
-    if (!res.ok)
+    if (!res.ok) {
+      const retryAfter = res.headers.get("Retry-After");
       throw new ApiError(
         data.message || "Something went wrong. Please try again.",
         res.status,
         data.errors,
+        retryAfter && /^\d+$/.test(retryAfter) ? Number(retryAfter) : undefined,
       );
+    }
     return data as T;
   }
   return {

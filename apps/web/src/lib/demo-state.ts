@@ -1,4 +1,5 @@
 import type { Attempt, Progress, Skill } from "@little-quest/api-client";
+import { adventurePoints, explorerRank } from "./explorer-rank";
 import {
   demoQuestions,
   englishDemo,
@@ -10,7 +11,7 @@ import {
 
 export type DemoHistory = Record<string, number>;
 export type DemoState = {
-  version: 2;
+  version: 3;
   attempt: Attempt | null;
   sequence: DemoQuestion[];
   history: DemoHistory;
@@ -21,11 +22,16 @@ const levels: Difficulty[] = ["starter", "growing", "challenge"];
 const historyKey = (subject: string, id: number) => `${subject}:${id}`;
 export function emptyDemo(progress: Progress): DemoState {
   return {
-    version: 2,
+    version: 3,
     attempt: null,
     sequence: [],
     history: {},
-    progress,
+    progress: {
+      ...progress,
+      explorer_rank: explorerRank(
+        progress.explorer_rank?.points ?? progress.completed * 10,
+      ),
+    },
     avatar: "fox",
   };
 }
@@ -113,6 +119,17 @@ export function restoreDemo(raw: string | null, progress: Progress): DemoState {
         ),
       ) as DemoHistory,
     };
+    const savedPoints = saved.progress?.explorer_rank?.points;
+    state.progress = {
+      ...state.progress,
+      explorer_rank: explorerRank(
+        saved.version === 3 &&
+          Number.isSafeInteger(savedPoints) &&
+          savedPoints >= 0
+          ? savedPoints
+          : state.progress.completed * 10,
+      ),
+    };
     const attempt = saved.attempt as Attempt | null;
     if (
       !attempt ||
@@ -129,7 +146,7 @@ export function restoreDemo(raw: string | null, progress: Progress): DemoState {
     if (attempt.status === "completed")
       return { ...state, attempt, sequence: [] };
     let sequence: DemoQuestion[];
-    if (saved.version === 2) {
+    if (saved.version === 2 || saved.version === 3) {
       if (
         !Array.isArray(saved.sequence) ||
         saved.sequence.length !== 5 ||
@@ -166,9 +183,24 @@ export function startDemo(
   state: DemoState,
   skill: Skill,
   now = Date.now(),
+  random = Math.random,
 ): DemoState {
   const subject = skill.subject_id === 2 ? "english" : "maths";
-  const sequence = selectDemoQuestions(subject, state.history);
+  const sequence = selectDemoQuestions(subject, state.history, random).map(
+    (question) => {
+      const correctId = question.choices[question.answer].id;
+      const choices = question.choices.map((choice) => ({ ...choice }));
+      for (let i = choices.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [choices[i], choices[j]] = [choices[j], choices[i]];
+      }
+      return {
+        ...question,
+        choices,
+        answer: choices.findIndex((choice) => choice.id === correctId),
+      };
+    },
+  );
   return {
     ...state,
     sequence,
@@ -247,6 +279,9 @@ export function nextDemo(state: DemoState, now = Date.now()): DemoState {
       ...state.progress,
       completed: state.progress.completed + 1,
       stars: state.progress.stars + 1,
+      explorer_rank: explorerRank(
+        state.progress.explorer_rank.points + adventurePoints(attempt.score),
+      ),
       stickers: [
         {
           id: attempt.id,
