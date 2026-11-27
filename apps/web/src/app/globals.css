@@ -4100,6 +4100,25 @@ textarea::placeholder {
 .account-setup-error {
   margin-top: 16px;
 }
+.workspace-screen {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.workspace-card {
+  width: min(100%, 32rem);
+  padding: clamp(20px, 6vw, 36px);
+  border: 1px solid #eadff2;
+  border-radius: 20px;
+  background: #fffdfa;
+  text-align: center;
+}
+.workspace-card p {
+  margin-top: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
 .studio-toolbar.moderator-toolbar {
   grid-template-columns: minmax(0, 15rem);
 }

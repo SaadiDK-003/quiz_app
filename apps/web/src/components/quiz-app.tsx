@@ -84,6 +84,9 @@ export default function QuizApp() {
     [selected, setSelected] = useState<string | null>(null),
     [answerError, setAnswerError] = useState(false),
     [online, setOnline] = useState(true),
+    [workspaceStatus, setWorkspaceStatus] = useState<
+      "loading" | "ready" | "unavailable"
+    >("loading"),
     [demoState, setDemoState] = useState(() => emptyDemo(emptyProgress)),
     [demoHydrated, setDemoHydrated] = useState(false);
   const [leaveDestination, setLeaveDestination] = useState<Destination | null>(
@@ -104,6 +107,7 @@ export default function QuizApp() {
   const audioRef = useRef<HTMLAudioElement | null>(null),
     noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const quizActionPending = useRef(false);
+  const workspaceRequest = useRef(0);
   const questionHeading = useRef<HTMLHeadingElement>(null);
   const feedbackHeading = useRef<HTMLHeadingElement>(null);
   const celebrationHeading = useRef<HTMLHeadingElement>(null);
@@ -148,28 +152,60 @@ export default function QuizApp() {
       setDemoState((state) => ({ ...state, attempt: null, sequence: [] }));
     else setLiveAttempt(null);
   };
-  const refresh = useCallback(async (s: Session) => {
-    setSession(s);
-    if (s.mode === "adult") {
-      setLiveProgress(emptyProgress);
-      setLiveAttempt(null);
-    }
-    if (!s.user.email_verified_at) {
-      setView("parent");
-      return;
-    }
-    const data = await api.get<Subject[]>("/catalog");
-    setCatalog(data);
-    if (s.mode === "child" && s.child) {
-      const [p, a] = await Promise.all([
-        api.get<Progress>(`/children/${s.child.id}/progress`),
-        api.get<Attempt | null>("/attempts/active"),
-      ]);
-      setLiveProgress(p);
-      setLiveAttempt(a);
-      setView("home");
-    } else setView("parent");
-  }, []);
+  const loadWorkspace = useCallback(
+    async (knownSession?: Session, showLoading = true) => {
+      const request = ++workspaceRequest.current;
+      if (showLoading) setWorkspaceStatus("loading");
+      try {
+        const s =
+          knownSession ??
+          (await api.get<Session>("/session").catch((error: unknown) => {
+            if (error instanceof ApiError && error.status === 401) return null;
+            throw error;
+          }));
+        if (request !== workspaceRequest.current) return;
+        const verified = Boolean(s?.user.email_verified_at);
+        const explorer = verified && s?.mode === "child" ? s.child : null;
+        const [data, p, a] = await Promise.all([
+          verified ? api.get<Subject[]>("/catalog") : s ? [] : demoCatalog,
+          explorer
+            ? api.get<Progress>(`/children/${explorer.id}/progress`)
+            : emptyProgress,
+          explorer ? api.get<Attempt | null>("/attempts/active") : null,
+        ]);
+        if (request !== workspaceRequest.current) return;
+        setSession(s);
+        setCatalog(data);
+        setLiveProgress(p);
+        setLiveAttempt(a);
+        setCompletionSummary(null);
+        setSubject(null);
+        setView(s && !explorer ? "parent" : "home");
+        setWorkspaceStatus("ready");
+
+        const url = new URL(location.href);
+        if (verified && url.searchParams.has("verified")) {
+          notify("Email verified. Welcome to your next adventure!");
+          url.searchParams.delete("verified");
+          history.replaceState(
+            history.state,
+            "",
+            `${url.pathname}${url.search}${url.hash}`,
+          );
+        }
+      } catch (error) {
+        if (request !== workspaceRequest.current) return;
+        if (showLoading) setWorkspaceStatus("unavailable");
+        else
+          notify(
+            error instanceof Error
+              ? error.message
+              : "Couldn’t refresh this view. Please try again.",
+          );
+      }
+    },
+    [notify],
+  );
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const setup =
@@ -197,47 +233,27 @@ export default function QuizApp() {
       );
     } catch {}
     setDemoHydrated(true);
-    api
-      .get<Session>("/session")
-      .then(async (s) => {
-        await refresh(s);
-        if (
-          new URLSearchParams(location.search).has("verified") &&
-          s.user.email_verified_at
-        ) {
-          notify("Email verified. Welcome to your next adventure!");
-          const url = new URL(location.href);
-          url.searchParams.delete("verified");
-          history.replaceState(
-            history.state,
-            "",
-            `${url.pathname}${url.search}${url.hash}`,
-          );
-        }
-      })
-      .catch((e) => {
-        if (!(e instanceof ApiError && e.status === 401))
-          notify("We can’t connect right now. You can still explore the demo.");
-      });
+    void loadWorkspace();
     const up = () => setOnline(true),
       down = () => setOnline(false);
     setOnline(navigator.onLine);
     window.addEventListener("online", up);
     window.addEventListener("offline", down);
     return () => {
+      workspaceRequest.current += 1;
       window.removeEventListener("hashchange", openSetupLink);
       window.removeEventListener("online", up);
       window.removeEventListener("offline", down);
       audioRef.current?.pause();
     };
-  }, [refresh, notify]);
+  }, [loadWorkspace]);
   useEffect(() => {
-    if (demo && demoHydrated) {
+    if (workspaceStatus === "ready" && demo && demoHydrated) {
       try {
         localStorage.setItem("little-quest-demo", JSON.stringify(demoState));
       } catch {}
     }
-  }, [demoState, demo, demoHydrated]);
+  }, [demoState, demo, demoHydrated, workspaceStatus]);
   useEffect(() => {
     setSelected(attempt?.feedback?.selected_choice_id || null);
     setAnswerError(false);
@@ -336,13 +352,10 @@ export default function QuizApp() {
         .catch(() => {});
     }
     if (e instanceof ApiError && e.status === 401 && session) {
-      setSession(null);
-      setLiveProgress(emptyProgress);
-      setLiveAttempt(null);
+      signedOut();
       setLeaveDestination(null);
       setSwitchTarget(null);
       setAuth("login");
-      setView("home");
     }
     if (!demo)
       void api.post("/events/error", { code: "request" }).catch(() => {});
@@ -379,13 +392,15 @@ export default function QuizApp() {
   const entered = async (s: Session) => {
     setAuth(null);
     setPicker(false);
-    try {
-      await refresh(s);
-    } catch (e) {
-      handleError(e);
-    }
+    const changed =
+      s.user.id !== session?.user.id ||
+      s.mode !== session?.mode ||
+      s.child?.id !== session?.child?.id;
+    await loadWorkspace(s, changed);
   };
   const signedOut = () => {
+    workspaceRequest.current += 1;
+    setWorkspaceStatus("ready");
     setSession(null);
     setCatalog(demoCatalog);
     setLiveProgress(emptyProgress);
@@ -578,6 +593,42 @@ export default function QuizApp() {
     frog: "🐸",
   };
   const avatar = avatarEmoji[child?.avatar || demoAvatar];
+
+  if (workspaceStatus !== "ready") {
+    const loading = workspaceStatus === "loading";
+    return (
+      <main className="workspace-screen">
+        <section className="workspace-card">
+          <Fox className="dialog-mascot" />
+          <div role="status">
+            <h1>
+              {loading
+                ? "Opening Little Quest…"
+                : "Little Quest couldn’t connect"}
+            </h1>
+            <p>
+              {loading
+                ? "Getting your quizzes and progress ready."
+                : "Try connecting again or play a guest quiz on this device."}
+            </p>
+          </div>
+          {!loading && (
+            <div className="dialog-actions">
+              <button
+                className="button primary"
+                onClick={() => void loadWorkspace()}
+              >
+                Try again
+              </button>
+              <button className="button secondary" onClick={signedOut}>
+                Play as guest
+              </button>
+            </div>
+          )}
+        </section>
+      </main>
+    );
+  }
   return (
     <div className={`app-shell ${playing ? "playing-adventure" : ""}`}>
       <a href="#main-content" className="skip-link" inert={menu}>
