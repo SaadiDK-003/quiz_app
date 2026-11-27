@@ -119,115 +119,129 @@ export function AdminPanel({
   );
   return (
     <>
-      <div className="section-heading">
-        <div>
-          <h2>Content studio</h2>
-          <p>
-            {questions.length} questions ·{" "}
-            {questions.filter((q) => q.status === "published").length} published
-            · Adult review required
-          </p>
-        </div>
-        <div className="button-group">
-          <button
-            className="button secondary"
-            onClick={() => {
-              setImportError("");
-              setImportOpen(true);
-            }}
-          >
-            <Download size={17} /> Import bundled questions
-          </button>
-          <button className="button secondary" onClick={() => setInvite(true)}>
-            <Mail size={17} />
-            Invite family
-          </button>
-          <button
-            className="button secondary"
-            onClick={() => setMetadata(true)}
-          >
-            <BookOpen size={17} />
-            Learning catalog
-          </button>
-          <button className="button primary" onClick={newQuestion}>
-            <Plus size={17} />
-            New question
-          </button>
-        </div>
-      </div>
-      <div className="admin-filters">
-        <label>
-          Status
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            {["all", "draft", "published", "archived"].map((x) => (
-              <option key={x} value={x}>
-                {x[0].toUpperCase() + x.slice(1)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Skill
-          <select value={skill} onChange={(e) => setSkill(e.target.value)}>
-            <option value="all">All skills</option>
-            {meta?.skills.map((k) => (
-              <option key={k.id} value={k.id}>
-                {k.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Difficulty
-          <select
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}
-          >
-            <option value="all">All difficulties</option>
-            {["starter", "growing", "challenge"].map((level) => (
-              <option key={level} value={level}>
-                {level[0].toUpperCase() + level.slice(1)}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <p className="muted" aria-live="polite">
-        Showing {shown.length} of {questions.length} questions
-      </p>
-      <div className="question-list">
-        {shown.map((q) => (
-          <div className="question-row" key={q.id}>
-            <span className={`status-dot ${q.status}`} />
-            <div>
-              <strong>{q.prompt}</strong>
-              <small>
-                {q.skill_name} ·{" "}
-                {q.difficulty[0].toUpperCase() + q.difficulty.slice(1)} ·
-                Revision {q.version}
-              </small>
-            </div>
-            <span className={`status-tag ${q.status}`}>{q.status}</span>
+      <section className="content-studio" aria-labelledby="studio-heading">
+        <header className="studio-header">
+          <div>
+            <h2 id="studio-heading">Content studio</h2>
+            <p>
+              {questions.length} questions ·{" "}
+              {questions.filter((q) => q.status === "published").length}{" "}
+              published · Adult review required
+            </p>
+          </div>
+          <div className="studio-toolbar">
             <button
-              className="icon-btn"
-              aria-label={`Preview ${q.prompt}`}
-              onClick={() => setPreview(q)}
+              className="button secondary"
+              onClick={() => {
+                setImportError("");
+                setImportOpen(true);
+              }}
             >
-              <Eye size={18} />
+              <Download size={18} aria-hidden="true" />
+              <span>Import bundled questions</span>
             </button>
             <button
-              className="icon-btn"
-              aria-label={`Edit ${q.prompt}`}
-              onClick={() => setEditing(q)}
+              className="button secondary"
+              onClick={() => setInvite(true)}
             >
-              <Pencil size={18} />
+              <Mail size={18} aria-hidden="true" />
+              <span>Invite family</span>
+            </button>
+            <button
+              className="button secondary"
+              onClick={() => setMetadata(true)}
+            >
+              <BookOpen size={18} aria-hidden="true" />
+              <span>Learning catalog</span>
+            </button>
+            <button className="button primary" onClick={newQuestion}>
+              <Plus size={18} aria-hidden="true" />
+              <span>New question</span>
             </button>
           </div>
-        ))}
-        {!shown.length && (
-          <p className="muted">No questions match these filters.</p>
-        )}
-      </div>
+        </header>
+        <div className="admin-filters">
+          <label>
+            Status
+            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+              {["all", "draft", "published", "archived"].map((x) => (
+                <option key={x} value={x}>
+                  {x[0].toUpperCase() + x.slice(1)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Skill
+            <select value={skill} onChange={(e) => setSkill(e.target.value)}>
+              <option value="all">All skills</option>
+              {meta?.skills.map((k) => (
+                <option key={k.id} value={k.id}>
+                  {k.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Difficulty
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+            >
+              <option value="all">All difficulties</option>
+              {["starter", "growing", "challenge"].map((level) => (
+                <option key={level} value={level}>
+                  {level[0].toUpperCase() + level.slice(1)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <p className="studio-count muted" aria-live="polite">
+          Showing {shown.length} of {questions.length} questions
+        </p>
+        <div
+          className="question-list"
+          role="region"
+          aria-label="Questions"
+          tabIndex={0}
+        >
+          {shown.map((q) => (
+            <div className="question-row" key={q.id}>
+              <div className="question-copy">
+                <strong>{q.prompt}</strong>
+                <small>
+                  {q.skill_name} ·{" "}
+                  {q.difficulty[0].toUpperCase() + q.difficulty.slice(1)} ·
+                  Revision {q.version}
+                </small>
+              </div>
+              <span className={`status-tag ${q.status}`}>{q.status}</span>
+              <div className="question-actions">
+                <button
+                  className="studio-row-action"
+                  aria-label={`Preview ${q.prompt}`}
+                  onClick={() => setPreview(q)}
+                >
+                  <Eye size={18} aria-hidden="true" />
+                  <span>Preview</span>
+                </button>
+                <button
+                  className="studio-row-action"
+                  aria-label={`Edit ${q.prompt}`}
+                  onClick={() => setEditing(q)}
+                >
+                  <Pencil size={18} aria-hidden="true" />
+                  <span>Edit</span>
+                </button>
+              </div>
+            </div>
+          ))}
+          {!shown.length && (
+            <p className="muted">No questions match these filters.</p>
+          )}
+        </div>
+      </section>
       {importOpen && (
         <Dialog
           title="Add new questions to your library?"
@@ -293,7 +307,7 @@ export function AdminPanel({
           )}
           <p>{preview.instruction}</p>
           <div className="answer-grid">
-            {preview.choices.map((c) => (
+            {preview.choices.map((c, index) => (
               <button
                 className="answer-card"
                 key={c.id}
@@ -305,13 +319,22 @@ export function AdminPanel({
                   )
                 }
               >
-                {c.image_url && <img src={c.image_url} alt="" />}
-                {c.text}
+                <span className="answer-letter">
+                  {String.fromCharCode(65 + index)}
+                </span>
+                <span className="answer-copy">
+                  {c.image_url && <img src={c.image_url} alt="" />}
+                  <span>{c.text}</span>
+                </span>
               </button>
             ))}
           </div>
           {preview.audio_path && (
-            <audio controls src={"/storage/" + preview.audio_path} />
+            <audio
+              className="studio-preview-audio"
+              controls
+              src={"/storage/" + preview.audio_path}
+            />
           )}
           <p className="muted">
             Preview only. Answers here do not create learning records.
@@ -540,32 +563,37 @@ function QuestionEditor({
                   })
                 }
               />
-              <label className="upload-choice" title="Upload an answer picture">
-                <Upload size={16} />
-                <input
-                  aria-label={`Upload answer ${c.id.toUpperCase()} picture`}
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  onChange={(e) => upload(e.target.files?.[0], "image", i)}
-                />
-              </label>
-              {c.image_url && (
-                <button
-                  type="button"
-                  className="icon-btn"
-                  aria-label="Remove answer picture"
-                  onClick={() =>
-                    patch({
-                      choices: q.choices.map((a, j) =>
-                        i === j ? { ...a, image_url: null } : a,
-                      ),
-                      answers_reviewed: false,
-                    })
-                  }
+              <div className="choice-media-actions">
+                <label
+                  className="upload-choice"
+                  title="Upload an answer picture"
                 >
-                  <X size={16} />
-                </button>
-              )}
+                  <Upload size={16} />
+                  <input
+                    aria-label={`Upload answer ${c.id.toUpperCase()} picture`}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={(e) => upload(e.target.files?.[0], "image", i)}
+                  />
+                </label>
+                {c.image_url && (
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label={`Remove answer ${c.id.toUpperCase()} picture`}
+                    onClick={() =>
+                      patch({
+                        choices: q.choices.map((a, j) =>
+                          i === j ? { ...a, image_url: null } : a,
+                        ),
+                        answers_reviewed: false,
+                      })
+                    }
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </fieldset>
@@ -716,7 +744,7 @@ function CatalogEditor({
     setEditing({ ...editing, [key]: value });
   return (
     <Dialog title="Grow the learning world." onClose={onClose} wide>
-      <div className="filter-tabs">
+      <div className="filter-tabs catalog-tabs">
         {(["subjects", "topics", "skills"] as const).map((k) => (
           <button
             key={k}
@@ -753,7 +781,7 @@ function CatalogEditor({
             {metadata[kind].map((m) => (
               <button key={m.id} onClick={() => setEditing({ ...m })}>
                 <span>{m.name}</span>
-                <Pencil size={16} />
+                <Pencil size={18} aria-hidden="true" />
               </button>
             ))}
           </div>
