@@ -33,12 +33,13 @@ php artisan pilot:admin your-email@example.com
 ```
 
 1. Open **Parent dashboard** and sign in with that account.
-2. Open **Content studio** to review the 360 bundled draft questions. Each of the 12 skills has 30 questions: ten Starter, ten Growing, and ten Challenge. On an existing installation, select **Import bundled questions** first; it adds missing drafts and preserves all existing edits and review decisions.
+2. Open **Content studio** to review the bundled drafts. There are 360 questions across 12 skills for ages 7–8 and 9–10, plus 24 picture questions across four skills for ages 3–4. On an existing installation, select **Import bundled questions** to add the missing drafts while keeping existing edits and review decisions.
 3. Check each question, answer and explanation before publishing. Narration is optional. If you attach a recording, listen to it and confirm it keeps the answer for the child to work out. Describe any illustration you upload.
-4. Publish at least **five questions per skill** to make that adventure playable. Each save creates a revision; active adventures retain their original revisions.
-5. Add one profile per child, choose their starting skills, and use **Open quizzes** to hand over the device. **View progress** opens the report for that child.
-6. Families choose **Create a family account**, enter their name and email, and follow the emailed link to set their password. This also verifies the email. Guest practice stays in the current browser, and each child profile starts fresh.
-7. Use **Invite moderator** in Content Studio to invite a quiz author. An existing parent can accept with their current login. Moderators send drafts and proposed edits to the **Review queue**. An administrator reviews and publishes them.
+4. Set the suitable ages on each question. Use the **Age group** filter to find questions that still need a label. The migration assigns labels to matching bundled revisions. Review and label edited and custom questions before they can appear in age-based quizzes.
+5. Publish at least **three eligible questions per skill** for ages **3–4**, or **five** for ages **7–8** and **9–10**. The age range on the child's profile determines which questions they see. A change preserves an unfinished adventure if its saved questions and length still fit. Completed progress and rewards are kept.
+6. Add one profile per child, choose their starting skills, and use **Open quizzes** to hand over the device. **View progress** opens the report for that child.
+7. Families choose **Create a family account**, enter their name and email, and follow the emailed link to set their password. This also verifies the email. Guest practice stays in the current browser, and each child profile starts fresh.
+8. Use **Invite moderator** in Content Studio to invite a quiz author. An existing parent can accept with their current login. Moderators send drafts and proposed edits to the **Review queue**. An administrator reviews and publishes them.
 
 The application intentionally does not auto-approve content. Starter question accuracy, wording, images, and narration need human review before children use them in the pilot.
 

@@ -9,6 +9,7 @@ use App\Models\ChildProfile;
 use App\Models\Reward;
 use App\Models\Skill;
 use App\Services\AdventureQuestionSelector;
+use App\Services\ChildAgeRange;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,7 @@ class AdventureController extends Controller
     public function show(Request $r, Attempt $attempt): array
     {
         $this->own($r, $attempt);
-        abort_if($attempt->status === 'superseded', 409, 'This adventure has changed. Resume your current adventure.');
+        $this->rejectSuperseded($attempt);
 
         return $this->present($attempt);
     }
@@ -37,12 +38,18 @@ class AdventureController extends Controller
         return $a ? response()->json($this->present($a)) : response('null', 200, ['Content-Type' => 'application/json']);
     }
 
+    private function rejectSuperseded(Attempt $attempt): void
+    {
+        abort_if($attempt->status === 'superseded', 409, 'This adventure has changed. Resume your current adventure.');
+    }
+
     public function start(Request $r): array
     {
         $v = $r->validate(['skill_id' => 'required|integer|exists:skills,id']);
 
         return DB::transaction(function () use ($r, $v): array {
             $child = ChildProfile::lockForUpdate()->findOrFail($r->session()->get('child_id'));
+            $age = ChildAgeRange::from($child->age_band);
             $old = Attempt::where('child_profile_id', $child->id)->where('status', 'active')->lockForUpdate()->first();
             if ($old && ($old->skill_id === (int) $v['skill_id'] || $old->items()->whereNotNull('answered_at')->exists())) {
                 return $this->present($old);
@@ -51,11 +58,11 @@ class AdventureController extends Controller
             abort_unless($skill->active && $skill->subject->active, 422, 'This skill is taking a little rest.');
             $selector = app(AdventureQuestionSelector::class);
             $questions = $selector->select($child, $skill->id);
-            abort_unless($questions->count() === 5, 422, 'This adventure is still being prepared. Try another skill soon.');
+            abort_unless($questions->count() === $age->roundLength(), 422, 'This adventure is still being prepared. Try another skill soon.');
             if ($old) {
                 $old->update(['status' => 'superseded']);
             }
-            $a = Attempt::create(['child_profile_id' => $child->id, 'skill_id' => $skill->id, 'position' => 0, 'status' => 'active', 'score' => 0]);
+            $a = Attempt::create(['child_profile_id' => $child->id, 'skill_id' => $skill->id, 'position' => 0, 'total' => $age->roundLength(), 'status' => 'active', 'score' => 0]);
             foreach ($questions as $position => $q) {
                 AttemptQuestion::create(['attempt_id' => $a->id, 'question_revision_id' => $q->latestRevision->id, 'position' => $position, 'choice_order' => $selector->choiceOrder($q->latestRevision)]);
             }ActivityEvent::create(['child_profile_id' => $child->id, 'attempt_id' => $a->id, 'event' => 'started']);
@@ -67,11 +74,11 @@ class AdventureController extends Controller
     public function answer(Request $r, Attempt $attempt): array
     {
         $this->own($r, $attempt);
-        $v = $r->validate(['position' => 'required|integer|min:0|max:4', 'question_id' => 'required|integer', 'choice_id' => 'required|string|max:20']);
+        $v = $r->validate(['position' => 'required|integer|min:0|max:'.($attempt->total - 1), 'question_id' => 'required|integer', 'choice_id' => 'required|string|max:20']);
 
         return DB::transaction(function () use ($v, $attempt): array {
             $a = Attempt::lockForUpdate()->findOrFail($attempt->id);
-            abort_if($a->status === 'superseded', 409, 'This adventure has changed. Resume your current adventure.');
+            $this->rejectSuperseded($a);
             if ($a->status === 'completed') {
                 return $this->present($a);
             }abort_unless($a->position === $v['position'], 409, 'Your adventure has moved on. Resume to continue.');
@@ -89,17 +96,17 @@ class AdventureController extends Controller
     public function next(Request $r, Attempt $attempt): array
     {
         $this->own($r, $attempt);
-        $v = $r->validate(['position' => 'required|integer|min:0|max:4']);
+        $v = $r->validate(['position' => 'required|integer|min:0|max:'.($attempt->total - 1)]);
 
         return DB::transaction(function () use ($v, $attempt): array {
             $a = Attempt::lockForUpdate()->findOrFail($attempt->id);
-            abort_if($a->status === 'superseded', 409, 'This adventure has changed. Resume your current adventure.');
+            $this->rejectSuperseded($a);
             if ($a->status === 'completed' || $a->position !== $v['position']) {
                 return $this->present($a);
             }
             $item = $a->items()->where('position', $a->position)->firstOrFail();
             abort_unless($item->answered_at, 422, 'Choose an answer before moving on.');
-            if ($a->position === 4) {
+            if ($a->position === $a->total - 1) {
                 $a->update(['status' => 'completed', 'score' => $a->items()->where('correct', true)->count(), 'completed_at' => now()]);
                 Reward::firstOrCreate(['attempt_id' => $a->id], ['child_profile_id' => $a->child_profile_id, 'name' => $a->skill->name.' explorer', 'icon' => $a->skill->subject->slug === 'maths' ? 'star' : 'book']);
                 ActivityEvent::create(['child_profile_id' => $a->child_profile_id, 'attempt_id' => $a->id, 'event' => 'completed']);
@@ -126,6 +133,6 @@ class AdventureController extends Controller
         $q = $item?->revision;
         $complete = $a->status === 'completed';
 
-        return ['id' => $a->id, 'skill_id' => $a->skill_id, 'skill_name' => $a->skill->name, 'subject_slug' => $a->skill->subject->slug, 'status' => $a->status, 'position' => $a->position, 'total' => 5, 'answered' => $a->items()->whereNotNull('answered_at')->count(), 'score' => $complete ? $a->score : 0, 'question' => $complete ? null : ['id' => $q->id, 'prompt' => $q->prompt, 'instruction' => $q->instruction, 'choices' => array_map(fn (array $choice): array => Arr::only($choice, ['id', 'text', 'image_url']), $item->orderedChoices()), 'image_url' => $q->image_path ? Storage::disk('public')->url($q->image_path) : null, 'image_alt' => $q->image_alt, 'audio_url' => $q->audio_path ? Storage::disk('public')->url($q->audio_path) : null], 'feedback' => ! $complete && $item->answered_at ? ['correct' => $item->correct, 'explanation' => $q->explanation, 'correct_choice_id' => $q->correct_choice_id, 'selected_choice_id' => $item->selected_choice_id] : null, 'reward' => $complete ? $a->skill->name.' explorer' : null];
+        return ['id' => $a->id, 'skill_id' => $a->skill_id, 'skill_name' => $a->skill->name, 'subject_slug' => $a->skill->subject->slug, 'status' => $a->status, 'position' => $a->position, 'total' => $a->total, 'answered' => $a->items()->whereNotNull('answered_at')->count(), 'score' => $complete ? $a->score : 0, 'question' => $complete ? null : ['id' => $q->id, 'prompt' => $q->prompt, 'instruction' => $q->instruction, 'choices' => array_map(fn (array $choice): array => Arr::only($choice, ['id', 'text', 'image_url']), $item->orderedChoices()), 'image_url' => $q->image_path ? Storage::disk('public')->url($q->image_path) : null, 'image_alt' => $q->image_alt, 'audio_url' => $q->audio_path ? Storage::disk('public')->url($q->audio_path) : null], 'feedback' => ! $complete && $item->answered_at ? ['correct' => $item->correct, 'explanation' => $q->explanation, 'correct_choice_id' => $q->correct_choice_id, 'selected_choice_id' => $item->selected_choice_id] : null, 'reward' => $complete ? $a->skill->name.' explorer' : null];
     }
 }

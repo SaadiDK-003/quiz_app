@@ -10,6 +10,6 @@ class QuestionRevision extends Model
 
     protected function casts(): array
     {
-        return ['choices' => 'array', 'answers_reviewed' => 'boolean', 'explanation_reviewed' => 'boolean', 'narration_reviewed' => 'boolean'];
+        return ['choices' => 'array', 'age_bands' => 'array', 'answers_reviewed' => 'boolean', 'explanation_reviewed' => 'boolean', 'narration_reviewed' => 'boolean'];
     }
 }

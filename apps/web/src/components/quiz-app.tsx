@@ -565,14 +565,27 @@ export default function QuizApp() {
       );
     audio.onerror = () => {
       notify(
-        "Audio is taking a little rest. The question is still ready to read.",
+        "Audio is taking a little rest. You can still play this question.",
       );
       if (!demo)
         void api.post("/events/error", { code: "audio" }).catch(() => {});
     };
   }
+  const preschool = child?.age_band === "3-4";
+  const roundLength = preschool ? 3 : 5;
   const allSkills = catalog.flatMap((s) => s.skills),
-    available = allSkills.filter((s) => s.question_count >= 5);
+    available = allSkills.filter((s) => s.question_count >= roundLength);
+  const nextSteps = preschool
+    ? [
+        ...new Set([
+          ...catalog.flatMap(({ skills }) =>
+            skills.filter((s) => s.question_count >= roundLength).slice(0, 1),
+          ),
+          ...available,
+          ...allSkills,
+        ]),
+      ].slice(0, 3)
+    : [allSkills[1], allSkills[6], allSkills[0]].filter(Boolean);
   const starts = child?.starting_skills || {};
   const suggested =
     available.find(
@@ -797,11 +810,11 @@ export default function QuizApp() {
                   {resumeAttempt ? (
                     <p>{resumeAttempt.skill_name}</p>
                   ) : suggested ? (
-                    <p>{suggested.name} · 5 questions at your pace</p>
-                  ) : (
                     <p>
-                      Take a look at the subjects we’re getting ready for you.
+                      {suggested.name} · {roundLength} questions at your pace
                     </p>
+                  ) : (
+                    <p>We’re getting quizzes ready for your age group.</p>
                   )}
                   <div className="home-actions">
                     {resumeAttempt || suggested ? (
@@ -933,23 +946,24 @@ export default function QuizApp() {
                   ))}
                 </div>
               </section>
-              <section className="steps-section">
-                <div className="section-heading">
-                  <div>
-                    <h2>Your next little steps</h2>
-                    <p>There’s something wonderful waiting for you.</p>
+              {nextSteps.length > 0 && (
+                <section className="steps-section">
+                  <div className="section-heading">
+                    <div>
+                      <h2>Your next little steps</h2>
+                      <p>There’s something wonderful waiting for you.</p>
+                    </div>
+                    <span className="small-label">
+                      SMALL STEPS. BIG SMILES.
+                    </span>
                   </div>
-                  <span className="small-label">SMALL STEPS. BIG SMILES.</span>
-                </div>
-                <div className="steps-grid">
-                  {[allSkills[1], allSkills[6], allSkills[0]]
-                    .filter(Boolean)
-                    .map((s, i) => (
+                  <div className="steps-grid">
+                    {nextSteps.map((s, i) => (
                       <button
                         className="step-card"
                         key={s.id}
                         onClick={() => start(s)}
-                        disabled={busy || (!demo && s.question_count < 5)}
+                        disabled={busy || s.question_count < roundLength}
                       >
                         <span className={`step-icon step-${i}`}>
                           {i === 0 ? (
@@ -966,16 +980,17 @@ export default function QuizApp() {
                           </span>
                           <strong>{s.name}</strong>
                           <span className="step-length">
-                            {s.question_count >= 5
-                              ? "5 questions · Your pace"
+                            {s.question_count >= roundLength
+                              ? `${roundLength} questions · Your pace`
                               : "Coming soon"}
                           </span>
                         </span>
                         <ChevronRight size={18} />
                       </button>
                     ))}
-                </div>
-              </section>
+                  </div>
+                </section>
+              )}
               <div className="kind-note">
                 <span>🌱</span>
                 <p>
@@ -1017,6 +1032,9 @@ export default function QuizApp() {
                 ))}
               </div>
               <div className="explore-grid">
+                {!allSkills.length && (
+                  <p>We’re getting quizzes ready for your age group.</p>
+                )}
                 {catalog
                   .filter((s) => !subject || s.id === subject)
                   .flatMap((s) =>
@@ -1024,7 +1042,7 @@ export default function QuizApp() {
                       <button
                         key={k.id}
                         className={`explore-card ${s.color}`}
-                        disabled={busy || (!demo && k.question_count < 5)}
+                        disabled={busy || k.question_count < roundLength}
                         onClick={() => start(k)}
                       >
                         <div className="explore-top">
@@ -1041,15 +1059,19 @@ export default function QuizApp() {
                           )}
                         </div>
                         <span className="explore-symbol">
-                          {s.slug === "maths"
-                            ? ["123", "＋", "−", "×", "÷", "½"][i % 6]
-                            : ["Aa", "abc", "“ ”", "?!", "↔", "📖"][i % 6]}
+                          {preschool
+                            ? (s.slug === "maths"
+                                ? ["◯", "●●●"]
+                                : ["🧸", "🐾"])[i % 2]
+                            : s.slug === "maths"
+                              ? ["123", "＋", "−", "×", "÷", "½"][i % 6]
+                              : ["Aa", "abc", "“ ”", "?!", "↔", "📖"][i % 6]}
                         </span>
                         <h2>{k.name}</h2>
                         <p>{k.description}</p>
                         <span className="explore-footer">
-                          {k.question_count >= 5
-                            ? "Let’s explore · 5 questions"
+                          {k.question_count >= roundLength
+                            ? `Let’s explore · ${roundLength} questions`
                             : "Adventure coming soon"}
                           <ArrowRight size={18} />
                         </span>
@@ -1172,7 +1194,9 @@ export default function QuizApp() {
                       />
                     ))}
                   </div>
-                  <div className="question-panel">
+                  <div
+                    className={`question-panel${preschool ? " picture-question" : ""}`}
+                  >
                     <div className="question-heading">
                       <h1
                         ref={questionHeading}
@@ -1225,12 +1249,22 @@ export default function QuizApp() {
                             disabled={!!feedback || busy}
                             onClick={() => setSelected(c.id)}
                           >
-                            <span className="answer-letter">
-                              {String.fromCharCode(65 + i)}
-                            </span>
+                            {!preschool && (
+                              <span className="answer-letter">
+                                {String.fromCharCode(65 + i)}
+                              </span>
+                            )}
                             <span className="answer-copy">
                               {c.image_url && <img src={c.image_url} alt="" />}
-                              <span>{c.text}</span>
+                              <span
+                                className={
+                                  preschool && c.image_url
+                                    ? "sr-only"
+                                    : undefined
+                                }
+                              >
+                                {c.text}
+                              </span>
                               {state && (
                                 <span className="answer-state">
                                   {(correct || !feedback) && (
@@ -1291,7 +1325,11 @@ export default function QuizApp() {
                               ? "Finish adventure"
                               : "Next question"
                             : "Check my answer"}
-                        <ArrowRight size={18} aria-hidden="true" />
+                        {preschool && !feedback ? (
+                          <Check size={20} aria-hidden="true" />
+                        ) : (
+                          <ArrowRight size={18} aria-hidden="true" />
+                        )}
                       </button>
                     </div>
                   </div>

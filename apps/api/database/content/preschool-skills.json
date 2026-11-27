@@ -1,0 +1,6 @@
+[
+  {"subject":"maths","slug":"match-shapes","name":"Match shapes","description":"Find the picture with the same shape."},
+  {"subject":"maths","slug":"match-small-groups","name":"Match small groups","description":"Find a group with the same number of things."},
+  {"subject":"english","slug":"match-objects","name":"Match familiar objects","description":"Find two pictures of the same thing."},
+  {"subject":"english","slug":"match-animals","name":"Match animals","description":"Find the same animal."}
+]

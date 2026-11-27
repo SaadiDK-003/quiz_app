@@ -1,6 +1,7 @@
 [
   {
     "seed_key": "place-value-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 2 in 24?",
     "instruction": "Choose the best answer.",
@@ -29,6 +30,7 @@
   },
   {
     "seed_key": "place-value-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 3 in 36?",
     "instruction": "Choose the best answer.",
@@ -57,6 +59,7 @@
   },
   {
     "seed_key": "place-value-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 5 in 52?",
     "instruction": "Choose the best answer.",
@@ -85,6 +88,7 @@
   },
   {
     "seed_key": "place-value-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 7 in 71?",
     "instruction": "Choose the best answer.",
@@ -113,6 +117,7 @@
   },
   {
     "seed_key": "place-value-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 8 in 89?",
     "instruction": "Choose the best answer.",
@@ -141,6 +146,7 @@
   },
   {
     "seed_key": "place-value-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 4 in 43?",
     "instruction": "Choose the best answer.",
@@ -169,6 +175,7 @@
   },
   {
     "seed_key": "place-value-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 6 in 65?",
     "instruction": "Choose the best answer.",
@@ -197,6 +204,7 @@
   },
   {
     "seed_key": "place-value-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 9 in 97?",
     "instruction": "Choose the best answer.",
@@ -225,6 +233,7 @@
   },
   {
     "seed_key": "place-value-9",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 1 in 18?",
     "instruction": "Choose the best answer.",
@@ -253,6 +262,7 @@
   },
   {
     "seed_key": "place-value-10",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 2 in 230?",
     "instruction": "Choose the best answer.",
@@ -281,6 +291,7 @@
   },
   {
     "seed_key": "addition-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 4 + 3?",
     "instruction": "Choose the best answer.",
@@ -309,6 +320,7 @@
   },
   {
     "seed_key": "addition-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 8 + 5?",
     "instruction": "Choose the best answer.",
@@ -337,6 +349,7 @@
   },
   {
     "seed_key": "addition-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 12 + 6?",
     "instruction": "Choose the best answer.",
@@ -365,6 +378,7 @@
   },
   {
     "seed_key": "addition-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 24 + 13?",
     "instruction": "Choose the best answer.",
@@ -393,6 +407,7 @@
   },
   {
     "seed_key": "addition-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 17 + 8?",
     "instruction": "Choose the best answer.",
@@ -421,6 +436,7 @@
   },
   {
     "seed_key": "addition-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 35 + 22?",
     "instruction": "Choose the best answer.",
@@ -449,6 +465,7 @@
   },
   {
     "seed_key": "addition-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 46 + 18?",
     "instruction": "Choose the best answer.",
@@ -477,6 +494,7 @@
   },
   {
     "seed_key": "addition-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 63 + 27?",
     "instruction": "Choose the best answer.",
@@ -505,6 +523,7 @@
   },
   {
     "seed_key": "addition-9",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "What is 125 + 34?",
     "instruction": "Choose the best answer.",
@@ -533,6 +552,7 @@
   },
   {
     "seed_key": "addition-10",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "What is 147 + 125?",
     "instruction": "Choose the best answer.",
@@ -561,6 +581,7 @@
   },
   {
     "seed_key": "subtraction-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 9 − 4?",
     "instruction": "Choose the best answer.",
@@ -589,6 +610,7 @@
   },
   {
     "seed_key": "subtraction-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 12 − 5?",
     "instruction": "Choose the best answer.",
@@ -617,6 +639,7 @@
   },
   {
     "seed_key": "subtraction-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 18 − 6?",
     "instruction": "Choose the best answer.",
@@ -645,6 +668,7 @@
   },
   {
     "seed_key": "subtraction-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 25 − 12?",
     "instruction": "Choose the best answer.",
@@ -673,6 +697,7 @@
   },
   {
     "seed_key": "subtraction-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 34 − 8?",
     "instruction": "Choose the best answer.",
@@ -701,6 +726,7 @@
   },
   {
     "seed_key": "subtraction-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 50 − 17?",
     "instruction": "Choose the best answer.",
@@ -729,6 +755,7 @@
   },
   {
     "seed_key": "subtraction-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 72 − 26?",
     "instruction": "Choose the best answer.",
@@ -757,6 +784,7 @@
   },
   {
     "seed_key": "subtraction-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 83 − 35?",
     "instruction": "Choose the best answer.",
@@ -785,6 +813,7 @@
   },
   {
     "seed_key": "subtraction-9",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "What is 140 − 25?",
     "instruction": "Choose the best answer.",
@@ -813,6 +842,7 @@
   },
   {
     "seed_key": "subtraction-10",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "What is 253 − 128?",
     "instruction": "Choose the best answer.",
@@ -841,6 +871,7 @@
   },
   {
     "seed_key": "multiplication-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "There are 2 baskets with 3 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -869,6 +900,7 @@
   },
   {
     "seed_key": "multiplication-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "There are 3 baskets with 4 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -897,6 +929,7 @@
   },
   {
     "seed_key": "multiplication-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "There are 5 baskets with 2 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -925,6 +958,7 @@
   },
   {
     "seed_key": "multiplication-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "There are 4 baskets with 4 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -953,6 +987,7 @@
   },
   {
     "seed_key": "multiplication-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "There are 3 baskets with 5 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -981,6 +1016,7 @@
   },
   {
     "seed_key": "multiplication-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "There are 6 baskets with 4 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -1009,6 +1045,7 @@
   },
   {
     "seed_key": "multiplication-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "There are 7 baskets with 3 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -1037,6 +1074,7 @@
   },
   {
     "seed_key": "multiplication-8",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "There are 8 baskets with 5 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -1065,6 +1103,7 @@
   },
   {
     "seed_key": "multiplication-9",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "There are 9 baskets with 6 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -1093,6 +1132,7 @@
   },
   {
     "seed_key": "multiplication-10",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "There are 12 baskets with 4 apples in each. How many apples altogether?",
     "instruction": "Choose the best answer.",
@@ -1121,6 +1161,7 @@
   },
   {
     "seed_key": "division-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 6 strawberries equally between 2 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1149,6 +1190,7 @@
   },
   {
     "seed_key": "division-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 12 strawberries equally between 3 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1177,6 +1219,7 @@
   },
   {
     "seed_key": "division-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 10 strawberries equally between 5 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1205,6 +1248,7 @@
   },
   {
     "seed_key": "division-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 16 strawberries equally between 4 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1233,6 +1277,7 @@
   },
   {
     "seed_key": "division-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 20 strawberries equally between 2 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1261,6 +1306,7 @@
   },
   {
     "seed_key": "division-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 24 strawberries equally between 6 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1289,6 +1335,7 @@
   },
   {
     "seed_key": "division-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 28 strawberries equally between 4 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1317,6 +1364,7 @@
   },
   {
     "seed_key": "division-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 35 strawberries equally between 5 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1345,6 +1393,7 @@
   },
   {
     "seed_key": "division-9",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "Share 48 strawberries equally between 8 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1373,6 +1422,7 @@
   },
   {
     "seed_key": "division-10",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "Share 63 strawberries equally between 7 bowls. How many go in each bowl?",
     "instruction": "Choose the best answer.",
@@ -1401,6 +1451,7 @@
   },
   {
     "seed_key": "fractions-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is one half of 4?",
     "instruction": "Choose the best answer.",
@@ -1429,6 +1480,7 @@
   },
   {
     "seed_key": "fractions-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is one half of 6?",
     "instruction": "Choose the best answer.",
@@ -1457,6 +1509,7 @@
   },
   {
     "seed_key": "fractions-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is one half of 8?",
     "instruction": "Choose the best answer.",
@@ -1485,6 +1538,7 @@
   },
   {
     "seed_key": "fractions-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is one half of 10?",
     "instruction": "Choose the best answer.",
@@ -1513,6 +1567,7 @@
   },
   {
     "seed_key": "fractions-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is one half of 12?",
     "instruction": "Choose the best answer.",
@@ -1541,6 +1596,7 @@
   },
   {
     "seed_key": "fractions-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is one half of 14?",
     "instruction": "Choose the best answer.",
@@ -1569,6 +1625,7 @@
   },
   {
     "seed_key": "fractions-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is one half of 16?",
     "instruction": "Choose the best answer.",
@@ -1597,6 +1654,7 @@
   },
   {
     "seed_key": "fractions-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is one half of 18?",
     "instruction": "Choose the best answer.",
@@ -1625,6 +1683,7 @@
   },
   {
     "seed_key": "fractions-9",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "A pizza has 4 equal slices. You eat 1 slice. What fraction did you eat?",
     "instruction": "Choose the best answer.",
@@ -1653,6 +1712,7 @@
   },
   {
     "seed_key": "fractions-10",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "Which fraction means the whole cake?",
     "instruction": "Choose the best answer.",
@@ -1681,6 +1741,7 @@
   },
   {
     "seed_key": "vocabulary-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word describes something very big?",
     "instruction": "Choose the best answer.",
@@ -1709,6 +1770,7 @@
   },
   {
     "seed_key": "vocabulary-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word means a place with many trees?",
     "instruction": "Choose the best answer.",
@@ -1737,6 +1799,7 @@
   },
   {
     "seed_key": "vocabulary-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word describes someone who tells the truth?",
     "instruction": "Choose the best answer.",
@@ -1765,6 +1828,7 @@
   },
   {
     "seed_key": "vocabulary-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word means to look carefully at something?",
     "instruction": "Choose the best answer.",
@@ -1793,6 +1857,7 @@
   },
   {
     "seed_key": "vocabulary-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word describes a very quiet sound?",
     "instruction": "Choose the best answer.",
@@ -1821,6 +1886,7 @@
   },
   {
     "seed_key": "vocabulary-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word means a journey to discover new things?",
     "instruction": "Choose the best answer.",
@@ -1849,6 +1915,7 @@
   },
   {
     "seed_key": "vocabulary-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word describes something that breaks easily?",
     "instruction": "Choose the best answer.",
@@ -1877,6 +1944,7 @@
   },
   {
     "seed_key": "vocabulary-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word means to work together?",
     "instruction": "Choose the best answer.",
@@ -1905,6 +1973,7 @@
   },
   {
     "seed_key": "vocabulary-9",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word describes someone who wants to learn more?",
     "instruction": "Choose the best answer.",
@@ -1933,6 +2002,7 @@
   },
   {
     "seed_key": "vocabulary-10",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word means to make something better?",
     "instruction": "Choose the best answer.",
@@ -1961,6 +2031,7 @@
   },
   {
     "seed_key": "spelling-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -1989,6 +2060,7 @@
   },
   {
     "seed_key": "spelling-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -2017,6 +2089,7 @@
   },
   {
     "seed_key": "spelling-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -2045,6 +2118,7 @@
   },
   {
     "seed_key": "spelling-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -2073,6 +2147,7 @@
   },
   {
     "seed_key": "spelling-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -2101,6 +2176,7 @@
   },
   {
     "seed_key": "spelling-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -2129,6 +2205,7 @@
   },
   {
     "seed_key": "spelling-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -2157,6 +2234,7 @@
   },
   {
     "seed_key": "spelling-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -2185,6 +2263,7 @@
   },
   {
     "seed_key": "spelling-9",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -2213,6 +2292,7 @@
   },
   {
     "seed_key": "spelling-10",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word.",
     "instruction": "Read carefully, then choose the best answer.",
@@ -2241,6 +2321,7 @@
   },
   {
     "seed_key": "sentence-structure-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “The cat ___ sleeping.”",
     "instruction": "Choose the best answer.",
@@ -2269,6 +2350,7 @@
   },
   {
     "seed_key": "sentence-structure-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “We ___ happy.”",
     "instruction": "Choose the best answer.",
@@ -2297,6 +2379,7 @@
   },
   {
     "seed_key": "sentence-structure-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Which is a complete sentence?",
     "instruction": "Choose the best answer.",
@@ -2325,6 +2408,7 @@
   },
   {
     "seed_key": "sentence-structure-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the correct word: “She ___ a book yesterday.”",
     "instruction": "Choose the best answer.",
@@ -2353,6 +2437,7 @@
   },
   {
     "seed_key": "sentence-structure-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Which sentence has its words in the right order?",
     "instruction": "Choose the best answer.",
@@ -2381,6 +2466,7 @@
   },
   {
     "seed_key": "sentence-structure-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “There ___ three apples.”",
     "instruction": "Choose the best answer.",
@@ -2409,6 +2495,7 @@
   },
   {
     "seed_key": "sentence-structure-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the joining word: “I wore a coat ___ it was cold.”",
     "instruction": "Choose the best answer.",
@@ -2437,6 +2524,7 @@
   },
   {
     "seed_key": "sentence-structure-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “A bird can ___.”",
     "instruction": "Choose the best answer.",
@@ -2465,6 +2553,7 @@
   },
   {
     "seed_key": "sentence-structure-9",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “These ___ are ripe.”",
     "instruction": "Choose the best answer.",
@@ -2493,6 +2582,7 @@
   },
   {
     "seed_key": "sentence-structure-10",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the correct sentence.",
     "instruction": "Choose the best answer.",
@@ -2521,6 +2611,7 @@
   },
   {
     "seed_key": "punctuation-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which mark belongs at the end of “Where is my bag”?",
     "instruction": "Choose the best answer.",
@@ -2549,6 +2640,7 @@
   },
   {
     "seed_key": "punctuation-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence starts correctly?",
     "instruction": "Choose the best answer.",
@@ -2577,6 +2669,7 @@
   },
   {
     "seed_key": "punctuation-3",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Choose the correctly punctuated list.",
     "instruction": "Choose the best answer.",
@@ -2605,6 +2698,7 @@
   },
   {
     "seed_key": "punctuation-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which mark shows excitement in “What a wonderful day”?",
     "instruction": "Choose the best answer.",
@@ -2633,6 +2727,7 @@
   },
   {
     "seed_key": "punctuation-5",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Choose the correct spelling with an apostrophe.",
     "instruction": "Choose the best answer.",
@@ -2661,6 +2756,7 @@
   },
   {
     "seed_key": "punctuation-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence uses a full stop correctly?",
     "instruction": "Choose the best answer.",
@@ -2689,6 +2785,7 @@
   },
   {
     "seed_key": "punctuation-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Choose the correctly written name.",
     "instruction": "Choose the best answer.",
@@ -2717,6 +2814,7 @@
   },
   {
     "seed_key": "punctuation-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which word needs a capital letter in “We visited london”?",
     "instruction": "Choose the best answer.",
@@ -2745,6 +2843,7 @@
   },
   {
     "seed_key": "punctuation-9",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Choose the correct contraction of “it is.”",
     "instruction": "Choose the best answer.",
@@ -2773,6 +2872,7 @@
   },
   {
     "seed_key": "punctuation-10",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence asks a question correctly?",
     "instruction": "Choose the best answer.",
@@ -2801,6 +2901,7 @@
   },
   {
     "seed_key": "synonyms-opposites-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the opposite of happy?",
     "instruction": "Choose the best answer.",
@@ -2829,6 +2930,7 @@
   },
   {
     "seed_key": "synonyms-opposites-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as small?",
     "instruction": "Choose the best answer.",
@@ -2857,6 +2959,7 @@
   },
   {
     "seed_key": "synonyms-opposites-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of hot?",
     "instruction": "Choose the best answer.",
@@ -2885,6 +2988,7 @@
   },
   {
     "seed_key": "synonyms-opposites-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as fast?",
     "instruction": "Choose the best answer.",
@@ -2913,6 +3017,7 @@
   },
   {
     "seed_key": "synonyms-opposites-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of near?",
     "instruction": "Choose the best answer.",
@@ -2941,6 +3046,7 @@
   },
   {
     "seed_key": "synonyms-opposites-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as kind?",
     "instruction": "Choose the best answer.",
@@ -2969,6 +3075,7 @@
   },
   {
     "seed_key": "synonyms-opposites-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of empty?",
     "instruction": "Choose the best answer.",
@@ -2997,6 +3104,7 @@
   },
   {
     "seed_key": "synonyms-opposites-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as begin?",
     "instruction": "Choose the best answer.",
@@ -3025,6 +3133,7 @@
   },
   {
     "seed_key": "synonyms-opposites-9",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of brave?",
     "instruction": "Choose the best answer.",
@@ -3053,6 +3162,7 @@
   },
   {
     "seed_key": "synonyms-opposites-10",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as silent?",
     "instruction": "Choose the best answer.",
@@ -3081,6 +3191,7 @@
   },
   {
     "seed_key": "reading-comprehension-1",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Sam planted a seed and watered it. A small plant grew. What helped the plant grow?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3109,6 +3220,7 @@
   },
   {
     "seed_key": "reading-comprehension-2",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Mia wore her boots and took an umbrella. Rain tapped on the roof. What was the weather like?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3137,6 +3249,7 @@
   },
   {
     "seed_key": "reading-comprehension-3",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Leo gave half his sandwich to a friend who had no lunch. How did Leo behave?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3165,6 +3278,7 @@
   },
   {
     "seed_key": "reading-comprehension-4",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "A bird carried twigs to a tree. Soon, three eggs lay in its nest. Why did the bird collect twigs?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3193,6 +3307,7 @@
   },
   {
     "seed_key": "reading-comprehension-5",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Noor put on a helmet before riding her bicycle. Why did she wear a helmet?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3221,6 +3336,7 @@
   },
   {
     "seed_key": "reading-comprehension-6",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Ben could not find his red scarf. He looked under his bed and found it there. Where was the scarf?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3249,6 +3365,7 @@
   },
   {
     "seed_key": "reading-comprehension-7",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "The class planted trees. Years later, their shade kept the playground cool. What provided the shade?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3277,6 +3394,7 @@
   },
   {
     "seed_key": "reading-comprehension-8",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Ava practiced skipping every afternoon. At first she managed two jumps. Later she could do twenty. What helped her improve?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3305,6 +3423,7 @@
   },
   {
     "seed_key": "reading-comprehension-9",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Eli heard a kitten meowing behind a gate. He asked a grown-up to help. What did Eli hear?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3333,6 +3452,7 @@
   },
   {
     "seed_key": "reading-comprehension-10",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "The sun was setting. Birds returned to their nests and streetlights came on. What time of day was it?",
     "instruction": "Read carefully, then choose the best answer.",
@@ -3361,6 +3481,7 @@
   },
   {
     "seed_key": "place-value-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "Which number has 4 tens and 7 ones?",
     "instruction": "Choose the best answer.",
@@ -3389,6 +3510,7 @@
   },
   {
     "seed_key": "place-value-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "How many tens are in 60?",
     "instruction": "Choose the best answer.",
@@ -3417,6 +3539,7 @@
   },
   {
     "seed_key": "place-value-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "Which number is greater: 38 or 83?",
     "instruction": "Choose the best answer.",
@@ -3445,6 +3568,7 @@
   },
   {
     "seed_key": "place-value-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is 50 + 9?",
     "instruction": "Choose the best answer.",
@@ -3473,6 +3597,7 @@
   },
   {
     "seed_key": "place-value-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "Which digit is in the ones place in 72?",
     "instruction": "Choose the best answer.",
@@ -3501,6 +3626,7 @@
   },
   {
     "seed_key": "place-value-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What number comes just after 69?",
     "instruction": "Choose the best answer.",
@@ -3529,6 +3655,7 @@
   },
   {
     "seed_key": "place-value-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "Which number is 100 + 40 + 6?",
     "instruction": "Choose the best answer.",
@@ -3557,6 +3684,7 @@
   },
   {
     "seed_key": "place-value-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 8 in 183?",
     "instruction": "Choose the best answer.",
@@ -3585,6 +3713,7 @@
   },
   {
     "seed_key": "place-value-19",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "Which number is smallest?",
     "instruction": "Choose the best answer.",
@@ -3613,6 +3742,7 @@
   },
   {
     "seed_key": "place-value-20",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "Which number has 3 hundreds, no tens and 4 ones?",
     "instruction": "Choose the best answer.",
@@ -3641,6 +3771,7 @@
   },
   {
     "seed_key": "place-value-21",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "What is ten more than 126?",
     "instruction": "Choose the best answer.",
@@ -3669,6 +3800,7 @@
   },
   {
     "seed_key": "place-value-22",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "What is 278 rounded to the nearest ten?",
     "instruction": "Choose the best answer.",
@@ -3697,6 +3829,7 @@
   },
   {
     "seed_key": "place-value-23",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "Which number is 600 + 30 + 8?",
     "instruction": "Choose the best answer.",
@@ -3725,6 +3858,7 @@
   },
   {
     "seed_key": "place-value-24",
+    "age_bands": ["7-8", "9-10"],
     "skill": "place-value",
     "prompt": "How many hundreds are in 900?",
     "instruction": "Choose the best answer.",
@@ -3753,6 +3887,7 @@
   },
   {
     "seed_key": "place-value-25",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "What is one hundred less than 742?",
     "instruction": "Choose the best answer.",
@@ -3781,6 +3916,7 @@
   },
   {
     "seed_key": "place-value-26",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "Which number belongs in the gap: 395, 405, __, 425?",
     "instruction": "Choose the best answer.",
@@ -3809,6 +3945,7 @@
   },
   {
     "seed_key": "place-value-27",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "Use 2, 5 and 8 once each. What is the largest three-digit number?",
     "instruction": "Choose the best answer.",
@@ -3837,6 +3974,7 @@
   },
   {
     "seed_key": "place-value-28",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "What is the value of the 4 in 1,402?",
     "instruction": "Choose the best answer.",
@@ -3865,6 +4003,7 @@
   },
   {
     "seed_key": "place-value-29",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "What number is halfway between 300 and 400?",
     "instruction": "Choose the best answer.",
@@ -3893,6 +4032,7 @@
   },
   {
     "seed_key": "place-value-30",
+    "age_bands": ["9-10"],
     "skill": "place-value",
     "prompt": "Which number rounds to 500 to the nearest hundred?",
     "instruction": "Choose the best answer.",
@@ -3921,6 +4061,7 @@
   },
   {
     "seed_key": "addition-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "There are 6 red beads and 5 blue beads. How many beads altogether?",
     "instruction": "Choose the best answer.",
@@ -3949,6 +4090,7 @@
   },
   {
     "seed_key": "addition-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What number is missing: 8 + __ = 12?",
     "instruction": "Choose the best answer.",
@@ -3977,6 +4119,7 @@
   },
   {
     "seed_key": "addition-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 10 + 9?",
     "instruction": "Choose the best answer.",
@@ -4005,6 +4148,7 @@
   },
   {
     "seed_key": "addition-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "A bird finds 7 seeds, then 7 more. How many seeds does it find?",
     "instruction": "Choose the best answer.",
@@ -4033,6 +4177,7 @@
   },
   {
     "seed_key": "addition-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 13 + 5?",
     "instruction": "Choose the best answer.",
@@ -4061,6 +4206,7 @@
   },
   {
     "seed_key": "addition-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "Which sum makes 16?",
     "instruction": "Choose the best answer.",
@@ -4089,6 +4235,7 @@
   },
   {
     "seed_key": "addition-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 28 + 17?",
     "instruction": "Choose the best answer.",
@@ -4117,6 +4264,7 @@
   },
   {
     "seed_key": "addition-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "A class has 24 pencils and gets 18 more. How many pencils now?",
     "instruction": "Choose the best answer.",
@@ -4145,6 +4293,7 @@
   },
   {
     "seed_key": "addition-19",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What number is missing: __ + 26 = 60?",
     "instruction": "Choose the best answer.",
@@ -4173,6 +4322,7 @@
   },
   {
     "seed_key": "addition-20",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 35 + 20 + 4?",
     "instruction": "Choose the best answer.",
@@ -4201,6 +4351,7 @@
   },
   {
     "seed_key": "addition-21",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "What is 46 + 29?",
     "instruction": "Choose the best answer.",
@@ -4229,6 +4380,7 @@
   },
   {
     "seed_key": "addition-22",
+    "age_bands": ["7-8", "9-10"],
     "skill": "addition",
     "prompt": "Which sum has the same answer as 32 + 18?",
     "instruction": "Choose the best answer.",
@@ -4257,6 +4409,7 @@
   },
   {
     "seed_key": "addition-23",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "What is 168 + 57?",
     "instruction": "Choose the best answer.",
@@ -4285,6 +4438,7 @@
   },
   {
     "seed_key": "addition-24",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "A library has 235 storybooks and 146 information books. How many books is that?",
     "instruction": "Choose the best answer.",
@@ -4313,6 +4467,7 @@
   },
   {
     "seed_key": "addition-25",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "What number is missing: 275 + __ = 400?",
     "instruction": "Choose the best answer.",
@@ -4341,6 +4496,7 @@
   },
   {
     "seed_key": "addition-26",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "What is 125 + 75 + 48?",
     "instruction": "Choose the best answer.",
@@ -4369,6 +4525,7 @@
   },
   {
     "seed_key": "addition-27",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "Noor walks 180 metres, then 245 metres. How far does Noor walk?",
     "instruction": "Choose the best answer.",
@@ -4397,6 +4554,7 @@
   },
   {
     "seed_key": "addition-28",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "What is 399 + 26?",
     "instruction": "Choose the best answer.",
@@ -4425,6 +4583,7 @@
   },
   {
     "seed_key": "addition-29",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "Which number makes this true: 148 + 52 = 125 + __?",
     "instruction": "Choose the best answer.",
@@ -4453,6 +4612,7 @@
   },
   {
     "seed_key": "addition-30",
+    "age_bands": ["9-10"],
     "skill": "addition",
     "prompt": "What is 286 + 137?",
     "instruction": "Choose the best answer.",
@@ -4481,6 +4641,7 @@
   },
   {
     "seed_key": "subtraction-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "There are 15 grapes. You eat 4. How many are left?",
     "instruction": "Choose the best answer.",
@@ -4509,6 +4670,7 @@
   },
   {
     "seed_key": "subtraction-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What number is missing: 12 - __ = 7?",
     "instruction": "Choose the best answer.",
@@ -4537,6 +4699,7 @@
   },
   {
     "seed_key": "subtraction-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 20 - 10?",
     "instruction": "Choose the best answer.",
@@ -4565,6 +4728,7 @@
   },
   {
     "seed_key": "subtraction-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "A box has 9 crayons. Three are taken out. How many stay in the box?",
     "instruction": "Choose the best answer.",
@@ -4593,6 +4757,7 @@
   },
   {
     "seed_key": "subtraction-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is the difference between 14 and 8?",
     "instruction": "Choose the best answer.",
@@ -4621,6 +4786,7 @@
   },
   {
     "seed_key": "subtraction-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "Which subtraction gives 8?",
     "instruction": "Choose the best answer.",
@@ -4649,6 +4815,7 @@
   },
   {
     "seed_key": "subtraction-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 42 - 18?",
     "instruction": "Choose the best answer.",
@@ -4677,6 +4844,7 @@
   },
   {
     "seed_key": "subtraction-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "There are 63 sheets of paper. A class uses 27. How many remain?",
     "instruction": "Choose the best answer.",
@@ -4705,6 +4873,7 @@
   },
   {
     "seed_key": "subtraction-19",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What number is missing: 70 - __ = 45?",
     "instruction": "Choose the best answer.",
@@ -4733,6 +4902,7 @@
   },
   {
     "seed_key": "subtraction-20",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "A ribbon is 85 centimetres long. You cut off 30 centimetres. How much remains?",
     "instruction": "Choose the best answer.",
@@ -4761,6 +4931,7 @@
   },
   {
     "seed_key": "subtraction-21",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "What is 100 - 47?",
     "instruction": "Choose the best answer.",
@@ -4789,6 +4960,7 @@
   },
   {
     "seed_key": "subtraction-22",
+    "age_bands": ["7-8", "9-10"],
     "skill": "subtraction",
     "prompt": "Which subtraction has the same answer as 54 - 29?",
     "instruction": "Choose the best answer.",
@@ -4817,6 +4989,7 @@
   },
   {
     "seed_key": "subtraction-23",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "What is 304 - 128?",
     "instruction": "Choose the best answer.",
@@ -4845,6 +5018,7 @@
   },
   {
     "seed_key": "subtraction-24",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "A shop has 450 apples and sells 175. How many apples are left?",
     "instruction": "Choose the best answer.",
@@ -4873,6 +5047,7 @@
   },
   {
     "seed_key": "subtraction-25",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "What number is missing: __ - 86 = 147?",
     "instruction": "Choose the best answer.",
@@ -4901,6 +5076,7 @@
   },
   {
     "seed_key": "subtraction-26",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "What is the difference between 620 and 385?",
     "instruction": "Choose the best answer.",
@@ -4929,6 +5105,7 @@
   },
   {
     "seed_key": "subtraction-27",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "Lina needs 500 stickers and has 268. How many more does she need?",
     "instruction": "Choose the best answer.",
@@ -4957,6 +5134,7 @@
   },
   {
     "seed_key": "subtraction-28",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "What is 702 - 299?",
     "instruction": "Choose the best answer.",
@@ -4985,6 +5163,7 @@
   },
   {
     "seed_key": "subtraction-29",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "What is 560 - 125 - 35?",
     "instruction": "Choose the best answer.",
@@ -5013,6 +5192,7 @@
   },
   {
     "seed_key": "subtraction-30",
+    "age_bands": ["9-10"],
     "skill": "subtraction",
     "prompt": "Which number makes 425 - __ = 198?",
     "instruction": "Choose the best answer.",
@@ -5041,6 +5221,7 @@
   },
   {
     "seed_key": "multiplication-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "There are 4 pairs of socks. How many socks are there?",
     "instruction": "Choose the best answer.",
@@ -5069,6 +5250,7 @@
   },
   {
     "seed_key": "multiplication-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "What is 5 × 2?",
     "instruction": "Choose the best answer.",
@@ -5097,6 +5279,7 @@
   },
   {
     "seed_key": "multiplication-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "Three plates each hold 3 crackers. How many crackers altogether?",
     "instruction": "Choose the best answer.",
@@ -5125,6 +5308,7 @@
   },
   {
     "seed_key": "multiplication-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "Which sum means the same as 4 × 5?",
     "instruction": "Choose the best answer.",
@@ -5153,6 +5337,7 @@
   },
   {
     "seed_key": "multiplication-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "What number is missing: 2 × __ = 12?",
     "instruction": "Choose the best answer.",
@@ -5181,6 +5366,7 @@
   },
   {
     "seed_key": "multiplication-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "There are 3 rows of 5 chairs. How many chairs?",
     "instruction": "Choose the best answer.",
@@ -5209,6 +5395,7 @@
   },
   {
     "seed_key": "multiplication-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "What is 6 × 4?",
     "instruction": "Choose the best answer.",
@@ -5237,6 +5424,7 @@
   },
   {
     "seed_key": "multiplication-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "Seven children each plant 3 seeds. How many seeds do they plant?",
     "instruction": "Choose the best answer.",
@@ -5265,6 +5453,7 @@
   },
   {
     "seed_key": "multiplication-19",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "What number is missing: __ × 5 = 40?",
     "instruction": "Choose the best answer.",
@@ -5293,6 +5482,7 @@
   },
   {
     "seed_key": "multiplication-20",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "Which multiplication has the same answer as 4 × 6?",
     "instruction": "Choose the best answer.",
@@ -5321,6 +5511,7 @@
   },
   {
     "seed_key": "multiplication-21",
+    "age_bands": ["7-8", "9-10"],
     "skill": "multiplication",
     "prompt": "What is 9 × 2?",
     "instruction": "Choose the best answer.",
@@ -5349,6 +5540,7 @@
   },
   {
     "seed_key": "multiplication-22",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "There are 8 bags with 5 marbles in each. How many marbles?",
     "instruction": "Choose the best answer.",
@@ -5377,6 +5569,7 @@
   },
   {
     "seed_key": "multiplication-23",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "What is 7 × 8?",
     "instruction": "Choose the best answer.",
@@ -5405,6 +5598,7 @@
   },
   {
     "seed_key": "multiplication-24",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "A hall has 9 rows of 6 seats. How many seats are there?",
     "instruction": "Choose the best answer.",
@@ -5433,6 +5627,7 @@
   },
   {
     "seed_key": "multiplication-25",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "What is 14 × 3?",
     "instruction": "Choose the best answer.",
@@ -5461,6 +5656,7 @@
   },
   {
     "seed_key": "multiplication-26",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "What number is missing: 8 × __ = 72?",
     "instruction": "Choose the best answer.",
@@ -5489,6 +5685,7 @@
   },
   {
     "seed_key": "multiplication-27",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "Five boxes each hold 12 pencils. How many pencils altogether?",
     "instruction": "Choose the best answer.",
@@ -5517,6 +5714,7 @@
   },
   {
     "seed_key": "multiplication-28",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "What is 11 × 7?",
     "instruction": "Choose the best answer.",
@@ -5545,6 +5743,7 @@
   },
   {
     "seed_key": "multiplication-29",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "There are 4 trays with 6 cups each. Two more trays are added with 6 cups each. How many cups now?",
     "instruction": "Choose the best answer.",
@@ -5573,6 +5772,7 @@
   },
   {
     "seed_key": "multiplication-30",
+    "age_bands": ["9-10"],
     "skill": "multiplication",
     "prompt": "Which number makes 6 × 8 = 4 × __?",
     "instruction": "Choose the best answer.",
@@ -5601,6 +5801,7 @@
   },
   {
     "seed_key": "division-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 8 apples equally between 2 baskets. How many apples in each?",
     "instruction": "Choose the best answer.",
@@ -5629,6 +5830,7 @@
   },
   {
     "seed_key": "division-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "There are 10 wheels. Each bicycle needs 2 wheels. How many bicycles can have wheels?",
     "instruction": "Choose the best answer.",
@@ -5657,6 +5859,7 @@
   },
   {
     "seed_key": "division-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "What is 12 ÷ 3?",
     "instruction": "Choose the best answer.",
@@ -5685,6 +5888,7 @@
   },
   {
     "seed_key": "division-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 15 counters equally among 5 children. How many counters each?",
     "instruction": "Choose the best answer.",
@@ -5713,6 +5917,7 @@
   },
   {
     "seed_key": "division-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "What number is missing: 6 ÷ __ = 2?",
     "instruction": "Choose the best answer.",
@@ -5741,6 +5946,7 @@
   },
   {
     "seed_key": "division-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Put 20 flowers into bunches of 5. How many bunches?",
     "instruction": "Choose the best answer.",
@@ -5769,6 +5975,7 @@
   },
   {
     "seed_key": "division-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "What is 28 ÷ 4?",
     "instruction": "Choose the best answer.",
@@ -5797,6 +6004,7 @@
   },
   {
     "seed_key": "division-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Share 36 beads equally among 6 bracelets. How many beads per bracelet?",
     "instruction": "Choose the best answer.",
@@ -5825,6 +6033,7 @@
   },
   {
     "seed_key": "division-19",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "There are 45 books. Each shelf holds 5 books. How many shelves are needed?",
     "instruction": "Choose the best answer.",
@@ -5853,6 +6062,7 @@
   },
   {
     "seed_key": "division-20",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "What number is missing: __ ÷ 3 = 8?",
     "instruction": "Choose the best answer.",
@@ -5881,6 +6091,7 @@
   },
   {
     "seed_key": "division-21",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "Which division gives 7?",
     "instruction": "Choose the best answer.",
@@ -5909,6 +6120,7 @@
   },
   {
     "seed_key": "division-22",
+    "age_bands": ["7-8", "9-10"],
     "skill": "division",
     "prompt": "What is 32 ÷ 8?",
     "instruction": "Choose the best answer.",
@@ -5937,6 +6149,7 @@
   },
   {
     "seed_key": "division-23",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "What is 72 ÷ 9?",
     "instruction": "Choose the best answer.",
@@ -5965,6 +6178,7 @@
   },
   {
     "seed_key": "division-24",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "A gardener plants 84 seeds in rows of 7. How many rows?",
     "instruction": "Choose the best answer.",
@@ -5993,6 +6207,7 @@
   },
   {
     "seed_key": "division-25",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "Share 96 cards equally among 8 children. How many cards each?",
     "instruction": "Choose the best answer.",
@@ -6021,6 +6236,7 @@
   },
   {
     "seed_key": "division-26",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "What number is missing: 90 ÷ __ = 15?",
     "instruction": "Choose the best answer.",
@@ -6049,6 +6265,7 @@
   },
   {
     "seed_key": "division-27",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "What is 144 ÷ 12?",
     "instruction": "Choose the best answer.",
@@ -6077,6 +6294,7 @@
   },
   {
     "seed_key": "division-28",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "Four boxes hold 48 crayons altogether, with the same number in each. How many crayons do 2 boxes hold?",
     "instruction": "Choose the best answer.",
@@ -6105,6 +6323,7 @@
   },
   {
     "seed_key": "division-29",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "A baker packs 75 rolls into bags of 5. How many bags?",
     "instruction": "Choose the best answer.",
@@ -6133,6 +6352,7 @@
   },
   {
     "seed_key": "division-30",
+    "age_bands": ["9-10"],
     "skill": "division",
     "prompt": "Which number makes 64 ÷ 8 = 40 ÷ __?",
     "instruction": "Choose the best answer.",
@@ -6161,6 +6381,7 @@
   },
   {
     "seed_key": "fractions-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "A sandwich is cut into 2 equal pieces. What fraction is one piece?",
     "instruction": "Choose the best answer.",
@@ -6189,6 +6410,7 @@
   },
   {
     "seed_key": "fractions-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "A shape has 4 equal parts. One part is shaded. What fraction is shaded?",
     "instruction": "Choose the best answer.",
@@ -6217,6 +6439,7 @@
   },
   {
     "seed_key": "fractions-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is half of 8?",
     "instruction": "Choose the best answer.",
@@ -6245,6 +6468,7 @@
   },
   {
     "seed_key": "fractions-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "Which description means equal parts?",
     "instruction": "Choose the best answer.",
@@ -6273,6 +6497,7 @@
   },
   {
     "seed_key": "fractions-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "A cake is cut into 4 equal pieces. Two pieces are eaten. What fraction is eaten?",
     "instruction": "Choose the best answer.",
@@ -6301,6 +6526,7 @@
   },
   {
     "seed_key": "fractions-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is half of 14?",
     "instruction": "Choose the best answer.",
@@ -6329,6 +6555,7 @@
   },
   {
     "seed_key": "fractions-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "What is one quarter of 20?",
     "instruction": "Choose the best answer.",
@@ -6357,6 +6584,7 @@
   },
   {
     "seed_key": "fractions-18",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "Which fraction is the same as one half?",
     "instruction": "Choose the best answer.",
@@ -6385,6 +6613,7 @@
   },
   {
     "seed_key": "fractions-19",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "There are 12 berries. You eat one third of them. How many do you eat?",
     "instruction": "Choose the best answer.",
@@ -6413,6 +6642,7 @@
   },
   {
     "seed_key": "fractions-20",
+    "age_bands": ["7-8", "9-10"],
     "skill": "fractions",
     "prompt": "Which is larger: one half or one quarter of the same cake?",
     "instruction": "Choose the best answer.",
@@ -6441,6 +6671,7 @@
   },
   {
     "seed_key": "fractions-21",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "A whole is split into 3 equal parts. Two parts are coloured. What fraction is coloured?",
     "instruction": "Choose the best answer.",
@@ -6469,6 +6700,7 @@
   },
   {
     "seed_key": "fractions-22",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "What is three quarters of 8?",
     "instruction": "Choose the best answer.",
@@ -6497,6 +6729,7 @@
   },
   {
     "seed_key": "fractions-23",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "What is three quarters of 24?",
     "instruction": "Choose the best answer.",
@@ -6525,6 +6758,7 @@
   },
   {
     "seed_key": "fractions-24",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "Which fraction is equal to 3/6?",
     "instruction": "Choose the best answer.",
@@ -6553,6 +6787,7 @@
   },
   {
     "seed_key": "fractions-25",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "What is two thirds of 18?",
     "instruction": "Choose the best answer.",
@@ -6581,6 +6816,7 @@
   },
   {
     "seed_key": "fractions-26",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "A bottle is one quarter full. What fraction is empty?",
     "instruction": "Choose the best answer.",
@@ -6609,6 +6845,7 @@
   },
   {
     "seed_key": "fractions-27",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "Which fraction is greatest?",
     "instruction": "Choose the best answer.",
@@ -6637,6 +6874,7 @@
   },
   {
     "seed_key": "fractions-28",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "What is 1/5 of 35?",
     "instruction": "Choose the best answer.",
@@ -6665,6 +6903,7 @@
   },
   {
     "seed_key": "fractions-29",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "You have 16 stickers and give away one quarter. How many stickers do you keep?",
     "instruction": "Choose the best answer.",
@@ -6693,6 +6932,7 @@
   },
   {
     "seed_key": "fractions-30",
+    "age_bands": ["9-10"],
     "skill": "fractions",
     "prompt": "Which pair of fractions adds to one whole?",
     "instruction": "Choose the best answer.",
@@ -6721,6 +6961,7 @@
   },
   {
     "seed_key": "vocabulary-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "A puppy is small. Which word means very small?",
     "instruction": "Choose the best answer.",
@@ -6749,6 +6990,7 @@
   },
   {
     "seed_key": "vocabulary-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "We wear boots when the path is wet. Which word describes the path?",
     "instruction": "Choose the best answer.",
@@ -6777,6 +7019,7 @@
   },
   {
     "seed_key": "vocabulary-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word names something you can sit on?",
     "instruction": "Choose the best answer.",
@@ -6805,6 +7048,7 @@
   },
   {
     "seed_key": "vocabulary-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "The rabbit moves fast. Which word means fast?",
     "instruction": "Choose the best answer.",
@@ -6833,6 +7077,7 @@
   },
   {
     "seed_key": "vocabulary-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word describes a surface that feels even, without bumps?",
     "instruction": "Choose the best answer.",
@@ -6861,6 +7106,7 @@
   },
   {
     "seed_key": "vocabulary-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Maya is happy about her new book. Which word describes how she feels?",
     "instruction": "Choose the best answer.",
@@ -6889,6 +7135,7 @@
   },
   {
     "seed_key": "vocabulary-17",
+    "age_bands": ["9-10"],
     "skill": "vocabulary",
     "prompt": "The mouse was cautious near the cat. What does cautious mean?",
     "instruction": "Choose the best answer.",
@@ -6917,6 +7164,7 @@
   },
   {
     "seed_key": "vocabulary-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "The glass vase can break easily. Which word describes it?",
     "instruction": "Choose the best answer.",
@@ -6945,6 +7193,7 @@
   },
   {
     "seed_key": "vocabulary-19",
+    "age_bands": ["9-10"],
     "skill": "vocabulary",
     "prompt": "After the long walk, I felt exhausted. How did I feel?",
     "instruction": "Choose the best answer.",
@@ -6973,6 +7222,7 @@
   },
   {
     "seed_key": "vocabulary-20",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "We discovered a nest behind the tree. What does discovered mean?",
     "instruction": "Choose the best answer.",
@@ -7001,6 +7251,7 @@
   },
   {
     "seed_key": "vocabulary-21",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "Which word means to look at something carefully?",
     "instruction": "Choose the best answer.",
@@ -7029,6 +7280,7 @@
   },
   {
     "seed_key": "vocabulary-22",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "The pond was shallow. What does shallow mean?",
     "instruction": "Choose the best answer.",
@@ -7057,6 +7309,7 @@
   },
   {
     "seed_key": "vocabulary-23",
+    "age_bands": ["9-10"],
     "skill": "vocabulary",
     "prompt": "The team worked together to construct a shelter. What does construct mean?",
     "instruction": "Choose the best answer.",
@@ -7085,6 +7338,7 @@
   },
   {
     "seed_key": "vocabulary-24",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "A cheerful song lifted our spirits. What does cheerful mean?",
     "instruction": "Choose the best answer.",
@@ -7113,6 +7367,7 @@
   },
   {
     "seed_key": "vocabulary-25",
+    "age_bands": ["7-8", "9-10"],
     "skill": "vocabulary",
     "prompt": "The explorer was curious about the footprints. What does curious mean?",
     "instruction": "Choose the best answer.",
@@ -7141,6 +7396,7 @@
   },
   {
     "seed_key": "vocabulary-26",
+    "age_bands": ["9-10"],
     "skill": "vocabulary",
     "prompt": "The gardener inspected the leaves for insects. What does inspected mean?",
     "instruction": "Choose the best answer.",
@@ -7169,6 +7425,7 @@
   },
   {
     "seed_key": "vocabulary-27",
+    "age_bands": ["9-10"],
     "skill": "vocabulary",
     "prompt": "The instructions were precise. What does precise mean?",
     "instruction": "Choose the best answer.",
@@ -7197,6 +7454,7 @@
   },
   {
     "seed_key": "vocabulary-28",
+    "age_bands": ["9-10"],
     "skill": "vocabulary",
     "prompt": "Which word describes a person who keeps trying when something is difficult?",
     "instruction": "Choose the best answer.",
@@ -7225,6 +7483,7 @@
   },
   {
     "seed_key": "vocabulary-29",
+    "age_bands": ["9-10"],
     "skill": "vocabulary",
     "prompt": "The river began to overflow after heavy rain. What happened?",
     "instruction": "Choose the best answer.",
@@ -7253,6 +7512,7 @@
   },
   {
     "seed_key": "vocabulary-30",
+    "age_bands": ["9-10"],
     "skill": "vocabulary",
     "prompt": "The supplies were sufficient for everyone. What does sufficient mean?",
     "instruction": "Choose the best answer.",
@@ -7281,6 +7541,7 @@
   },
   {
     "seed_key": "spelling-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Complete the sentence with the correctly spelled word: “I drink a glass of ___.”",
     "instruction": "Choose the best answer.",
@@ -7309,6 +7570,7 @@
   },
   {
     "seed_key": "spelling-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Which spelling names the animal that says “quack”?",
     "instruction": "Choose the best answer.",
@@ -7337,6 +7599,7 @@
   },
   {
     "seed_key": "spelling-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word for a place to read books.",
     "instruction": "Choose the best answer.",
@@ -7365,6 +7628,7 @@
   },
   {
     "seed_key": "spelling-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Complete the sentence: “The sun is in the ___.”",
     "instruction": "Choose the best answer.",
@@ -7393,6 +7657,7 @@
   },
   {
     "seed_key": "spelling-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Which spelling names the meal we eat in the morning?",
     "instruction": "Choose the best answer.",
@@ -7421,6 +7686,7 @@
   },
   {
     "seed_key": "spelling-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correctly spelled word: “Please open the ___.”",
     "instruction": "Choose the best answer.",
@@ -7449,6 +7715,7 @@
   },
   {
     "seed_key": "spelling-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correct spelling: “The ___ has wings.”",
     "instruction": "Choose the best answer.",
@@ -7477,6 +7744,7 @@
   },
   {
     "seed_key": "spelling-18",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Which spelling is correct for more than one baby?",
     "instruction": "Choose the best answer.",
@@ -7505,6 +7773,7 @@
   },
   {
     "seed_key": "spelling-19",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Choose the correct spelling: “We had a ___ picnic.”",
     "instruction": "Choose the best answer.",
@@ -7533,6 +7802,7 @@
   },
   {
     "seed_key": "spelling-20",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Complete the sentence with the correctly spelled word: “I put the books on the ___.”",
     "instruction": "Choose the best answer.",
@@ -7561,6 +7831,7 @@
   },
   {
     "seed_key": "spelling-21",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Which word is spelled correctly?",
     "instruction": "Choose the best answer.",
@@ -7589,6 +7860,7 @@
   },
   {
     "seed_key": "spelling-22",
+    "age_bands": ["7-8", "9-10"],
     "skill": "spelling",
     "prompt": "Choose the correct spelling: “The kitten is ___ under the chair.”",
     "instruction": "Choose the best answer.",
@@ -7617,6 +7889,7 @@
   },
   {
     "seed_key": "spelling-23",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Which word correctly means “not happy”?",
     "instruction": "Choose the best answer.",
@@ -7645,6 +7918,7 @@
   },
   {
     "seed_key": "spelling-24",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Choose the correct spelling: “We need to ___ the pieces.”",
     "instruction": "Choose the best answer.",
@@ -7673,6 +7947,7 @@
   },
   {
     "seed_key": "spelling-25",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Which spelling is correct for more than one leaf?",
     "instruction": "Choose the best answer.",
@@ -7701,6 +7976,7 @@
   },
   {
     "seed_key": "spelling-26",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Complete the sentence with the correctly spelled word: “I will ___ the letter tomorrow.”",
     "instruction": "Choose the best answer.",
@@ -7729,6 +8005,7 @@
   },
   {
     "seed_key": "spelling-27",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Choose the correct spelling: “The squirrel moved ___.”",
     "instruction": "Choose the best answer.",
@@ -7757,6 +8034,7 @@
   },
   {
     "seed_key": "spelling-28",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Which word is spelled correctly?",
     "instruction": "Choose the best answer.",
@@ -7785,6 +8063,7 @@
   },
   {
     "seed_key": "spelling-29",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Choose the correct spelling: “I can ___ a dragon in the clouds.”",
     "instruction": "Choose the best answer.",
@@ -7813,6 +8092,7 @@
   },
   {
     "seed_key": "spelling-30",
+    "age_bands": ["9-10"],
     "skill": "spelling",
     "prompt": "Which word correctly means “to write again”?",
     "instruction": "Choose the best answer.",
@@ -7841,6 +8121,7 @@
   },
   {
     "seed_key": "sentence-structure-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “The dogs ___ barking.”",
     "instruction": "Choose the best answer.",
@@ -7869,6 +8150,7 @@
   },
   {
     "seed_key": "sentence-structure-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the complete sentence.",
     "instruction": "Choose the best answer.",
@@ -7897,6 +8179,7 @@
   },
   {
     "seed_key": "sentence-structure-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “I ___ a red bag.”",
     "instruction": "Choose the best answer.",
@@ -7925,6 +8208,7 @@
   },
   {
     "seed_key": "sentence-structure-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Which sentence puts the words in the right order?",
     "instruction": "Choose the best answer.",
@@ -7953,6 +8237,7 @@
   },
   {
     "seed_key": "sentence-structure-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the action word in: “The horse jumps.”",
     "instruction": "Choose the best answer.",
@@ -7981,6 +8266,7 @@
   },
   {
     "seed_key": "sentence-structure-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “She ___ her teeth every morning.”",
     "instruction": "Choose the best answer.",
@@ -8009,6 +8295,7 @@
   },
   {
     "seed_key": "sentence-structure-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “Yesterday, we ___ to the pond.”",
     "instruction": "Choose the best answer.",
@@ -8037,6 +8324,7 @@
   },
   {
     "seed_key": "sentence-structure-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that joins these ideas: “I wore a coat ___ it was cold.”",
     "instruction": "Choose the best answer.",
@@ -8065,6 +8353,7 @@
   },
   {
     "seed_key": "sentence-structure-19",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Which word can replace “Amir and Jo” in: “Amir and Jo are drawing”?",
     "instruction": "Choose the best answer.",
@@ -8093,6 +8382,7 @@
   },
   {
     "seed_key": "sentence-structure-20",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “The books are ___ the shelf.”",
     "instruction": "Choose the best answer.",
@@ -8121,6 +8411,7 @@
   },
   {
     "seed_key": "sentence-structure-21",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the sentence with the correct verb.",
     "instruction": "Choose the best answer.",
@@ -8149,6 +8440,7 @@
   },
   {
     "seed_key": "sentence-structure-22",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Which sentence joins the ideas correctly?",
     "instruction": "Choose the best answer.",
@@ -8177,6 +8469,7 @@
   },
   {
     "seed_key": "sentence-structure-23",
+    "age_bands": ["9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “Neither of the two hats ___ mine.”",
     "instruction": "Choose the best answer.",
@@ -8205,6 +8498,7 @@
   },
   {
     "seed_key": "sentence-structure-24",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Which sentence describes something that will happen later?",
     "instruction": "Choose the best answer.",
@@ -8233,6 +8527,7 @@
   },
   {
     "seed_key": "sentence-structure-25",
+    "age_bands": ["9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “If it rains, we ___ indoors.”",
     "instruction": "Choose the best answer.",
@@ -8261,6 +8556,7 @@
   },
   {
     "seed_key": "sentence-structure-26",
+    "age_bands": ["9-10"],
     "skill": "sentence-structure",
     "prompt": "Which sentence uses “their” correctly?",
     "instruction": "Choose the best answer.",
@@ -8289,6 +8585,7 @@
   },
   {
     "seed_key": "sentence-structure-27",
+    "age_bands": ["9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “The puppy wagged ___ tail.”",
     "instruction": "Choose the best answer.",
@@ -8317,6 +8614,7 @@
   },
   {
     "seed_key": "sentence-structure-28",
+    "age_bands": ["9-10"],
     "skill": "sentence-structure",
     "prompt": "Which sentence clearly says that the girl, rather than the dog, wore a hat?",
     "instruction": "Choose the best answer.",
@@ -8345,6 +8643,7 @@
   },
   {
     "seed_key": "sentence-structure-29",
+    "age_bands": ["7-8", "9-10"],
     "skill": "sentence-structure",
     "prompt": "Choose the word that completes: “I packed my bag ___ I went to school.”",
     "instruction": "Choose the best answer.",
@@ -8373,6 +8672,7 @@
   },
   {
     "seed_key": "sentence-structure-30",
+    "age_bands": ["9-10"],
     "skill": "sentence-structure",
     "prompt": "Which sentence has the correct past-tense verb?",
     "instruction": "Choose the best answer.",
@@ -8401,6 +8701,7 @@
   },
   {
     "seed_key": "punctuation-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Choose the sentence with a capital letter at the start.",
     "instruction": "Choose the best answer.",
@@ -8429,6 +8730,7 @@
   },
   {
     "seed_key": "punctuation-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which mark finishes this statement: “The bus is here”?",
     "instruction": "Choose the best answer.",
@@ -8457,6 +8759,7 @@
   },
   {
     "seed_key": "punctuation-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Choose the correctly written name.",
     "instruction": "Choose the best answer.",
@@ -8485,6 +8788,7 @@
   },
   {
     "seed_key": "punctuation-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence asks a question correctly?",
     "instruction": "Choose the best answer.",
@@ -8513,6 +8817,7 @@
   },
   {
     "seed_key": "punctuation-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which mark best shows excitement in “What a wonderful surprise”?",
     "instruction": "Choose the best answer.",
@@ -8541,6 +8846,7 @@
   },
   {
     "seed_key": "punctuation-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Choose the correctly written sentence.",
     "instruction": "Choose the best answer.",
@@ -8569,6 +8875,7 @@
   },
   {
     "seed_key": "punctuation-17",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence correctly uses commas in a list?",
     "instruction": "Choose the best answer.",
@@ -8597,6 +8904,7 @@
   },
   {
     "seed_key": "punctuation-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Choose the correctly written sentence.",
     "instruction": "Choose the best answer.",
@@ -8625,6 +8933,7 @@
   },
   {
     "seed_key": "punctuation-19",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Which word correctly shortens “do not”?",
     "instruction": "Choose the best answer.",
@@ -8653,6 +8962,7 @@
   },
   {
     "seed_key": "punctuation-20",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Choose the phrase that means the bag belongs to one girl.",
     "instruction": "Choose the best answer.",
@@ -8681,6 +8991,7 @@
   },
   {
     "seed_key": "punctuation-21",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence uses a comma after the opening word?",
     "instruction": "Choose the best answer.",
@@ -8709,6 +9020,7 @@
   },
   {
     "seed_key": "punctuation-22",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence correctly writes the month’s name?",
     "instruction": "Choose the best answer.",
@@ -8737,6 +9049,7 @@
   },
   {
     "seed_key": "punctuation-23",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence correctly uses an apostrophe for “it is”?",
     "instruction": "Choose the best answer.",
@@ -8765,6 +9078,7 @@
   },
   {
     "seed_key": "punctuation-24",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "The toys belong to several dogs. Choose the correct phrase.",
     "instruction": "Choose the best answer.",
@@ -8793,6 +9107,7 @@
   },
   {
     "seed_key": "punctuation-25",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence correctly shows the exact words spoken?",
     "instruction": "Choose the best answer.",
@@ -8821,6 +9136,7 @@
   },
   {
     "seed_key": "punctuation-26",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Choose the correctly punctuated question.",
     "instruction": "Choose the best answer.",
@@ -8849,6 +9165,7 @@
   },
   {
     "seed_key": "punctuation-27",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Which phrase means the coats belong to the children?",
     "instruction": "Choose the best answer.",
@@ -8877,6 +9194,7 @@
   },
   {
     "seed_key": "punctuation-28",
+    "age_bands": ["7-8", "9-10"],
     "skill": "punctuation",
     "prompt": "Choose the correct contraction of “we are”.",
     "instruction": "Choose the best answer.",
@@ -8905,6 +9223,7 @@
   },
   {
     "seed_key": "punctuation-29",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence uses a comma to separate an opening phrase?",
     "instruction": "Choose the best answer.",
@@ -8933,6 +9252,7 @@
   },
   {
     "seed_key": "punctuation-30",
+    "age_bands": ["9-10"],
     "skill": "punctuation",
     "prompt": "Which sentence correctly uses a possessive apostrophe?",
     "instruction": "Choose the best answer.",
@@ -8961,6 +9281,7 @@
   },
   {
     "seed_key": "synonyms-opposites-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as “small”?",
     "instruction": "Choose the best answer.",
@@ -8989,6 +9310,7 @@
   },
   {
     "seed_key": "synonyms-opposites-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of “open”?",
     "instruction": "Choose the best answer.",
@@ -9017,6 +9339,7 @@
   },
   {
     "seed_key": "synonyms-opposites-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as “begin”?",
     "instruction": "Choose the best answer.",
@@ -9045,6 +9368,7 @@
   },
   {
     "seed_key": "synonyms-opposites-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of “early”?",
     "instruction": "Choose the best answer.",
@@ -9073,6 +9397,7 @@
   },
   {
     "seed_key": "synonyms-opposites-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as “ill”?",
     "instruction": "Choose the best answer.",
@@ -9101,6 +9426,7 @@
   },
   {
     "seed_key": "synonyms-opposites-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of “empty”?",
     "instruction": "Choose the best answer.",
@@ -9129,6 +9455,7 @@
   },
   {
     "seed_key": "synonyms-opposites-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as “brave”?",
     "instruction": "Choose the best answer.",
@@ -9157,6 +9484,7 @@
   },
   {
     "seed_key": "synonyms-opposites-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of “arrive”?",
     "instruction": "Choose the best answer.",
@@ -9185,6 +9513,7 @@
   },
   {
     "seed_key": "synonyms-opposites-19",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as “silent”?",
     "instruction": "Choose the best answer.",
@@ -9213,6 +9542,7 @@
   },
   {
     "seed_key": "synonyms-opposites-20",
+    "age_bands": ["9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of “generous”?",
     "instruction": "Choose the best answer.",
@@ -9241,6 +9571,7 @@
   },
   {
     "seed_key": "synonyms-opposites-21",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "In “a speedy runner”, which word could replace “speedy”?",
     "instruction": "Choose the best answer.",
@@ -9269,6 +9600,7 @@
   },
   {
     "seed_key": "synonyms-opposites-22",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of “remember”?",
     "instruction": "Choose the best answer.",
@@ -9297,6 +9629,7 @@
   },
   {
     "seed_key": "synonyms-opposites-23",
+    "age_bands": ["9-10"],
     "skill": "synonyms-opposites",
     "prompt": "In “a light suitcase”, which word is the opposite of “light”?",
     "instruction": "Choose the best answer.",
@@ -9325,6 +9658,7 @@
   },
   {
     "seed_key": "synonyms-opposites-24",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as “enormous”?",
     "instruction": "Choose the best answer.",
@@ -9353,6 +9687,7 @@
   },
   {
     "seed_key": "synonyms-opposites-25",
+    "age_bands": ["9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of “ancient”?",
     "instruction": "Choose the best answer.",
@@ -9381,6 +9716,7 @@
   },
   {
     "seed_key": "synonyms-opposites-26",
+    "age_bands": ["7-8", "9-10"],
     "skill": "synonyms-opposites",
     "prompt": "In “a difficult puzzle”, which word could replace “difficult”?",
     "instruction": "Choose the best answer.",
@@ -9409,6 +9745,7 @@
   },
   {
     "seed_key": "synonyms-opposites-27",
+    "age_bands": ["9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word is the opposite of “include”?",
     "instruction": "Choose the best answer.",
@@ -9437,6 +9774,7 @@
   },
   {
     "seed_key": "synonyms-opposites-28",
+    "age_bands": ["9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as “assist”?",
     "instruction": "Choose the best answer.",
@@ -9465,6 +9803,7 @@
   },
   {
     "seed_key": "synonyms-opposites-29",
+    "age_bands": ["9-10"],
     "skill": "synonyms-opposites",
     "prompt": "In “a dull knife”, which word is the opposite of “dull”?",
     "instruction": "Choose the best answer.",
@@ -9493,6 +9832,7 @@
   },
   {
     "seed_key": "synonyms-opposites-30",
+    "age_bands": ["9-10"],
     "skill": "synonyms-opposites",
     "prompt": "Which word means the same as “fortunate”?",
     "instruction": "Choose the best answer.",
@@ -9521,6 +9861,7 @@
   },
   {
     "seed_key": "reading-comprehension-11",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Jo put a yellow hat on the table. What colour was the hat?",
     "instruction": "Choose the best answer.",
@@ -9549,6 +9890,7 @@
   },
   {
     "seed_key": "reading-comprehension-12",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "A duck swam across the pond. Where did the duck swim?",
     "instruction": "Choose the best answer.",
@@ -9577,6 +9919,7 @@
   },
   {
     "seed_key": "reading-comprehension-13",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Nia fed her rabbit before school. Which animal did Nia feed?",
     "instruction": "Choose the best answer.",
@@ -9605,6 +9948,7 @@
   },
   {
     "seed_key": "reading-comprehension-14",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Tom built a tower with blocks. Then he added a flag. What did he add last?",
     "instruction": "Choose the best answer.",
@@ -9633,6 +9977,7 @@
   },
   {
     "seed_key": "reading-comprehension-15",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "The children went indoors because it began to rain. Why did they go indoors?",
     "instruction": "Choose the best answer.",
@@ -9661,6 +10006,7 @@
   },
   {
     "seed_key": "reading-comprehension-16",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Mina put three shells in a blue box. How many shells did she put in the box?",
     "instruction": "Choose the best answer.",
@@ -9689,6 +10035,7 @@
   },
   {
     "seed_key": "reading-comprehension-17",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Ali filled a pot with soil. Next, he planted a seed. Finally, he watered it. What did Ali do just before watering?",
     "instruction": "Choose the best answer.",
@@ -9717,6 +10064,7 @@
   },
   {
     "seed_key": "reading-comprehension-18",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Ella looked everywhere for her scarf. At last, she found it behind the sofa. Where was the scarf?",
     "instruction": "Choose the best answer.",
@@ -9745,6 +10093,7 @@
   },
   {
     "seed_key": "reading-comprehension-19",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "The path was muddy, so Ben chose his boots instead of his sandals. Why did Ben choose boots?",
     "instruction": "Choose the best answer.",
@@ -9773,6 +10122,7 @@
   },
   {
     "seed_key": "reading-comprehension-20",
+    "age_bands": ["9-10"],
     "skill": "reading-comprehension",
     "prompt": "The class collected paper and cardboard. They put them in a recycling bin. What were they helping to do?",
     "instruction": "Choose the best answer.",
@@ -9801,6 +10151,7 @@
   },
   {
     "seed_key": "reading-comprehension-21",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Asha wanted to finish her drawing. She sharpened her pencil and sat at her desk. What will she most likely do next?",
     "instruction": "Choose the best answer.",
@@ -9829,6 +10180,7 @@
   },
   {
     "seed_key": "reading-comprehension-22",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Finn borrowed a book on Monday and returned it on Thursday. Which happened first?",
     "instruction": "Choose the best answer.",
@@ -9857,6 +10209,7 @@
   },
   {
     "seed_key": "reading-comprehension-23",
+    "age_bands": ["9-10"],
     "skill": "reading-comprehension",
     "prompt": "Leo held a wrapped box behind his back. He smiled as his sister opened the door. “Happy birthday!” he said. Why was Leo probably hiding the box?",
     "instruction": "Choose the best answer.",
@@ -9885,6 +10238,7 @@
   },
   {
     "seed_key": "reading-comprehension-24",
+    "age_bands": ["7-8", "9-10"],
     "skill": "reading-comprehension",
     "prompt": "Rain tapped on the window. Hana had planned to fly her kite, but she put it away and chose a board game. Why did her plan change?",
     "instruction": "Choose the best answer.",
@@ -9913,6 +10267,7 @@
   },
   {
     "seed_key": "reading-comprehension-25",
+    "age_bands": ["9-10"],
     "skill": "reading-comprehension",
     "prompt": "The team tried to build a bridge from paper. Their first bridge fell down. They folded the paper and tried again. This time it held the toy car. What helped them succeed?",
     "instruction": "Choose the best answer.",
@@ -9941,6 +10296,7 @@
   },
   {
     "seed_key": "reading-comprehension-26",
+    "age_bands": ["9-10"],
     "skill": "reading-comprehension",
     "prompt": "Priya found a wallet on the playground. She did not know who owned it, so she gave it to a teacher. What does this tell us about Priya?",
     "instruction": "Choose the best answer.",
@@ -9969,6 +10325,7 @@
   },
   {
     "seed_key": "reading-comprehension-27",
+    "age_bands": ["9-10"],
     "skill": "reading-comprehension",
     "prompt": "The garden looked dry, and the leaves drooped. Omar watered the plants. By evening, the leaves stood taller. What probably caused the change?",
     "instruction": "Choose the best answer.",
@@ -9997,6 +10354,7 @@
   },
   {
     "seed_key": "reading-comprehension-28",
+    "age_bands": ["9-10"],
     "skill": "reading-comprehension",
     "prompt": "Luca practised the same tune each afternoon. At first he stopped often. A week later, he played it from beginning to end. What is the main idea?",
     "instruction": "Choose the best answer.",
@@ -10025,6 +10383,7 @@
   },
   {
     "seed_key": "reading-comprehension-29",
+    "age_bands": ["9-10"],
     "skill": "reading-comprehension",
     "prompt": "Sara saw dark clouds while walking to the park. She checked her bag for an umbrella. Which detail best explains why she looked for it?",
     "instruction": "Choose the best answer.",
@@ -10053,6 +10412,7 @@
   },
   {
     "seed_key": "reading-comprehension-30",
+    "age_bands": ["9-10"],
     "skill": "reading-comprehension",
     "prompt": "A sign said, “Please leave wildflowers for everyone to enjoy.” Imani looked at the flowers and took a photograph. Why did taking a photograph fit the sign’s message?",
     "instruction": "Choose the best answer.",

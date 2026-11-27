@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\ChildAgeRange;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -29,5 +31,10 @@ class Question extends Model
     public function latestRevision(): HasOne
     {
         return $this->hasOne(QuestionRevision::class)->latestOfMany();
+    }
+
+    public function scopeForAge(Builder $query, ChildAgeRange $age): Builder
+    {
+        return $query->whereHas('latestRevision', fn (Builder $revision) => $revision->whereJsonContains('age_bands', $age->value));
     }
 }

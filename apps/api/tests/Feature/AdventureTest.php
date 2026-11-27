@@ -58,22 +58,23 @@ class AdventureTest extends TestCase
         return $this->learner()->postJson('/api/v1/attempts', ['skill_id' => $this->skillId])->assertOk()->json();
     }
 
-    public function test_seed_has_360_drafts_and_is_idempotent(): void
+    public function test_seed_has_384_drafts_and_is_idempotent(): void
     {
-        $this->assertDatabaseCount('questions', 360);
-        $this->assertDatabaseCount('skills', 12);
-        $this->assertSame(360, Question::where('status', 'draft')->count());
+        $this->assertDatabaseCount('questions', 384);
+        $this->assertDatabaseCount('skills', 16);
+        $this->assertSame(384, Question::where('status', 'draft')->count());
         $this->seed();
-        $this->assertDatabaseCount('question_revisions', 360);
+        $this->assertDatabaseCount('question_revisions', 384);
     }
 
     public function test_seed_choices_are_unique_and_answers_valid(): void
     {
         foreach (QuestionRevision::all() as $q) {
             $ids = array_column($q->choices, 'id');
-            $this->assertCount(4, array_unique($ids));
+            $count = in_array('3-4', $q->age_bands, true) ? 3 : 4;
+            $this->assertCount($count, array_unique($ids));
             $this->assertContains($q->correct_choice_id, $ids);
-            $this->assertCount(4, array_unique(array_column($q->choices, 'text')));
+            $this->assertCount($count, array_unique(array_column($q->choices, 'text')));
             $this->assertNotEmpty($q->explanation);
         }
     }
@@ -301,7 +302,7 @@ class AdventureTest extends TestCase
         $this->actingAs($this->parent)->withSession(['mode' => 'adult'])->putJson('/api/v1/admin/questions/'.$q->id, $p)->assertForbidden();
         $this->parent->forceFill(['role' => 'admin'])->save();
         $this->putJson('/api/v1/admin/questions/'.$q->id, $p)->assertOk()->assertJsonPath('version', 2);
-        $this->assertDatabaseCount('question_revisions', 361);
+        $this->assertDatabaseCount('question_revisions', 385);
     }
 
     public function test_registration_consumes_invite_and_waits_for_manual_verification(): void

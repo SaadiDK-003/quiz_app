@@ -8,6 +8,7 @@ import {
   type QuestionProposal,
 } from "@little-quest/api-client";
 import { api, Dialog } from "./quiz-app";
+import { ageRangeLabels } from "../lib/age-ranges";
 
 const proposalStatuses: Record<QuestionProposal["state"], string> = {
   draft: "Draft",
@@ -155,7 +156,10 @@ function ReviewQuestion({
     <section className="review-question">
       <h3>{title}</h3>
       <p className="muted">
-        {question.skill_name} · {question.difficulty}
+        {question.skill_name} · {question.difficulty} ·{" "}
+        {question.age_bands.length
+          ? `Ages ${ageRangeLabels(question.age_bands)}`
+          : "Needs an age group"}
       </p>
       <strong>{question.prompt}</strong>
       <p>{question.instruction}</p>

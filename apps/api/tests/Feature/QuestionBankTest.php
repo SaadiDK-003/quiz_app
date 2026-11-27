@@ -28,15 +28,18 @@ class QuestionBankTest extends TestCase
         $this->seed();
         $pack = json_decode(file_get_contents(database_path('content/questions.json')), true, 512, JSON_THROW_ON_ERROR);
         Question::whereIn('seed_key', array_column(array_slice($pack, 120), 'seed_key'))->delete();
+        Question::where('seed_key', 'like', 'preschool-%')->delete();
     }
 
-    public function test_each_skill_has_ten_questions_at_each_difficulty(): void
+    public function test_each_skill_has_the_expected_difficulty_distribution(): void
     {
         $this->seed();
 
         foreach (Skill::all() as $skill) {
             $counts = $skill->questions()->with('latestRevision')->get()->countBy(fn (Question $q): string => $q->latestRevision->difficulty)->sortKeys()->all();
-            $this->assertSame(['challenge' => 10, 'growing' => 10, 'starter' => 10], $counts);
+            $this->assertSame($skill->questions()->where('seed_key', 'like', 'preschool-%')->exists()
+                ? ['starter' => 6]
+                : ['challenge' => 10, 'growing' => 10, 'starter' => 10], $counts);
         }
     }
 
@@ -49,15 +52,15 @@ class QuestionBankTest extends TestCase
         $before = $question->latestRevision->fresh()->toArray();
         $this->actingAs($this->administrator())->withSession(['mode' => 'adult']);
 
-        $this->postJson('/api/v1/admin/questions/import')->assertOk()->assertExactJson(['created' => 240, 'skipped' => 120]);
-        $this->postJson('/api/v1/admin/questions/import')->assertOk()->assertExactJson(['created' => 0, 'skipped' => 360]);
+        $this->postJson('/api/v1/admin/questions/import')->assertOk()->assertExactJson(['created' => 264, 'skipped' => 120]);
+        $this->postJson('/api/v1/admin/questions/import')->assertOk()->assertExactJson(['created' => 0, 'skipped' => 384]);
 
-        $this->assertDatabaseCount('questions', 360);
-        $this->assertDatabaseCount('question_revisions', 360);
+        $this->assertDatabaseCount('questions', 384);
+        $this->assertDatabaseCount('question_revisions', 384);
         $this->assertSame($before, $question->latestRevision->fresh()->toArray());
         $this->assertSame('archived', $question->fresh()->status);
-        $this->assertSame(359, Question::where('status', 'draft')->count());
-        $this->assertDatabaseCount('skills', 12);
+        $this->assertSame(383, Question::where('status', 'draft')->count());
+        $this->assertDatabaseCount('skills', 16);
     }
 
     public function test_guest_import_returns_401(): void
@@ -88,7 +91,7 @@ class QuestionBankTest extends TestCase
 
         $this->assertDatabaseCount('questions', 120);
         $this->assertDatabaseCount('question_revisions', 120);
-        $this->assertDatabaseCount('skills', 12);
+        $this->assertDatabaseCount('skills', 16);
         $this->assertDatabaseMissing('skills', ['slug' => 'division']);
     }
 

@@ -21,6 +21,7 @@ import type {
 } from "@little-quest/api-client";
 import { api, Dialog, type Notice } from "./quiz-app";
 import { ProposalReviewDialog, QuestionProposals } from "./question-proposals";
+import { ageRangeLabels, ageRanges } from "../lib/age-ranges";
 interface Meta {
   subjects: Subject[];
   topics: { id: number; subject_id: number; name: string; position: number }[];
@@ -42,6 +43,7 @@ export function AdminPanel({
     [filter, setFilter] = useState("all"),
     [skill, setSkill] = useState("all"),
     [difficulty, setDifficulty] = useState("all"),
+    [ageFilter, setAgeFilter] = useState("all"),
     [importOpen, setImportOpen] = useState(false),
     [importing, setImporting] = useState(false),
     [importError, setImportError] = useState(""),
@@ -89,6 +91,7 @@ export function AdminPanel({
       correct_choice_id: "a",
       explanation: "",
       difficulty: "starter",
+      age_bands: [],
       locale: "en",
       status: "draft",
       image_path: null,
@@ -154,8 +157,12 @@ export function AdminPanel({
     (q) =>
       (filter === "all" || q.status === filter) &&
       (skill === "all" || q.skill_id === Number(skill)) &&
-      (difficulty === "all" || q.difficulty === difficulty),
+      (difficulty === "all" || q.difficulty === difficulty) &&
+      (ageFilter === "all" ||
+        (ageFilter === "unassigned" && !q.age_bands.length) ||
+        q.age_bands.some((band) => band === ageFilter)),
   );
+  const picturePreview = preview?.age_bands.includes("3-4");
   return (
     <>
       <section className="content-studio" aria-labelledby="studio-heading">
@@ -285,10 +292,25 @@ export function AdminPanel({
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value)}
                 >
-                  <option value="all">All difficulties</option>
+                  <option value="all">All levels</option>
                   {["starter", "growing", "challenge"].map((level) => (
                     <option key={level} value={level}>
                       {level[0].toUpperCase() + level.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Age group
+                <select
+                  value={ageFilter}
+                  onChange={(e) => setAgeFilter(e.target.value)}
+                >
+                  <option value="all">All ages</option>
+                  <option value="unassigned">Unassigned</option>
+                  {ageRanges.map(({ value, label }) => (
+                    <option key={value} value={value}>
+                      Ages {label}
                     </option>
                   ))}
                 </select>
@@ -309,8 +331,11 @@ export function AdminPanel({
                     <strong>{q.prompt}</strong>
                     <small>
                       {q.skill_name} ·{" "}
-                      {q.difficulty[0].toUpperCase() + q.difficulty.slice(1)} ·
-                      Revision {q.version}
+                      {q.difficulty[0].toUpperCase() + q.difficulty.slice(1)} ·{" "}
+                      {q.age_bands.length
+                        ? `Ages ${ageRangeLabels(q.age_bands)}`
+                        : "Needs an age group"}{" "}
+                      · Revision {q.version}
                     </small>
                   </div>
                   <span className={`status-tag ${q.status}`}>{q.status}</span>
@@ -349,8 +374,9 @@ export function AdminPanel({
           }}
         >
           <p>
-            Add missing questions from the bundled Maths and English bank.
-            Existing questions, edits, and review decisions will be kept.
+            Add missing questions from the bundled Maths and English bank,
+            including 24 picture questions for ages 3–4. Existing questions,
+            edits, and review decisions will be kept.
           </p>
           <p>
             New questions are drafts. Review the questions, answers and
@@ -414,40 +440,52 @@ export function AdminPanel({
       )}
       {preview && (
         <Dialog title="Child preview" onClose={() => setPreview(null)} wide>
-          <span className="small-label">
-            {preview.skill_name} · {preview.status}
-          </span>
-          <h3 className="preview-prompt">{preview.prompt}</h3>
-          {preview.image_path && (
-            <img
-              className="question-image"
-              src={"/storage/" + preview.image_path}
-              alt={preview.image_alt || ""}
-            />
-          )}
-          <p>{preview.instruction}</p>
-          <div className="answer-grid">
-            {preview.choices.map((c, index) => (
-              <button
-                className="answer-card"
-                key={c.id}
-                onClick={() =>
-                  notify(
-                    c.id === preview.correct_choice_id
-                      ? "Correct! " + preview.explanation
-                      : "A little moment to learn. " + preview.explanation,
-                  )
-                }
-              >
-                <span className="answer-letter">
-                  {String.fromCharCode(65 + index)}
-                </span>
-                <span className="answer-copy">
-                  {c.image_url && <img src={c.image_url} alt="" />}
-                  <span>{c.text}</span>
-                </span>
-              </button>
-            ))}
+          <div className={picturePreview ? "picture-question" : undefined}>
+            <span className="small-label">
+              {preview.skill_name} · {preview.status}
+              {preview.age_bands.length > 0 &&
+                ` · Ages ${ageRangeLabels(preview.age_bands)}`}
+            </span>
+            <h3 className="preview-prompt">{preview.prompt}</h3>
+            {preview.image_path && (
+              <img
+                className="question-image"
+                src={"/storage/" + preview.image_path}
+                alt={preview.image_alt || ""}
+              />
+            )}
+            <p>{preview.instruction}</p>
+            <div className="answer-grid">
+              {preview.choices.map((c, index) => (
+                <button
+                  className="answer-card"
+                  key={c.id}
+                  onClick={() =>
+                    notify(
+                      c.id === preview.correct_choice_id
+                        ? "Correct! " + preview.explanation
+                        : "A little moment to learn. " + preview.explanation,
+                    )
+                  }
+                >
+                  {!picturePreview && (
+                    <span className="answer-letter">
+                      {String.fromCharCode(65 + index)}
+                    </span>
+                  )}
+                  <span className="answer-copy">
+                    {c.image_url && <img src={c.image_url} alt="" />}
+                    <span
+                      className={
+                        picturePreview && c.image_url ? "sr-only" : undefined
+                      }
+                    >
+                      {c.text}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
           {preview.audio_path && (
             <audio
@@ -627,6 +665,29 @@ function QuestionEditor({
             </select>
           </label>
         </div>
+        <fieldset className="age-band-fieldset">
+          <legend>Suitable ages</legend>
+          {ageRanges.map(({ value, label }) => (
+            <label key={value}>
+              <input
+                type="checkbox"
+                checked={q.age_bands.includes(value)}
+                onChange={(e) =>
+                  patch({
+                    age_bands: e.target.checked
+                      ? [...q.age_bands, value]
+                      : q.age_bands.filter((band) => band !== value),
+                  })
+                }
+              />
+              {label} years
+            </label>
+          ))}
+          <small>
+            Choose every age group that can play this question. Ages 3–4 need a
+            clue picture with a description and two or three picture answers.
+          </small>
+        </fieldset>
         <label>
           Question
           <textarea
@@ -654,6 +715,34 @@ function QuestionEditor({
         </label>
         <fieldset className="choice-fieldset">
           <legend>Answer cards</legend>
+          <label>
+            Number of choices
+            <select
+              value={q.choices.length}
+              onChange={(e) => {
+                const choices = q.choices.slice(0, Number(e.target.value));
+                for (const id of ["a", "b", "c", "d"]) {
+                  if (choices.length === Number(e.target.value)) break;
+                  if (!choices.some((choice) => choice.id === id))
+                    choices.push({ id, text: "" });
+                }
+                patch({
+                  choices,
+                  correct_choice_id: choices.some(
+                    (choice) => choice.id === q.correct_choice_id,
+                  )
+                    ? q.correct_choice_id
+                    : choices[0].id,
+                  answers_reviewed: false,
+                  narration_reviewed: false,
+                });
+              }}
+            >
+              <option value={2}>2 choices</option>
+              <option value={3}>3 choices</option>
+              <option value={4}>4 choices</option>
+            </select>
+          </label>
           {q.choices.map((c, i) => (
             <div className="choice-editor" key={c.id}>
               <label className="correct-radio">

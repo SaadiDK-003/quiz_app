@@ -16,6 +16,14 @@ components:
       in: cookie
       name: little_quest_session
   schemas:
+    AgeBand:
+      type: string
+      enum: ["3-4", "7-8", "9-10"]
+    AgeBands:
+      type: array
+      items:
+        $ref: "#/components/schemas/AgeBand"
+      uniqueItems: true
     Choice:
       type: object
       properties:
@@ -39,7 +47,11 @@ components:
         slug: *id001
         description: *id001
         position: *id002
-        question_count: *id002
+        question_count:
+          type: integer
+          description: Published questions matching the active child’s age, or the full published count in adult mode.
+        age_bands:
+          $ref: "#/components/schemas/AgeBands"
         completed: &id004
           type: boolean
       required:
@@ -77,7 +89,8 @@ components:
         id: *id002
         nickname: *id001
         avatar: *id001
-        age_band: *id001
+        age_band:
+          $ref: "#/components/schemas/AgeBand"
         starting_skills:
           type:
             - object
@@ -322,6 +335,8 @@ components:
         correct_choice_id: *id001
         explanation: *id001
         instruction: *id001
+        age_bands:
+          $ref: "#/components/schemas/AgeBands"
         difficulty: *id001
         locale: *id001
         status: *id001
@@ -341,6 +356,7 @@ components:
         - correct_choice_id
         - explanation
         - instruction
+        - age_bands
         - difficulty
         - locale
         - status
@@ -384,10 +400,7 @@ components:
             - cat
             - frog
         age_band:
-          type: string
-          enum:
-            - 7-8
-            - 9-10
+          $ref: "#/components/schemas/AgeBand"
         starting_skills:
           type:
             - object
@@ -499,6 +512,9 @@ components:
         narration_reviewed:
           type: boolean
           description: Required to publish when audio_path is provided.
+        age_bands:
+          $ref: "#/components/schemas/AgeBands"
+          description: Select at least one range before submission or publication.
       required:
         - skill_id
         - prompt
@@ -525,6 +541,9 @@ components:
         image_path: *id003
         image_alt: *id003
         audio_path: *id003
+        age_bands:
+          $ref: "#/components/schemas/AgeBands"
+          description: Select at least one range before submission or publication.
       required:
         - skill_id
         - prompt
@@ -1141,7 +1160,10 @@ paths:
     get:
       operationId: learning_catalog
       summary: Learning catalog
-      description: ""
+      description: >-
+        In child mode, skills and published question counts match the active
+        child's saved age. In adult mode, skills include the age ranges used
+        by their question revisions for choosing a starting skill.
       security:
         - cookieAuth: []
       responses:
@@ -1432,18 +1454,21 @@ paths:
       description: >-
         Resumes an active attempt for the same skill. A different skill replaces
         the active attempt only before its first accepted answer, after validating
-        that five published questions are available. Replaced empty attempts are
+        that enough published questions match the child's saved age. Replaced empty attempts are
         retained internally as superseded. Once any answer is accepted, returns
         the existing active attempt even if a different skill was requested;
         clients must explain that adventure should be continued. New attempts
-        snapshot five published question revisions and a shuffled choice-ID order
+        snapshot three published question revisions for ages 3–4 and five for older
+        children, plus a shuffled choice-ID order
         for each question. Choice IDs and scoring stay unchanged. Reads, retries,
         and resume retain the saved order; legacy attempts keep revision order.
-        New adventures aim for two Starter, two Growing, and one Challenge question,
+        Older adventures aim for two Starter, two Growing, and one Challenge question.
+        Ages 3–4 aim for two Starter and one Growing question. Questions are
         ordered from simpler to harder. Within each level, unchecked questions are
         preferred, then those checked longest ago by this child. Sparse levels use
-        other available questions, preferring easier levels. Existing active attempts
-        retain their snapshots.
+        other questions for the same age, preferring easier levels. An active
+        attempt is superseded when a profile age change makes its length or any
+        snapshot ineligible. Submitted answers are kept.
       security:
         - cookieAuth: []
       responses:

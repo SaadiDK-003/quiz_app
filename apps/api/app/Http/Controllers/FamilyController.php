@@ -8,10 +8,15 @@ use App\Models\ChildProfile;
 use App\Models\Reward;
 use App\Models\Skill;
 use App\Models\Subject;
+use App\Services\ChildAgeRange;
 use App\Services\ExplorerRank;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class FamilyController extends Controller
@@ -19,11 +24,42 @@ class FamilyController extends Controller
     public function catalog(Request $r): Collection
     {
         $childId = $r->session()->get('child_id');
-        $done = $childId ? Attempt::where('child_profile_id', $childId)->where('status', 'completed')->pluck('skill_id')->all() : [];
+        $child = $childId ? $r->user()->children()->find($childId) : null;
+        $age = $child ? ChildAgeRange::from($child->age_band) : null;
+        $done = $child ? $child->attempts()->where('status', 'completed')->pluck('skill_id')->all() : [];
+        $flags = [];
+        foreach (ChildAgeRange::cases() as $band) {
+            $flags['available_'.strtolower($band->name)] = $band;
+        }
 
-        return Subject::where('active', true)->orderBy('position')->with(['skills' => fn ($q) => $q->where('active', true)->withCount(['questions' => fn ($q) => $q->where('status', 'published')])])->get()->map(function ($s) use ($done) {
-            $data = $s->toArray();
-            $data['skills'] = $s->skills->map(fn ($k) => array_merge($k->toArray(), ['question_count' => $k->questions_count, 'completed' => in_array($k->id, $done)]));
+        $subjects = Subject::where('active', true)->orderBy('position')->with(['skills' => function ($skills) use ($age, $flags) {
+            $skills->where('active', true)->withCount(['questions' => fn (Builder $questions) => $questions
+                ->where('status', 'published')->when($age, fn (Builder $query) => $query->forAge($age))]);
+            if ($age) {
+                $skills->whereHas('questions', fn (Builder $query) => $query->forAge($age));
+            } else {
+                foreach ($flags as $column => $band) {
+                    $skills->withExists(['questions as '.$column => fn (Builder $query) => $query->forAge($band)]);
+                }
+            }
+        }])->get();
+        if ($age) {
+            $subjects = $subjects->filter(fn (Subject $subject) => $subject->skills->isNotEmpty())->values();
+        }
+
+        return $subjects->map(function (Subject $subject) use ($done, $age, $flags): array {
+            $data = $subject->toArray();
+            $data['skills'] = $subject->skills->map(function (Skill $skill) use ($done, $age, $flags): array {
+                $bands = $age ? [$age->value] : collect($flags)
+                    ->filter(fn (ChildAgeRange $band, string $column) => $skill->getAttribute($column))
+                    ->map(fn (ChildAgeRange $band) => $band->value)->values()->all();
+
+                return array_merge(Arr::except($skill->toArray(), array_keys($flags)), [
+                    'question_count' => $skill->questions_count,
+                    'completed' => in_array($skill->id, $done, true),
+                    'age_bands' => $bands,
+                ]);
+            });
 
             return $data;
         });
@@ -31,7 +67,7 @@ class FamilyController extends Controller
 
     private function data(Request $r): array
     {
-        $v = $r->validate(['nickname' => 'required|string|max:40', 'avatar' => 'required|in:fox,bear,bunny,panda,cat,frog', 'age_band' => 'required|in:7-8,9-10', 'starting_skills' => 'nullable|array', 'starting_skills.*' => 'integer|exists:skills,id']);
+        $v = $r->validate(['nickname' => 'required|string|max:40', 'avatar' => 'required|in:fox,bear,bunny,panda,cat,frog', 'age_band' => ['required', Rule::enum(ChildAgeRange::class)], 'starting_skills' => 'nullable|array', 'starting_skills.*' => 'integer|exists:skills,id']);
         foreach (($v['starting_skills'] ?? []) as $subject => $skill) {
             abort_unless(Skill::whereKey($skill)->where('subject_id', $subject)->exists(), 422, 'Choose a starting skill within each subject.');
         }
@@ -54,9 +90,22 @@ class FamilyController extends Controller
     public function update(Request $r, ChildProfile $child): ChildProfile
     {
         abort_unless($child->user_id === $r->user()->id, 404);
-        $child->update($this->data($r));
+        $data = $this->data($r);
 
-        return $child;
+        return DB::transaction(function () use ($child, $data): ChildProfile {
+            $profile = ChildProfile::lockForUpdate()->findOrFail($child->id);
+            if ($profile->age_band !== $data['age_band']) {
+                $age = ChildAgeRange::from($data['age_band']);
+                foreach ($profile->attempts()->where('status', 'active')->lockForUpdate()->get() as $attempt) {
+                    if (! $attempt->fitsAge($age)) {
+                        $attempt->update(['status' => 'superseded']);
+                    }
+                }
+            }
+            $profile->update($data);
+
+            return $profile;
+        });
     }
 
     public function destroy(Request $r, ChildProfile $child): Response
@@ -86,6 +135,31 @@ class FamilyController extends Controller
         $attempts = $child->attempts()->where('status', 'completed')->with('skill.subject')->get();
         $count = $attempts->count();
 
-        return ['completed' => $count, 'stars' => $count, 'accuracy' => $count ? (int) round($attempts->sum('score') / ($count * 5) * 100) : 0, 'explorer_rank' => ExplorerRank::forPoints(10 * $count + 2 * (int) $attempts->sum('score')), 'skills' => $attempts->groupBy('skill_id')->map(fn ($rows) => ['id' => $rows->first()->skill_id, 'name' => $rows->first()->skill->name, 'subject' => $rows->first()->skill->subject->name, 'completed' => $rows->count(), 'accuracy' => (int) round($rows->sum('score') / ($rows->count() * 5) * 100)])->values(), 'recent' => $attempts->sortByDesc('completed_at')->take(10)->map(fn ($a) => ['id' => $a->id, 'skill_name' => $a->skill->name, 'score' => $a->score, 'total' => 5, 'completed_at' => $a->completed_at->toIso8601String()])->values(), 'stickers' => Reward::where('child_profile_id', $child->id)->latest()->get()->map(fn ($x) => ['id' => $x->id, 'name' => $x->name, 'icon' => $x->icon, 'earned_at' => $x->created_at->toIso8601String()])];
+        return [
+            'completed' => $count,
+            'stars' => $count,
+            'accuracy' => $count ? (int) round($attempts->sum('score') / $attempts->sum('total') * 100) : 0,
+            'explorer_rank' => ExplorerRank::forPoints(10 * $count + 2 * (int) $attempts->sum('score')),
+            'skills' => $attempts->groupBy('skill_id')->map(fn ($rows) => [
+                'id' => $rows->first()->skill_id,
+                'name' => $rows->first()->skill->name,
+                'subject' => $rows->first()->skill->subject->name,
+                'completed' => $rows->count(),
+                'accuracy' => (int) round($rows->sum('score') / $rows->sum('total') * 100),
+            ])->values(),
+            'recent' => $attempts->sortByDesc('completed_at')->take(10)->map(fn (Attempt $attempt) => [
+                'id' => $attempt->id,
+                'skill_name' => $attempt->skill->name,
+                'score' => $attempt->score,
+                'total' => $attempt->total,
+                'completed_at' => $attempt->completed_at->toIso8601String(),
+            ])->values(),
+            'stickers' => Reward::where('child_profile_id', $child->id)->latest()->get()->map(fn (Reward $reward) => [
+                'id' => $reward->id,
+                'name' => $reward->name,
+                'icon' => $reward->icon,
+                'earned_at' => $reward->created_at->toIso8601String(),
+            ]),
+        ];
     }
 }

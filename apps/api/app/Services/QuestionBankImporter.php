@@ -6,25 +6,17 @@ use App\Models\Question;
 use App\Models\Skill;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use JsonException;
 
 class QuestionBankImporter
 {
+    public function __construct(private BundledQuestionContent $content) {}
+
     /** @return array{created: int, skipped: int} */
     public function bundled(): array
     {
-        try {
-            $rows = json_decode(file_get_contents(database_path('content/questions.json')), true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
-            throw ValidationException::withMessages(['pack' => 'The bundled question pack is not valid JSON.']);
-        }
-
-        if (! is_array($rows)) {
-            throw ValidationException::withMessages(['pack' => 'The bundled question pack must be a list of questions.']);
-        }
-
-        return $this->import($rows);
+        return $this->import([...$this->content->read('questions'), ...$this->content->read('preschool-questions')]);
     }
 
     /**
@@ -37,23 +29,40 @@ class QuestionBankImporter
         $keys = [];
         foreach ($rows as $row) {
             Validator::make(['question' => $row], [
-                'question' => 'required|array:seed_key,skill,prompt,instruction,choices,correct_choice_id,explanation,difficulty,locale',
+                'question' => 'required|array:seed_key,skill,prompt,instruction,choices,correct_choice_id,explanation,difficulty,locale,age_bands,image_path,image_alt',
                 'question.seed_key' => 'required|string|max:100',
                 'question.skill' => 'required|string|max:100',
+                'question.age_bands' => 'required|array|list|min:1|max:3',
+                'question.age_bands.*' => ['required', 'distinct:strict', Rule::enum(ChildAgeRange::class)],
                 'question.prompt' => 'required|string|max:2000',
                 'question.instruction' => 'required|string|max:500',
-                'question.choices' => 'required|array|list|size:4',
-                'question.choices.*' => 'required|array:id,text',
+                'question.choices' => 'required|array|list|min:2|max:4',
+                'question.choices.*' => 'required|array:id,text,image_url',
                 'question.choices.*.id' => 'required|string|max:20|distinct:strict',
                 'question.choices.*.text' => 'required|string|max:300',
+                'question.choices.*.image_url' => 'sometimes|required|string|max:500',
+                'question.image_path' => 'sometimes|required|string|max:500',
+                'question.image_alt' => 'required_with:question.image_path|string|max:300',
                 'question.correct_choice_id' => 'required|string|max:20',
                 'question.explanation' => 'required|string|max:2000',
                 'question.difficulty' => 'required|in:starter,growing,challenge',
                 'question.locale' => 'required|in:en',
             ])->validate();
             $texts = array_map(fn (array $choice): string => trim($choice['text']), $row['choices']);
-            if (isset($keys[$row['seed_key']]) || count(array_unique($texts)) !== 4 || ! in_array($row['correct_choice_id'], array_column($row['choices'], 'id'), true)) {
-                throw ValidationException::withMessages(['pack' => 'Each bundled question needs a unique identifier, four different choices, and a correct answer from those choices.']);
+            $preschool = in_array(ChildAgeRange::Preschool->value, $row['age_bands'], true);
+            $size = count($row['choices']);
+            if (isset($keys[$row['seed_key']]) || count(array_unique($texts)) !== $size || ! in_array($row['correct_choice_id'], array_column($row['choices'], 'id'), true)) {
+                throw ValidationException::withMessages(['pack' => 'Each bundled question needs a unique identifier, distinct choices and a correct answer from those choices.']);
+            }
+            $images = array_column($row['choices'], 'image_url');
+            $prefix = BundledQuestionContent::PRESCHOOL_MEDIA;
+            if ($preschool ? ($size > 3 || ! str_starts_with($row['image_path'] ?? '', $prefix) || count(array_unique($images)) !== $size) : ($size !== 4 || isset($row['image_path']) || $images !== [])) {
+                throw ValidationException::withMessages(['pack' => 'Preschool questions need a picture clue and two or three different picture choices. Older bundled questions use four text choices.']);
+            }
+            foreach ($images as $image) {
+                if (! str_starts_with($image, '/storage/'.$prefix)) {
+                    throw ValidationException::withMessages(['pack' => 'Bundled picture choices must use the included preschool images.']);
+                }
             }
             $keys[$row['seed_key']] = true;
         }
@@ -71,6 +80,12 @@ class QuestionBankImporter
                 $question = Question::firstOrCreate(['seed_key' => $row['seed_key']], ['skill_id' => $skills[$row['skill']] ?? null, 'status' => 'draft']);
                 if (! $question->wasRecentlyCreated) {
                     continue;
+                }
+                if (isset($row['image_path'])) {
+                    $this->content->copyImage($row['image_path']);
+                    foreach ($row['choices'] as $choice) {
+                        $this->content->copyImage(substr($choice['image_url'], strlen('/storage/')));
+                    }
                 }
                 $content = collect($row)->except(['seed_key', 'skill'])->all();
                 $question->revisions()->create(array_merge($content, ['version' => 1, 'answers_reviewed' => false, 'explanation_reviewed' => false, 'narration_reviewed' => false]));
