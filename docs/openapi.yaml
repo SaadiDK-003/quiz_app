@@ -101,12 +101,14 @@ components:
             - parent
             - admin
         email_verified_at: *id003
+        can_moderate: *id004
       required:
         - id
         - name
         - email
         - role
         - email_verified_at
+        - can_moderate
     Session:
       type: object
       properties:
@@ -508,6 +510,63 @@ components:
         - answers_reviewed
         - explanation_reviewed
         - narration_reviewed
+    QuestionDraftInput:
+      type: object
+      properties:
+        skill_id: *id002
+        prompt: *id001
+        choices: *id005
+        correct_choice_id: *id001
+        explanation: *id001
+        instruction: *id001
+        difficulty: *id001
+        locale: *id001
+        image_path: *id003
+        image_alt: *id003
+        audio_path: *id003
+      required:
+        - skill_id
+        - prompt
+        - choices
+        - correct_choice_id
+        - explanation
+        - instruction
+        - difficulty
+        - locale
+    AccountSetupDetails:
+      type: object
+      properties:
+        email: *id001
+        purpose:
+          type: string
+          enum: [family_signup, moderator]
+        requires_sign_in: *id004
+      required: [email, purpose, requires_sign_in]
+    QuestionProposal:
+      type: object
+      properties:
+        id: *id002
+        question_id: *id006
+        base_version: *id006
+        version: *id002
+        state:
+          type: string
+          enum: [draft, in_review, changes_requested, published]
+        author_name: *id003
+        review_note: *id003
+        question:
+          $ref: "#/components/schemas/AdminQuestion"
+      required:
+        [
+          id,
+          question_id,
+          base_version,
+          version,
+          state,
+          author_name,
+          review_note,
+          question,
+        ]
     SubjectInput:
       type: object
       properties:
@@ -625,10 +684,128 @@ paths:
               required:
                 - email
                 - password
+  /auth/signup:
+    post:
+      operationId: request_family_setup
+      summary: Request family signup link
+      description: Sends a setup link for a new email address. Known addresses and repeated requests during the cooldown return the same accepted response.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: *id001
+                email: *id001
+              required: [name, email]
+      responses:
+        "202":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Too many requests
+        "503":
+          description: Email delivery unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/setup/check:
+    post:
+      operationId: check_account_setup
+      summary: Check an account setup link
+      description: Returns the recipient and setup type for a valid setup link without consuming it.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token: *id001
+              required: [token]
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountSetupDetails"
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "422":
+          description: Invalid or expired link
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Too many requests
+  /auth/setup/complete:
+    post:
+      operationId: complete_account_setup
+      summary: Complete account setup
+      description: Consumes the link after a successful submission. New accounts supply a password and confirmation. New moderators also supply a name. Existing parents accept moderator invitations under the matching adult cookie session.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token: *id001
+                name: *id001
+                password: *id001
+                password_confirmation: *id001
+              required: [token]
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "403":
+          description: Sign in with the invited account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: An account session prevents account creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Validation failed or link unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Too many requests
   /auth/register:
     post:
       operationId: accept_invitation
-      summary: Accept invitation
+      summary: Accept a legacy family invitation
       description: Creates an unverified parent account from an invitation and signs the parent into adult mode. Does not send verification email; the parent requests it through /auth/verification-notification.
       security: []
       responses:
@@ -1862,3 +2039,394 @@ paths:
                 email: *id001
               required:
                 - email
+  /admin/moderator-invitations:
+    post:
+      operationId: invite_moderator
+      summary: Invite a moderator
+      description: Sends a separate staff invitation. An existing parent can accept it with their current account.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: *id001
+              required: [email]
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified administrator access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "422":
+          description: Invalid address or existing staff access
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Invitation cooldown or too many requests
+        "503":
+          description: Email delivery unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /studio/questions:
+    get:
+      operationId: list_studio_questions
+      summary: List the quiz library
+      description: Available to verified administrators and moderators in adult mode.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema: *id001
+        - name: skill_id
+          in: query
+          schema: *id002
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminQuestion"
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified adult Content Studio access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /studio/metadata:
+    get:
+      operationId: read_studio_metadata
+      summary: Read studio subjects and skills
+      description: Read-only catalog access for authorized content staff.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Metadata"
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified adult Content Studio access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /studio/media:
+    post:
+      operationId: upload_studio_media
+      summary: Upload question media
+      description: Uploads an image or narration for Content Studio.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+              required: [file]
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  path: *id001
+                  url: *id001
+                required: [path, url]
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified adult Content Studio access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Too many uploads
+  /studio/proposals:
+    get:
+      operationId: list_question_proposals
+      summary: List quiz drafts
+      description: Moderators see their own proposals. Administrators can see all proposals.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuestionProposal"
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified adult Content Studio access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: create_question_proposal
+      summary: Create a quiz draft
+      description: For an existing question, include its ID and current version. This request does not change quiz content shown to learners.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/QuestionDraftInput"
+                - type: object
+                  properties:
+                    question_id: *id006
+                    question_version: *id006
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: *id002
+                required: [id]
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified adult Content Studio access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: The target question changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /studio/proposals/{proposal}:
+    put:
+      operationId: update_question_proposal
+      summary: Edit a quiz draft
+      description: The author can edit a draft before submission or after it is returned.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: proposal
+          in: path
+          required: true
+          schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/QuestionDraftInput"
+                - type: object
+                  properties:
+                    version: *id002
+                  required: [version]
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: *id002
+                required: [id]
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified adult Content Studio access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Draft not found
+        "409":
+          description: The draft changed or is in a different review state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /studio/proposals/{proposal}/submit:
+    post:
+      operationId: submit_question_proposal
+      summary: Send a draft for review
+      description: The author submits the specified draft version to the administrator review queue.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: proposal
+          in: path
+          required: true
+          schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version: *id002
+              required: [version]
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: *id002
+                required: [id]
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified adult Content Studio access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Draft not found
+        "409":
+          description: The draft changed or is in a different review state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /studio/proposals/{proposal}/review:
+    post:
+      operationId: review_question_proposal
+      summary: Review a submitted draft
+      description: An administrator publishes a reviewed draft or returns it with feedback. Publishing requires the version of the current question viewed by the reviewer, when editing an existing question.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: proposal
+          in: path
+          required: true
+          schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version: *id002
+                decision: { type: string, enum: [publish, return] }
+                question_version: *id006
+                review_note: *id003
+                answers_reviewed: *id004
+                explanation_reviewed: *id004
+                narration_reviewed: *id004
+              required: [version, decision]
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: *id002
+                required: [id]
+        "401":
+          description: Sign in required
+        "403":
+          description: Verified adult Content Studio access required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "419":
+          description: Refresh the CSRF cookie and retry
+        "422":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Draft not found
+        "409":
+          description: The draft changed or is in a different review state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"

@@ -47,8 +47,14 @@ import {
 } from "@/lib/demo-state";
 import { Fox, MathWorld, EnglishWorld, DiscoveryWorld } from "./illustrations";
 import { AuthDialog, ParentPanel } from "./parent-panel";
-import { ExplorerRankCard } from "./explorer-rank-card";
-import { adventurePoints, explorerRank } from "@/lib/explorer-rank";
+import { AccountSetupDialog } from "./account-setup-dialog";
+import { ExplorerBadgeMark, ExplorerRankCard } from "./explorer-rank-card";
+import { ExplorerRewards } from "./explorer-rewards";
+import {
+  adventurePoints,
+  earnedExplorerBadges,
+  explorerRank,
+} from "@/lib/explorer-rank";
 export const api = createClient();
 const emptyProgress: Progress = {
   completed: 0,
@@ -60,7 +66,9 @@ const emptyProgress: Progress = {
   explorer_rank: explorerRank(0),
 };
 export type Notice = (message: string) => void;
-type Destination = "home" | "explore" | "stickers" | "parent" | "picker";
+type Destination = "home" | "explore" | "rewards" | "parent" | "picker";
+const drawerViewport = "(max-width: 900px)";
+
 export default function QuizApp() {
   const [session, setSession] = useState<Session | null>(null),
     [catalog, setCatalog] = useState<Subject[]>(demoCatalog),
@@ -74,6 +82,7 @@ export default function QuizApp() {
     [menu, setMenu] = useState(false),
     [picker, setPicker] = useState(false),
     [selected, setSelected] = useState<string | null>(null),
+    [answerError, setAnswerError] = useState(false),
     [online, setOnline] = useState(true),
     [demoState, setDemoState] = useState(() => emptyDemo(emptyProgress)),
     [demoHydrated, setDemoHydrated] = useState(false);
@@ -84,15 +93,23 @@ export default function QuizApp() {
   const [completionSummary, setCompletionSummary] = useState<{
     attemptId: number;
     points: number;
-    previousTitle: string;
+    previousPoints: number;
   } | null>(null);
   const [authParams, setAuthParams] = useState({
     invite: "",
     email: "",
     token: "",
+    setup: "",
   });
   const audioRef = useRef<HTMLAudioElement | null>(null),
     noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const quizActionPending = useRef(false);
+  const questionHeading = useRef<HTMLHeadingElement>(null);
+  const feedbackHeading = useRef<HTMLHeadingElement>(null);
+  const celebrationHeading = useRef<HTMLHeadingElement>(null);
+  const answerErrorRef = useRef<HTMLParagraphElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const notify: Notice = useCallback((message) => {
     setNotice(message);
     if (noticeTimer.current) clearTimeout(noticeTimer.current);
@@ -104,6 +121,25 @@ export default function QuizApp() {
     demoAvatar = demoState.avatar,
     child = session?.child,
     nickname = child?.nickname || "explorer";
+  const feedback = attempt?.feedback;
+  const adultMode = session?.mode === "adult";
+  const resumeAttempt = attempt?.status === "active" ? attempt : null;
+  const activeSubjectName = resumeAttempt
+    ? (catalog.find((s) => s.slug === resumeAttempt.subject_slug)?.name ??
+      resumeAttempt.skill_name)
+    : null;
+  const playing = view === "quiz" && resumeAttempt !== null;
+  const completedReward =
+    completionSummary?.attemptId === attempt?.id ? completionSummary : null;
+  const currentBadge = earnedExplorerBadges(progress.explorer_rank.points).at(
+    -1,
+  );
+  const unlockedBadge =
+    completedReward &&
+    currentBadge &&
+    currentBadge.min_points > completedReward.previousPoints
+      ? currentBadge
+      : null;
   const setDemoAvatar = (avatar: string) =>
     setDemoState((state) => ({ ...state, avatar }));
   const clearAdventure = () => {
@@ -136,13 +172,25 @@ export default function QuizApp() {
   }, []);
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const setup =
+      new URLSearchParams(location.hash.slice(1)).get("setup") || "";
     setAuthParams({
       invite: params.get("invite") || "",
       email: params.get("email") || "",
       token: params.get("reset_token") || "",
+      setup,
     });
     if (params.has("invite")) setAuth("register");
     if (params.has("reset_token")) setAuth("reset");
+    if (setup) setAuth("setup");
+    const openSetupLink = () => {
+      const token = new URLSearchParams(location.hash.slice(1)).get("setup");
+      if (token) {
+        setAuthParams((previous) => ({ ...previous, setup: token }));
+        setAuth("setup");
+      }
+    };
+    window.addEventListener("hashchange", openSetupLink);
     try {
       setDemoState(
         restoreDemo(localStorage.getItem("little-quest-demo"), emptyProgress),
@@ -177,6 +225,7 @@ export default function QuizApp() {
     window.addEventListener("online", up);
     window.addEventListener("offline", down);
     return () => {
+      window.removeEventListener("hashchange", openSetupLink);
       window.removeEventListener("online", up);
       window.removeEventListener("offline", down);
       audioRef.current?.pause();
@@ -191,6 +240,7 @@ export default function QuizApp() {
   }, [demoState, demo, demoHydrated]);
   useEffect(() => {
     setSelected(attempt?.feedback?.selected_choice_id || null);
+    setAnswerError(false);
     audioRef.current?.pause();
   }, [
     attempt?.id,
@@ -199,11 +249,75 @@ export default function QuizApp() {
     attempt?.feedback,
   ]);
   useEffect(() => {
-    if (view === "quiz")
-      document
-        .querySelector<HTMLElement>(".question-panel h1, .celebration h1")
-        ?.focus();
-  }, [view, attempt?.id, attempt?.position, attempt?.status]);
+    if (view !== "quiz") return;
+    const heading =
+      attempt?.status === "completed"
+        ? celebrationHeading.current
+        : feedback
+          ? feedbackHeading.current
+          : questionHeading.current;
+    heading?.focus({ preventScroll: true });
+    if (feedback)
+      heading?.closest(".feedback")?.scrollIntoView({ block: "nearest" });
+    else heading?.scrollIntoView({ block: "nearest" });
+  }, [view, attempt?.id, attempt?.position, attempt?.status, feedback]);
+  useEffect(() => {
+    if (answerError) {
+      answerErrorRef.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [answerError]);
+  useEffect(() => {
+    if (!menu) return;
+    const drawer = drawerRef.current;
+    const opener = menuButtonRef.current;
+    if (!drawer) return;
+    const viewport = window.matchMedia(drawerViewport);
+    const closeForDesktop = () => {
+      if (!viewport.matches) setMenu(false);
+    };
+    const controls = () =>
+      Array.from(
+        drawer.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"),
+      ).filter((button) => button.getClientRects().length > 0);
+    controls()[0]?.focus();
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMenu(false);
+      }
+      if (event.key !== "Tab") return;
+      const items = controls();
+      const first = items[0];
+      const last = items.at(-1);
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !drawer?.contains(active))) {
+        event.preventDefault();
+        last?.focus();
+      } else if (
+        !event.shiftKey &&
+        (active === last || !drawer?.contains(active))
+      ) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+    viewport.addEventListener("change", closeForDesktop);
+    document.addEventListener("keydown", onKeyDown);
+    closeForDesktop();
+    return () => {
+      viewport.removeEventListener("change", closeForDesktop);
+      document.removeEventListener("keydown", onKeyDown);
+      queueMicrotask(() => {
+        const active = document.activeElement;
+        if (
+          viewport.matches &&
+          (active === document.body || drawer.contains(active))
+        ) {
+          opener?.focus();
+        }
+      });
+    };
+  }, [menu]);
   const handleError = (e: unknown) => {
     notify(
       e instanceof Error
@@ -271,6 +385,13 @@ export default function QuizApp() {
       handleError(e);
     }
   };
+  const signedOut = () => {
+    setSession(null);
+    setCatalog(demoCatalog);
+    setLiveProgress(emptyProgress);
+    setLiveAttempt(null);
+    goTo("home");
+  };
   const enterChild = async (c: Child) => {
     try {
       setBusy(true);
@@ -282,12 +403,14 @@ export default function QuizApp() {
     }
   };
   async function start(skill?: Skill) {
-    if (busy) return;
+    if (busy || quizActionPending.current) return;
     if (session?.mode === "adult") {
       setPicker(true);
       return;
     }
+    quizActionPending.current = true;
     setBusy(true);
+    setAnswerError(false);
     setCompletionSummary(null);
     try {
       if (
@@ -299,7 +422,11 @@ export default function QuizApp() {
         setView("quiz");
         return;
       }
-      const target = skill || suggested;
+      const target = skill ?? suggested;
+      if (!target) {
+        goTo("explore");
+        return;
+      }
       if (attempt?.status === "active" && attempt.answered > 0) {
         setSwitchTarget(target);
         return;
@@ -318,12 +445,23 @@ export default function QuizApp() {
     } catch (e) {
       handleError(e);
     } finally {
+      quizActionPending.current = false;
       setBusy(false);
     }
   }
   async function answer() {
-    if (!attempt || !selected || busy || attempt.feedback) return;
+    if (
+      !attempt?.question ||
+      !selected ||
+      busy ||
+      feedback ||
+      quizActionPending.current ||
+      (!demo && !online)
+    )
+      return;
+    quizActionPending.current = true;
     setBusy(true);
+    setAnswerError(false);
     try {
       if (demo) {
         const checkedAt = Date.now();
@@ -332,18 +470,33 @@ export default function QuizApp() {
         setLiveAttempt(
           await api.post<Attempt>(`/attempts/${attempt.id}/answers`, {
             position: attempt.position,
-            question_id: attempt.question!.id,
+            question_id: attempt.question.id,
             choice_id: selected,
           }),
         );
     } catch (e) {
-      handleError(e);
+      if (e instanceof ApiError && (e.status === 401 || e.status === 409)) {
+        handleError(e);
+      } else {
+        setAnswerError(true);
+        if (!demo)
+          void api.post("/events/error", { code: "request" }).catch(() => {});
+      }
     } finally {
+      quizActionPending.current = false;
       setBusy(false);
     }
   }
   async function next() {
-    if (!attempt || busy) return;
+    if (
+      !attempt ||
+      !feedback ||
+      busy ||
+      quizActionPending.current ||
+      (!demo && !online)
+    )
+      return;
+    quizActionPending.current = true;
     setBusy(true);
     try {
       if (demo) {
@@ -356,7 +509,7 @@ export default function QuizApp() {
           setCompletionSummary({
             attemptId: attempt.id,
             points: adventurePoints(attempt.score),
-            previousTitle: progress.explorer_rank.title,
+            previousPoints: progress.explorer_rank.points,
           });
         }
         setDemoState((state) => nextDemo(state, advancedAt));
@@ -369,7 +522,7 @@ export default function QuizApp() {
           setCompletionSummary({
             attemptId: a.id,
             points: adventurePoints(a.score),
-            previousTitle: progress.explorer_rank.title,
+            previousPoints: progress.explorer_rank.points,
           });
           setLiveProgress(
             await api.get<Progress>(`/children/${child.id}/progress`),
@@ -380,17 +533,13 @@ export default function QuizApp() {
     } catch (e) {
       handleError(e);
     } finally {
+      quizActionPending.current = false;
       setBusy(false);
     }
   }
   function listen() {
     const url = attempt?.question?.audio_url;
-    if (!url) {
-      notify(
-        "Audio hasn’t been added to this question yet. You can still read it and keep exploring.",
-      );
-      return;
-    }
+    if (!url) return;
     audioRef.current?.pause();
     const audio = new Audio(url);
     audioRef.current = audio;
@@ -418,9 +567,7 @@ export default function QuizApp() {
           k.position >=
             (allSkills.find((s) => s.id === starts[String(k.subject_id)])
               ?.position || 0)),
-    ) ||
-    available[0] ||
-    allSkills[0];
+    ) || available[0];
   const currentSubject = catalog.find((s) => s.id === subject);
   const avatarEmoji: Record<string, string> = {
     fox: "🦊",
@@ -432,11 +579,27 @@ export default function QuizApp() {
   };
   const avatar = avatarEmoji[child?.avatar || demoAvatar];
   return (
-    <div className="app-shell">
-      <a href="#main-content" className="skip-link">
+    <div className={`app-shell ${playing ? "playing-adventure" : ""}`}>
+      <a href="#main-content" className="skip-link" inert={menu}>
         Skip to adventure
       </a>
-      <aside className={`sidebar ${menu ? "open" : ""}`}>
+      <aside
+        className={`sidebar ${menu ? "open" : ""}`}
+        id="quest-navigation"
+        ref={drawerRef}
+        role={menu ? "dialog" : undefined}
+        aria-modal={menu || undefined}
+        aria-label={menu ? "Little Quest menu" : undefined}
+      >
+        {menu && (
+          <button
+            className="icon-btn drawer-close"
+            onClick={() => setMenu(false)}
+            aria-label="Close navigation"
+          >
+            <X size={22} />
+          </button>
+        )}
         <button
           className="brand"
           onClick={() => navigate("home")}
@@ -469,14 +632,11 @@ export default function QuizApp() {
             Explore subjects
           </button>
           <button
-            className={`nav-item ${view === "stickers" ? "active" : ""}`}
-            onClick={() => navigate("stickers")}
+            className={`nav-item ${view === "rewards" ? "active" : ""}`}
+            onClick={() => navigate("rewards")}
           >
-            <Star size={21} />
-            My stickers
-            {progress.stars > 0 && (
-              <span className="nav-count">{progress.stars}</span>
-            )}
+            <Trophy size={21} />
+            My rewards
           </button>
         </nav>
         <div className="side-divider" />
@@ -485,8 +645,8 @@ export default function QuizApp() {
           onClick={parent}
         >
           <ShieldCheck size={21} />
-          Parent corner
-          <LockKeyhole size={14} className="nav-lock" />
+          Parent dashboard
+          {!adultMode && <LockKeyhole size={14} className="nav-lock" />}
         </button>
         <div className="sidebar-bottom">
           <div className="fox-note">
@@ -507,16 +667,20 @@ export default function QuizApp() {
         <button
           className="mobile-scrim"
           onClick={() => setMenu(false)}
-          aria-label="Close navigation"
+          aria-hidden="true"
+          tabIndex={-1}
         />
       )}
-      <div className="main-shell">
+      <div className="main-shell" inert={menu}>
         <header className="topbar">
           <div className="topbar-left">
             <button
               className="icon-btn mobile-menu"
-              onClick={() => setMenu(!menu)}
+              ref={menuButtonRef}
+              onClick={() => setMenu(true)}
               aria-label="Open navigation"
+              aria-expanded={menu}
+              aria-controls="quest-navigation"
             >
               <Menu />
             </button>
@@ -524,22 +688,29 @@ export default function QuizApp() {
             <span>A little curiosity goes a long way.</span>
           </div>
           <div className="topbar-right">
-            {demo && <span className="demo-badge">DEMO</span>}
-            <div
-              className="star-counter"
-              aria-label={`${progress.stars} adventure stars`}
-            >
-              <Star size={18} fill="currentColor" />
-              <strong>{progress.stars}</strong>
-              <span>stars</span>
-            </div>
+            {!adultMode && (
+              <div
+                className="star-counter"
+                aria-label={`${progress.completed} completed adventures`}
+              >
+                <Flag size={18} aria-hidden="true" />
+                <strong>{progress.completed}</strong>
+                <span>finished</span>
+              </div>
+            )}
             <button
               className="profile-button"
-              aria-label={`Choose explorer. Current: ${child?.nickname || "Explorer"}`}
+              aria-label={
+                adultMode
+                  ? "Choose a child profile"
+                  : `Choose explorer. Current: ${child?.nickname || "Explorer"}`
+              }
               onClick={() => navigate("picker")}
             >
-              <span className="avatar">{avatar}</span>
-              <span>{child?.nickname || "Explorer"}</span>
+              <span className="avatar">{adultMode ? "👤" : avatar}</span>
+              <span>
+                {adultMode ? "Choose child" : child?.nickname || "Explorer"}
+              </span>
               <ChevronDown size={15} />
             </button>
           </div>
@@ -558,47 +729,57 @@ export default function QuizApp() {
             <>
               <div className="page-heading">
                 <div>
-                  <div className="eyebrow">A NEW DAY, A NEW DISCOVERY</div>
                   <h1>
                     Hey, {nickname}! <span className="wave">👋</span>
                   </h1>
-                  <p>What wonderful things will you learn today?</p>
-                </div>
-                <div className="gentle-pill">
-                  <Leaf size={15} /> A little every day
                 </div>
               </div>
               <section className="adventure-hero" aria-labelledby="hero-title">
                 <div className="hero-copy">
-                  <span className="hero-label">
-                    <Sparkles size={14} /> YOUR NEXT LITTLE QUEST
-                  </span>
                   <h2 id="hero-title">
-                    A little learning.
-                    <br />A <span>lot of adventure.</span>
+                    {resumeAttempt
+                      ? "Pick up where you left off"
+                      : suggested
+                        ? "Ready for an adventure?"
+                        : "More adventures coming soon"}
                   </h2>
-                  <p>
-                    Curious minds, big smiles. Let’s discover
-                    <br className="desktop-break" /> something new together!
-                  </p>
-                  <button
-                    className="button primary hero-button"
-                    onClick={() => start()}
-                    disabled={busy}
-                  >
-                    <Play size={17} fill="currentColor" />
-                    {attempt?.status === "active"
-                      ? "Resume adventure"
-                      : "Continue adventure"}
-                    <ArrowRight size={18} />
-                  </button>
-                  <div className="hero-meta">
-                    <span>
-                      <Check size={13} /> Just 5 questions
-                    </span>
-                    <span>
-                      <Heart size={13} /> Go at your pace
-                    </span>
+                  {resumeAttempt ? (
+                    <p>{resumeAttempt.skill_name}</p>
+                  ) : suggested ? (
+                    <p>{suggested.name} · 5 questions at your pace</p>
+                  ) : (
+                    <p>
+                      Take a look at the subjects we’re getting ready for you.
+                    </p>
+                  )}
+                  <div className="home-actions">
+                    {resumeAttempt || suggested ? (
+                      <button
+                        className="button primary hero-button"
+                        onClick={() => void start()}
+                        disabled={busy || (demo ? !demoHydrated : !online)}
+                      >
+                        <Play
+                          size={17}
+                          fill="currentColor"
+                          aria-hidden="true"
+                        />
+                        <span>
+                          {resumeAttempt
+                            ? `Resume ${activeSubjectName} · Question ${resumeAttempt.position + 1} of ${resumeAttempt.total}`
+                            : "Start adventure"}
+                        </span>
+                        <ArrowRight size={18} aria-hidden="true" />
+                      </button>
+                    ) : null}
+                    <button
+                      className={`button ${resumeAttempt || suggested ? "secondary" : "primary"}`}
+                      onClick={() => navigate("explore")}
+                      disabled={busy}
+                    >
+                      <Compass size={18} aria-hidden="true" />
+                      Explore subjects
+                    </button>
                   </div>
                 </div>
                 <div className="hero-art">
@@ -617,7 +798,28 @@ export default function QuizApp() {
                   </span>
                 </div>
               </section>
-              <ExplorerRankCard rank={progress.explorer_rank} />
+              {demo && (
+                <aside
+                  className="family-signup-prompt"
+                  aria-label="Family accounts"
+                >
+                  <p>
+                    Save a separate quiz history for each child with a family
+                    account.
+                  </p>
+                  <button
+                    className="text-button"
+                    onClick={() => setAuth("signup")}
+                  >
+                    Create a family account{" "}
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </button>
+                </aside>
+              )}
+              <ExplorerRankCard
+                rank={progress.explorer_rank}
+                onViewRewards={() => navigate("rewards")}
+              />
               <section className="subject-section">
                 <div className="section-heading">
                   <div>
@@ -634,7 +836,7 @@ export default function QuizApp() {
                   </button>
                 </div>
                 <div className="subject-grid">
-                  {catalog.map((s, i) => (
+                  {catalog.map((s) => (
                     <button
                       key={s.id}
                       className={`subject-card ${s.color}`}
@@ -644,9 +846,9 @@ export default function QuizApp() {
                       }}
                     >
                       <div className="subject-card-copy">
-                        <span className="subject-icon">
+                        <span className="subject-icon" aria-hidden="true">
                           {s.icon === "calculator" ? (
-                            <span>＋</span>
+                            <Plus size={21} />
                           ) : s.icon === "leaf" ? (
                             <Leaf size={21} />
                           ) : s.icon === "globe" ? (
@@ -657,14 +859,8 @@ export default function QuizApp() {
                         </span>
                         <h3>{s.name}</h3>
                         <p>{s.description}</p>
-                        <span className="subject-footer">
-                          {s.skills.length} little adventures{" "}
-                          <span className="round-arrow">
-                            <ArrowRight size={17} />
-                          </span>
-                        </span>
                       </div>
-                      <div className="subject-art">
+                      <div className="subject-art" aria-hidden="true">
                         {s.icon === "calculator" ? (
                           <MathWorld />
                         ) : s.icon === "book" ? (
@@ -673,6 +869,15 @@ export default function QuizApp() {
                           <DiscoveryWorld globe={s.icon === "globe"} />
                         )}
                       </div>
+                      <span className="subject-footer">
+                        {s.skills.length}{" "}
+                        {s.skills.length === 1
+                          ? "little adventure"
+                          : "little adventures"}
+                        <span className="round-arrow" aria-hidden="true">
+                          <ArrowRight size={17} />
+                        </span>
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -803,62 +1008,25 @@ export default function QuizApp() {
               </div>
             </>
           )}
-          {view === "stickers" && (
-            <>
-              <div className="page-heading">
-                <div>
-                  <div className="eyebrow">LOOK HOW FAR YOU’VE COME</div>
-                  <h1>
-                    Your little victories <span>🌟</span>
-                  </h1>
-                  <p>A happy reminder of every adventure you’ve explored.</p>
-                </div>
-                <div className="gentle-pill">
-                  <Trophy size={16} />
-                  {progress.stars} adventures complete
-                </div>
-              </div>
-              {!progress.stickers.length ? (
-                <div className="empty-state">
-                  <span className="empty-sticker">
-                    <Star size={60} />
-                  </span>
-                  <h2>Your first sticker is waiting!</h2>
-                  <p>
-                    Finish a little adventure to start your collection.
-                    <br />
-                    Every step is something to celebrate.
-                  </p>
-                  <button className="button primary" onClick={() => start()}>
-                    Let’s explore <ArrowRight size={18} />
-                  </button>
-                </div>
-              ) : (
-                <div className="sticker-grid">
-                  {progress.stickers.map((s, i) => (
-                    <div className={`sticker-card sticker-${i % 3}`} key={s.id}>
-                      <span>{["🌟", "🦋", "🌈", "🌻", "🚀", "🍀"][i % 6]}</span>
-                      <h2>{s.name}</h2>
-                      <p>
-                        {new Date(s.earned_at).toLocaleDateString("en", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
+          {view === "rewards" && (
+            <ExplorerRewards
+              progress={progress}
+              onExplore={() => void start()}
+              busy={busy}
+            />
           )}
           {view === "quiz" && attempt && (
             <>
               {attempt.status === "completed" ? (
                 <section className="celebration">
-                  <span className="celebration-stars">✦　✧　✦</span>
+                  <span className="celebration-stars" aria-hidden="true">
+                    ✦　✧　✦
+                  </span>
                   <Fox celebrate />
                   <div className="eyebrow">A LITTLE QUEST, A BIG HIGH FIVE</div>
-                  <h1 tabIndex={-1}>You did it, {nickname}!</h1>
+                  <h1 ref={celebrationHeading} tabIndex={-1}>
+                    You did it, {nickname}!
+                  </h1>
                   <p>
                     You explored, you tried, and you learned something new.
                     <br />
@@ -871,23 +1039,26 @@ export default function QuizApp() {
                     </span>
                     <Sparkles />
                   </div>
-                  {completionSummary?.attemptId === attempt.id && (
+                  {completedReward && (
                     <div className="earned-points" role="status">
                       <strong>
-                        +{completionSummary.points} adventure points
+                        +{completedReward.points} adventure points
                       </strong>
-                      <span>
-                        {progress.explorer_rank.title !==
-                        completionSummary.previousTitle
-                          ? `New rank! You’re a ${progress.explorer_rank.title}.`
-                          : `Every little step counts, ${progress.explorer_rank.title}!`}
-                      </span>
+                      {unlockedBadge && (
+                        <div className="badge-unlocked">
+                          <ExplorerBadgeMark badge={unlockedBadge} />
+                          <span>
+                            <strong>New badge!</strong> {unlockedBadge.title}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                   <ExplorerRankCard rank={progress.explorer_rank} />
                   <div className="celebration-actions">
                     <button
                       className="button primary"
+                      disabled={busy}
                       onClick={() => {
                         clearAdventure();
                         navigate("home");
@@ -897,6 +1068,17 @@ export default function QuizApp() {
                     </button>
                     <button
                       className="text-button"
+                      disabled={busy}
+                      onClick={() => {
+                        clearAdventure();
+                        navigate("rewards");
+                      }}
+                    >
+                      See my rewards <Trophy size={18} aria-hidden="true" />
+                    </button>
+                    <button
+                      className="text-button"
+                      disabled={busy}
                       onClick={() => {
                         clearAdventure();
                         navigate("explore");
@@ -913,24 +1095,26 @@ export default function QuizApp() {
                       className="text-button"
                       onClick={() => navigate("home")}
                     >
-                      <ArrowLeft size={18} />
+                      <ArrowLeft size={18} aria-hidden="true" />
                       {attempt.answered > 0
                         ? "Save & leave"
                         : "Back to adventures"}
                     </button>
                     <span className="quiz-subject">
-                      {attempt.subject_slug === "maths" ? "MATHS" : "ENGLISH"} /{" "}
-                      {attempt.skill_name}
+                      <span>{activeSubjectName}</span>
+                      {activeSubjectName !== attempt.skill_name &&
+                        attempt.skill_name}
                     </span>
                     <span className="question-count">
-                      {attempt.position + 1} of 5
+                      {attempt.position + 1} of {attempt.total}
                     </span>
                   </div>
                   <div
                     className="quiz-progress"
-                    aria-label={`Question ${attempt.position + 1} of 5`}
+                    role="img"
+                    aria-label={`Question ${attempt.position + 1} of ${attempt.total}`}
                   >
-                    {Array.from({ length: 5 }, (_, i) => (
+                    {Array.from({ length: attempt.total }, (_, i) => (
                       <span
                         key={i}
                         className={i <= attempt.position ? "filled" : ""}
@@ -938,16 +1122,21 @@ export default function QuizApp() {
                     ))}
                   </div>
                   <div className="question-panel">
-                    <div className="question-label">
-                      <span>LET’S THINK ABOUT THIS</span>
-                      <button className="listen-button" onClick={listen}>
-                        <Volume2 size={18} />
-                        Listen
-                      </button>
+                    <div className="question-heading">
+                      <h1
+                        ref={questionHeading}
+                        tabIndex={-1}
+                        key={attempt.question?.id}
+                      >
+                        {attempt.question?.prompt}
+                      </h1>
+                      {attempt.question?.audio_url && (
+                        <button className="listen-button" onClick={listen}>
+                          <Volume2 size={18} aria-hidden="true" />
+                          Listen
+                        </button>
+                      )}
                     </div>
-                    <h1 tabIndex={-1} key={attempt.question?.id}>
-                      {attempt.question?.prompt}
-                    </h1>
                     {attempt.question?.image_url && (
                       <img
                         className="question-image"
@@ -963,75 +1152,101 @@ export default function QuizApp() {
                       role="group"
                       aria-label="Answer choices"
                     >
-                      {attempt.question?.choices.map((c, i) => (
-                        <button
-                          key={c.id}
-                          aria-pressed={selected === c.id}
-                          className={`answer-card ${selected === c.id ? "chosen" : ""} ${attempt.feedback?.correct_choice_id === c.id ? "correct-answer" : ""}`}
-                          disabled={!!attempt.feedback || busy}
-                          onClick={() => setSelected(c.id)}
-                        >
-                          <span className="answer-letter">
-                            {String.fromCharCode(65 + i)}
-                          </span>
-                          {c.image_url && <img src={c.image_url} alt="" />}
-                          <span>{c.text}</span>
-                          {selected === c.id && <Check size={22} />}
-                        </button>
-                      ))}
+                      {attempt.question?.choices.map((c, i) => {
+                        const chosen =
+                          (feedback?.selected_choice_id ?? selected) === c.id;
+                        const correct = feedback?.correct_choice_id === c.id;
+                        let state = chosen ? "Selected" : "";
+                        if (feedback) {
+                          state = correct
+                            ? chosen
+                              ? "Your answer is correct"
+                              : "Correct answer"
+                            : chosen
+                              ? "Your answer"
+                              : "";
+                        }
+                        return (
+                          <button
+                            key={c.id}
+                            aria-pressed={chosen}
+                            className={`answer-card ${chosen ? "chosen" : ""} ${correct ? "correct-answer" : ""}`}
+                            disabled={!!feedback || busy}
+                            onClick={() => setSelected(c.id)}
+                          >
+                            <span className="answer-letter">
+                              {String.fromCharCode(65 + i)}
+                            </span>
+                            <span className="answer-copy">
+                              {c.image_url && <img src={c.image_url} alt="" />}
+                              <span>{c.text}</span>
+                              {state && (
+                                <span className="answer-state">
+                                  {(correct || !feedback) && (
+                                    <Check size={16} aria-hidden="true" />
+                                  )}
+                                  {state}
+                                </span>
+                              )}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
-                    {attempt.feedback ? (
+                    {feedback && (
                       <div
-                        className={`feedback ${attempt.feedback.correct ? "positive" : "learning"}`}
-                        role="status"
+                        className={`feedback ${feedback.correct ? "positive" : "learning"}`}
                       >
-                        <span className="feedback-icon">
-                          {attempt.feedback.correct ? "🌟" : "🌱"}
+                        <span className="feedback-icon" aria-hidden="true">
+                          {feedback.correct ? "🌟" : "🌱"}
                         </span>
                         <div>
-                          <h2>
-                            {attempt.feedback.correct
-                              ? "Lovely exploring!"
-                              : "A little moment to learn."}
+                          <h2
+                            ref={feedbackHeading}
+                            tabIndex={-1}
+                            aria-describedby="answer-explanation"
+                          >
+                            {feedback.correct ? "You got it!" : "Let’s see why"}
                           </h2>
-                          <p>{attempt.feedback.explanation}</p>
+                          <p id="answer-explanation">{feedback.explanation}</p>
                         </div>
                       </div>
-                    ) : (
-                      <div className="question-encouragement">
-                        <Heart size={15} />
-                        Take your time. There’s no rush.
-                      </div>
+                    )}
+                    {answerError && !feedback && (
+                      <p
+                        className="answer-retry"
+                        ref={answerErrorRef}
+                        role="alert"
+                      >
+                        We couldn’t check your answer. Your choice is still
+                        here. Tap Check my answer to try again.
+                      </p>
                     )}
                     <div className="quiz-actions">
-                      {attempt.feedback ? (
-                        <button
-                          className="button primary"
-                          onClick={next}
-                          disabled={busy || (!demo && !online)}
-                        >
-                          {busy
-                            ? "Saving…"
-                            : attempt.position === 4
+                      <button
+                        className="button primary"
+                        onClick={(event) => {
+                          if (event.detail > 1) return;
+                          void (feedback ? next() : answer());
+                        }}
+                        disabled={
+                          (!feedback && !selected) || busy || (!demo && !online)
+                        }
+                      >
+                        {busy
+                          ? "Saving…"
+                          : feedback
+                            ? attempt.position + 1 === attempt.total
                               ? "Finish adventure"
-                              : "Next question"}
-                          <ArrowRight size={18} />
-                        </button>
-                      ) : (
-                        <button
-                          className="button primary"
-                          onClick={answer}
-                          disabled={!selected || busy || (!demo && !online)}
-                        >
-                          {busy ? "Saving…" : "Check my answer"}
-                          <ArrowRight size={18} />
-                        </button>
-                      )}
+                              : "Next question"
+                            : "Check my answer"}
+                        <ArrowRight size={18} aria-hidden="true" />
+                      </button>
                     </div>
                   </div>
                   <div className="quiz-fox-note">
-                    <span>🦊</span>“Trying is how we grow. I’m cheering for
-                    you!”
+                    <span aria-hidden="true">🦊</span>“Trying is how we grow.
+                    I’m cheering for you!”
                   </div>
                 </section>
               )}
@@ -1042,13 +1257,7 @@ export default function QuizApp() {
               session={session}
               catalog={catalog}
               onSession={entered}
-              onLogout={() => {
-                setSession(null);
-                setCatalog(demoCatalog);
-                setLiveProgress(emptyProgress);
-                setLiveAttempt(null);
-                navigate("home");
-              }}
+              onLogout={signedOut}
               notify={notify}
             />
           )}
@@ -1058,7 +1267,7 @@ export default function QuizApp() {
             </span>
             <span>
               {demo
-                ? "Interactive demo · progress stays on this device"
+                ? "Playing as a guest. Progress is saved in this browser."
                 : "A happy little place to learn"}
             </span>
             {demo && (
@@ -1135,24 +1344,61 @@ export default function QuizApp() {
           </div>
         </Dialog>
       )}
-      {auth && (
+      {(auth === "signup" || auth === "setup") && (
+        <AccountSetupDialog
+          key={auth === "setup" ? authParams.setup : auth}
+          token={auth === "setup" ? authParams.setup : null}
+          session={session}
+          onClose={() => setAuth(null)}
+          onSignIn={(email) => {
+            if (email) setAuthParams((previous) => ({ ...previous, email }));
+            setAuth(email ? "setup-login" : "login");
+          }}
+          onSignedOut={signedOut}
+          onComplete={async (account, moderator) => {
+            if (location.hash.startsWith("#setup="))
+              history.replaceState(
+                history.state,
+                "",
+                location.pathname + location.search,
+              );
+            setAuthParams((previous) => ({
+              ...previous,
+              setup: "",
+              email: "",
+            }));
+            await entered(account);
+            notify(
+              moderator
+                ? "Invitation accepted. Open Content Studio from your Parent dashboard."
+                : "Your family account is ready. Add your first child profile to get started.",
+            );
+          }}
+        />
+      )}
+      {auth && auth !== "signup" && auth !== "setup" && (
         <AuthDialog
-          mode={auth}
+          mode={auth === "setup-login" ? "login" : auth}
           params={authParams}
           onClose={() => setAuth(null)}
           onMode={setAuth}
-          onSession={entered}
+          onSession={async (s) => {
+            await entered(s);
+            if (auth === "setup-login") setAuth("setup");
+          }}
           notify={notify}
         />
       )}
       {picker && (
         <Dialog
-          title={session ? "Who’s ready to explore?" : "Make yourself at home"}
+          title={session ? "Choose a child profile" : "Make yourself at home"}
           onClose={() => setPicker(false)}
         >
           <p className="dialog-description">
             {session
-              ? "Choose your explorer to begin a little adventure."
+              ? session.children.length
+                ? "Choose your name to open your quizzes and saved progress."
+                : "Add a child profile from the parent dashboard first."
               : "Choose a friend for your demo adventure."}
           </p>
           <div className="avatar-grid">
@@ -1183,7 +1429,6 @@ export default function QuizApp() {
           </div>
           {session && !session.children.length && (
             <>
-              <p>Add your first explorer in the parent corner.</p>
               <button
                 className="button primary"
                 onClick={() => {
@@ -1191,20 +1436,29 @@ export default function QuizApp() {
                   parent();
                 }}
               >
-                Open parent corner
+                Open parent dashboard
               </button>
             </>
           )}
           {!session && (
-            <button
-              className="text-button dialog-signin"
-              onClick={() => {
-                setPicker(false);
-                parent();
-              }}
-            >
-              Have an invitation? Sign in or join <ArrowRight size={16} />
-            </button>
+            <div className="auth-links">
+              <button
+                onClick={() => {
+                  setPicker(false);
+                  parent();
+                }}
+              >
+                Parent sign in
+              </button>
+              <button
+                onClick={() => {
+                  setPicker(false);
+                  setAuth("signup");
+                }}
+              >
+                Create a family account
+              </button>
+            </div>
           )}
         </Dialog>
       )}

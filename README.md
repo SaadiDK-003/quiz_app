@@ -32,12 +32,13 @@ cd apps/api
 php artisan pilot:admin your-email@example.com
 ```
 
-1. Open **Parent corner** and sign in with that account.
+1. Open **Parent dashboard** and sign in with that account.
 2. Open **Content studio** to review the 360 bundled draft questions. Each of the 12 skills has 30 questions: ten Starter, ten Growing, and ten Challenge. On an existing installation, select **Import bundled questions** first; it adds missing drafts and preserves all existing edits and review decisions.
 3. Check each answer and explanation, upload narration, listen to it, and select the three adult-review checks. Audio for reading activities must not reveal the word or passage being assessed. Upload optional illustrations with a description.
 4. Publish at least **five questions per skill** to make that adventure playable. Each save creates a revision; active adventures retain their original revisions.
-5. Add child profiles, choose starting skills, and enter an explorer's learning area.
-6. Use **Invite family** to send seven-day, single-use registration invitations. New parents verify their email before adding children.
+5. Add one profile per child, choose their starting skills, and use **Open quizzes** to hand over the device. **View progress** opens the report for that child.
+6. Families choose **Create a family account**, enter their name and email, and follow the emailed link to set their password. This also verifies the email. Guest practice stays in the current browser, and each child profile starts fresh.
+7. Use **Invite moderator** in Content Studio to invite a quiz author. An existing parent can accept with their current login. Moderators send drafts and proposed edits to the **Review queue**. An administrator reviews and publishes them.
 
 The application intentionally does not auto-approve content. Starter question accuracy, wording, images, and narration need human review before children use them in the pilot.
 

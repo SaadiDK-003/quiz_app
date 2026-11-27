@@ -46,7 +46,7 @@ const progress = {
 };
 const maths = demoCatalog[0].skills[0],
   english = demoCatalog[1].skills[0];
-const { explorerRank, adventurePoints } = load(
+const { explorerRank, adventurePoints, earnedExplorerBadges } = load(
   path.resolve(__dirname, "../src/lib/explorer-rank.ts"),
 );
 
@@ -223,6 +223,18 @@ test("each rank boundary matches the lifetime milestones and retains points abov
   }
   assert.equal(adventurePoints(0), 10);
   assert.equal(adventurePoints(5), 20);
+});
+
+test("existing points unlock each badge once and the journey ends at Quest Champion", () => {
+  assert.deepEqual(
+    earnedExplorerBadges(134).map((badge) => badge.title),
+    ["Curious Cub", "Trail Finder"],
+  );
+  assert.equal(earnedExplorerBadges(999).length, 4);
+  const finalCollection = earnedExplorerBadges(1000);
+  assert.equal(finalCollection.at(-1).title, "Quest Champion");
+  assert.equal(new Set(finalCollection.map((badge) => badge.emblem)).size, 5);
+  assert.deepEqual(earnedExplorerBadges(1200), finalCollection);
 });
 
 test("points arrive only on completion, cross ranks, and do not duplicate on retry or refresh", () => {

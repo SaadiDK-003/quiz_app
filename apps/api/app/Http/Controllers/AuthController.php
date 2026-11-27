@@ -35,7 +35,17 @@ class AuthController extends Controller
     {
         $r->merge(['email' => strtolower(trim((string) $r->input('email')))]);
         $v = $r->validate(['email' => 'required|email', 'password' => 'required|string']);
-        abort_unless(Auth::attempt($v), 422, 'That email and password do not match.');
+        abort_unless(Auth::guard('web')->attempt($v), 422, 'That email and password do not match.');
+
+        return $this->openAdultSession($r);
+    }
+
+    public function openAdultSession(Request $r, ?User $user = null): array
+    {
+        if ($user) {
+            Auth::guard('web')->login($user);
+        }
+        Auth::shouldUse('web');
         $r->session()->regenerate();
         $r->session()->put('mode', 'adult');
         $r->session()->forget('child_id');
@@ -48,18 +58,16 @@ class AuthController extends Controller
         $r->merge(['email' => strtolower(trim((string) $r->input('email')))]);
         $v = $r->validate(['name' => 'required|string|max:80', 'email' => 'required|email|max:254|unique:users', 'password' => ['required', 'confirmed', PasswordRule::min(10)->letters()->numbers()], 'invite' => 'required|string']);
         $user = DB::transaction(function () use ($v) {
-            $i = Invitation::where('token_hash', hash('sha256', $v['invite']))->lockForUpdate()->first();
+            $i = Invitation::where('purpose', Invitation::LEGACY_FAMILY)->where('token_hash', hash('sha256', $v['invite']))->lockForUpdate()->first();
             abort_unless($i && ! $i->used_at && $i->expires_at->isFuture() && strtolower($i->email) === strtolower($v['email']), 422, 'This invitation is invalid or has expired.');
-            $u = User::create(collect($v)->only(['name', 'email', 'password'])->all());
+            $u = User::query()->createOrFirst(['email' => $v['email']], ['name' => $v['name'], 'password' => $v['password']]);
+            abort_unless($u->wasRecentlyCreated, 422, 'An account already exists for this email.');
             $i->update(['used_at' => now()]);
 
             return $u;
         });
-        Auth::login($user);
-        $r->session()->regenerate();
-        $r->session()->put('mode', 'adult');
 
-        return response()->json($this->session($r), 201);
+        return response()->json($this->openAdultSession($r, $user), 201);
     }
 
     public function logout(Request $r): Response
@@ -75,11 +83,8 @@ class AuthController extends Controller
     {
         $v = $r->validate(['password' => 'required|string']);
         abort_unless(Hash::check($v['password'], $r->user()->password), 422, 'Please check your password.');
-        $r->session()->regenerate();
-        $r->session()->put('mode', 'adult');
-        $r->session()->forget('child_id');
 
-        return $this->session($r);
+        return $this->openAdultSession($r);
     }
 
     public function resend(Request $r): JsonResponse

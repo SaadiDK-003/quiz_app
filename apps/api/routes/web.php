@@ -1,12 +1,17 @@
 <?php
 
+use App\Http\Controllers\AccountSetupController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdventureController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FamilyController;
+use App\Http\Controllers\QuestionProposalController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api/v1')->group(function () {
+    Route::post('auth/signup', [AccountSetupController::class, 'signup'])->middleware('throttle:5,1,family-signup');
+    Route::post('auth/setup/check', [AccountSetupController::class, 'check'])->middleware('throttle:20,1,account-setup-check');
+    Route::post('auth/setup/complete', [AccountSetupController::class, 'complete'])->middleware('throttle:10,1,account-setup-complete');
     Route::middleware('throttle:10,1')->group(function () {
         Route::post('auth/login', [AuthController::class, 'login']);
         Route::post('auth/register', [AuthController::class, 'register']);
@@ -29,6 +34,16 @@ Route::prefix('api/v1')->group(function () {
                 Route::put('children/{child}', [FamilyController::class, 'update']);
                 Route::delete('children/{child}', [FamilyController::class, 'destroy']);
                 Route::delete('account', [AuthController::class, 'destroy']);
+                Route::middleware('studio')->prefix('studio')->group(function () {
+                    Route::get('questions', [AdminController::class, 'index']);
+                    Route::get('metadata', [AdminController::class, 'metadata']);
+                    Route::post('media', [AdminController::class, 'upload'])->middleware('throttle:30,1');
+                    Route::get('proposals', [QuestionProposalController::class, 'index']);
+                    Route::post('proposals', [QuestionProposalController::class, 'store']);
+                    Route::put('proposals/{proposal}', [QuestionProposalController::class, 'update'])->whereNumber('proposal');
+                    Route::post('proposals/{proposal}/submit', [QuestionProposalController::class, 'submit'])->whereNumber('proposal');
+                    Route::post('proposals/{proposal}/review', [QuestionProposalController::class, 'review'])->whereNumber('proposal')->middleware('admin');
+                });
                 Route::middleware('admin')->prefix('admin')->group(function () {
                     Route::get('questions', [AdminController::class, 'index']);
                     Route::post('questions', [AdminController::class, 'save']);
@@ -39,6 +54,7 @@ Route::prefix('api/v1')->group(function () {
                     Route::put('metadata/{kind}/{id}', [AdminController::class, 'saveMetadata']);
                     Route::post('media', [AdminController::class, 'upload'])->middleware('throttle:30,1');
                     Route::post('invitations', [AdminController::class, 'invite'])->middleware('throttle:10,1');
+                    Route::post('moderator-invitations', [AccountSetupController::class, 'inviteModerator'])->middleware('throttle:10,1');
                 });
             });
             Route::middleware('learner')->group(function () {

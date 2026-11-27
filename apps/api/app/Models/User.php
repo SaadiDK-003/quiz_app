@@ -16,11 +16,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $fillable = ['name', 'email', 'password'];
 
+    protected $attributes = ['role' => 'parent', 'can_moderate' => false];
+
     protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
     {
-        return ['email_verified_at' => 'datetime', 'password' => 'hashed'];
+        return ['email_verified_at' => 'datetime', 'password' => 'hashed', 'can_moderate' => 'boolean'];
     }
 
     public function sendEmailVerificationNotification(): void

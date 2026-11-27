@@ -16,6 +16,8 @@ export type ExplorerRank = components["schemas"]["ExplorerRank"];
 export type QuestionImportResult =
   components["schemas"]["QuestionImportResult"];
 export type AdminQuestion = components["schemas"]["AdminQuestion"];
+export type AccountSetupDetails = components["schemas"]["AccountSetupDetails"];
+export type QuestionProposal = components["schemas"]["QuestionProposal"];
 export class ApiError extends Error {
   constructor(
     message: string,
