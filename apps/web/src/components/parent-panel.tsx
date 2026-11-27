@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
+  ChartNoAxesColumn,
   Check,
   ChevronRight,
   LogOut,
@@ -99,7 +100,7 @@ export function AuthDialog({
         if (mode === "register") {
           history.replaceState(null, "", "/");
           notify(
-            "Your account is ready. Send a verification email from the Parent corner to get started.",
+            "Your account is ready. Send a verification email from the Parent dashboard to get started.",
           );
         }
       }
@@ -204,7 +205,7 @@ export function AuthDialog({
               : mode === "register"
                 ? "Create parent account"
                 : mode === "reauth"
-                  ? "Open parent corner"
+                  ? "Open parent dashboard"
                   : mode === "forgot"
                     ? "Send reset link"
                     : "Reset password"}
@@ -247,7 +248,9 @@ export function ParentPanel({
     [chosen, setChosen] = useState<number | null>(
       session.children[0]?.id || null,
     ),
-    [progress, setProgress] = useState<Progress | null>(null),
+    [report, setReport] = useState<{ childId: number; data: Progress } | null>(
+      null,
+    ),
     [editor, setEditor] = useState<Child | true | null>(null),
     [tab, setTab] = useState("family"),
     [busy, setBusy] = useState(false),
@@ -256,17 +259,19 @@ export function ParentPanel({
     [password, setPassword] = useState(""),
     [error, setError] = useState("");
   const openingRef = useRef<number | null>(null);
+  const reportHeading = useRef<HTMLHeadingElement>(null);
+  const selectedChild = children.find((c) => c.id === chosen);
+  const progress = report?.childId === chosen ? report.data : null;
   useEffect(() => {
     setChildren(session.children);
   }, [session.children]);
   useEffect(() => {
     let current = true;
-    setProgress(null);
     if (chosen && session.user.email_verified_at && openingChild === null)
       api
         .get<Progress>(`/children/${chosen}/progress`)
         .then((value) => {
-          if (current) setProgress(value);
+          if (current) setReport({ childId: chosen, data: value });
         })
         .catch((e) => {
           if (current) notify(e.message);
@@ -303,6 +308,13 @@ export function ParentPanel({
       setOpeningChild(null);
     }
   }
+  function viewProgress(c: Child) {
+    setChosen(c.id);
+    requestAnimationFrame(() => {
+      reportHeading.current?.focus({ preventScroll: true });
+      reportHeading.current?.scrollIntoView({ block: "start" });
+    });
+  }
   async function remove(c: Child) {
     if (
       !confirm(
@@ -320,15 +332,12 @@ export function ParentPanel({
   }
   return (
     <>
-      <div className="page-heading">
+      <div className="page-heading parent-dashboard-heading">
         <div>
-          <div className="eyebrow">A LITTLE SPACE FOR GROWN-UPS</div>
-          <h1>
-            Parent corner <span>🌿</span>
-          </h1>
+          <h1>Parent dashboard</h1>
           <p>
-            Hello, {session.user.name}. Here’s how your little explorers are
-            growing.
+            Create a profile for each child. Their quiz answers, progress and
+            rewards are saved separately.
           </p>
         </div>
         <button
@@ -374,16 +383,26 @@ export function ParentPanel({
           </div>
           {tab === "family" && (
             <>
-              <div className="section-heading">
-                <h2>Your explorers</h2>
-                <button
-                  className="button secondary"
-                  onClick={() => setEditor(true)}
-                  disabled={openingChild !== null}
-                >
-                  <Plus size={18} />
-                  Add explorer
-                </button>
+              <div className="section-heading child-profiles-heading">
+                <div>
+                  <h2>Child profiles</h2>
+                  {children.length > 0 && (
+                    <p>
+                      Open a child’s quizzes, then hand them the device. You’ll
+                      need your password to return to this dashboard.
+                    </p>
+                  )}
+                </div>
+                {children.length > 0 && (
+                  <button
+                    className="button secondary"
+                    onClick={() => setEditor(true)}
+                    disabled={openingChild !== null}
+                  >
+                    <Plus size={18} aria-hidden="true" />
+                    Add child profile
+                  </button>
+                )}
               </div>
               <div className="children-grid">
                 {children.map((c) => (
@@ -391,12 +410,8 @@ export function ParentPanel({
                     className={`child-card ${chosen === c.id ? "selected" : ""}`}
                     key={c.id}
                   >
-                    <button
-                      className="child-select"
-                      onClick={() => setChosen(c.id)}
-                      disabled={openingChild !== null}
-                    >
-                      <span>
+                    <div className="child-identity">
+                      <span aria-hidden="true">
                         {
                           {
                             fox: "🦊",
@@ -408,9 +423,9 @@ export function ParentPanel({
                           }[c.avatar]
                         }
                       </span>
-                      <strong>{c.nickname}</strong>
+                      <h3>{c.nickname}</h3>
                       <small>Ages {c.age_band}</small>
-                    </button>
+                    </div>
                     <button
                       className="button primary explorer-entry"
                       disabled={busy || openingChild !== null}
@@ -418,7 +433,7 @@ export function ParentPanel({
                       aria-label={
                         openingChild === c.id
                           ? `Opening ${c.nickname}`
-                          : `Let’s explore with ${c.nickname}`
+                          : `Open quizzes for ${c.nickname}`
                       }
                       onClick={() => enter(c)}
                     >
@@ -433,9 +448,21 @@ export function ParentPanel({
                         </>
                       ) : (
                         <>
-                          Let’s explore <ArrowRight size={16} />
+                          Open quizzes{" "}
+                          <ArrowRight size={18} aria-hidden="true" />
                         </>
                       )}
+                    </button>
+                    <button
+                      className="button secondary child-progress-button"
+                      onClick={() => viewProgress(c)}
+                      disabled={openingChild !== null}
+                      aria-label={`View progress for ${c.nickname}`}
+                      aria-controls="child-progress"
+                      aria-pressed={chosen === c.id}
+                    >
+                      <ChartNoAxesColumn size={18} aria-hidden="true" />
+                      View progress
                     </button>
                     <div className="child-actions">
                       <button
@@ -458,32 +485,39 @@ export function ParentPanel({
                 {!children.length && (
                   <div className="empty-state small">
                     <Users size={40} />
-                    <h2>Meet your first explorer.</h2>
+                    <h3>Add a profile to get started</h3>
                     <p>
-                      Add a nickname, pick an avatar, and choose a starting
-                      skill.
+                      Pick a nickname, avatar and age range. Your child plays
+                      through your account and doesn’t need an email or
+                      password.
                     </p>
                     <button
                       className="button primary"
                       onClick={() => setEditor(true)}
                     >
-                      <Plus size={18} />
-                      Add explorer
+                      <Plus size={18} aria-hidden="true" />
+                      Add child profile
                     </button>
                   </div>
                 )}
               </div>
-              {chosen && (
-                <>
+              {selectedChild && (
+                <section
+                  id="child-progress"
+                  aria-labelledby="child-progress-title"
+                >
                   <div className="section-heading">
                     <div>
-                      <h2>
-                        {children.find((c) => c.id === chosen)?.nickname}’s
-                        little victories
+                      <h2
+                        id="child-progress-title"
+                        ref={reportHeading}
+                        tabIndex={-1}
+                      >
+                        {selectedChild.nickname}’s progress
                       </h2>
                       <p>
-                        Practice is progress. These numbers show completed
-                        adventures.
+                        This report shows finished quizzes. Saved answers in an
+                        unfinished quiz are ready when your child returns.
                       </p>
                     </div>
                   </div>
@@ -494,14 +528,14 @@ export function ParentPanel({
                     <div>
                       <span>
                         <FlagIcon />
-                        Adventures completed
+                        Quizzes completed
                       </span>
                       <strong>{progress?.completed ?? "—"}</strong>
                     </div>
                     <div>
                       <span>
                         <Star size={18} />
-                        First-answer accuracy
+                        Correct on first try
                       </span>
                       <strong>
                         {progress?.completed ? progress.accuracy + "%" : "—"}
@@ -517,7 +551,7 @@ export function ParentPanel({
                   </div>
                   <div className="report-grid">
                     <section className="report-card">
-                      <h3>Growing skills</h3>
+                      <h3>Skills practised</h3>
                       {progress?.skills.length ? (
                         progress.skills.map((s) => (
                           <div className="skill-report" key={s.id}>
@@ -540,12 +574,12 @@ export function ParentPanel({
                         ))
                       ) : (
                         <p className="muted">
-                          Complete an adventure to see learning progress here.
+                          Skills will appear after the first completed quiz.
                         </p>
                       )}
                     </section>
                     <section className="report-card">
-                      <h3>Recent discoveries</h3>
+                      <h3>Recent quizzes</h3>
                       {progress?.recent.length ? (
                         progress.recent.map((a) => (
                           <div className="skill-report" key={a.id}>
@@ -565,12 +599,12 @@ export function ParentPanel({
                         ))
                       ) : (
                         <p className="muted">
-                          Your explorer’s first discovery is waiting.
+                          Finished quizzes and scores will appear here.
                         </p>
                       )}
                     </section>
                   </div>
-                </>
+                </section>
               )}
             </>
           )}
@@ -776,7 +810,7 @@ function ProfileEditor({
     [error, setError] = useState("");
   return (
     <Dialog
-      title={child ? "A little explorer update." : "Meet your little explorer."}
+      title={child ? "Edit child profile" : "Add child profile"}
       onClose={onClose}
     >
       <form
@@ -809,11 +843,11 @@ function ProfileEditor({
             maxLength={40}
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
-            placeholder="What should we call your explorer?"
+            placeholder="What should we call your child?"
           />
         </label>
         <fieldset className="avatar-fieldset">
-          <legend>Choose a friend</legend>
+          <legend>Choose an avatar</legend>
           <div className="avatar-grid compact">
             {Object.entries({
               fox: "🦊",
@@ -837,7 +871,7 @@ function ProfileEditor({
           </div>
         </fieldset>
         <label>
-          Age band
+          Age range
           <select value={age} onChange={(e) => setAge(e.target.value)}>
             <option value="7-8">7–8 years</option>
             <option value="9-10">9–10 years</option>
@@ -845,7 +879,7 @@ function ProfileEditor({
         </label>
         {catalog.map((s) => (
           <label key={s.id}>
-            {s.name}: start exploring from
+            Starting skill for {s.name}
             <select
               value={starts[s.id] || ""}
               onChange={(e) =>
@@ -869,7 +903,7 @@ function ProfileEditor({
           </p>
         )}
         <button className="button primary" disabled={busy}>
-          {busy ? "Saving…" : child ? "Save explorer" : "Add explorer"}
+          {busy ? "Saving…" : child ? "Save changes" : "Add child profile"}
           <ArrowRight size={18} />
         </button>
       </form>

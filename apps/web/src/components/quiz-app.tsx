@@ -120,6 +120,7 @@ export default function QuizApp() {
     child = session?.child,
     nickname = child?.nickname || "explorer";
   const feedback = attempt?.feedback;
+  const adultMode = session?.mode === "adult";
   const resumeAttempt = attempt?.status === "active" ? attempt : null;
   const activeSubjectName = resumeAttempt
     ? (catalog.find((s) => s.slug === resumeAttempt.subject_slug)?.name ??
@@ -622,8 +623,8 @@ export default function QuizApp() {
           onClick={parent}
         >
           <ShieldCheck size={21} />
-          Parent corner
-          <LockKeyhole size={14} className="nav-lock" />
+          Parent dashboard
+          {!adultMode && <LockKeyhole size={14} className="nav-lock" />}
         </button>
         <div className="sidebar-bottom">
           <div className="fox-note">
@@ -665,21 +666,29 @@ export default function QuizApp() {
             <span>A little curiosity goes a long way.</span>
           </div>
           <div className="topbar-right">
-            <div
-              className="star-counter"
-              aria-label={`${progress.completed} completed adventures`}
-            >
-              <Flag size={18} aria-hidden="true" />
-              <strong>{progress.completed}</strong>
-              <span>finished</span>
-            </div>
+            {!adultMode && (
+              <div
+                className="star-counter"
+                aria-label={`${progress.completed} completed adventures`}
+              >
+                <Flag size={18} aria-hidden="true" />
+                <strong>{progress.completed}</strong>
+                <span>finished</span>
+              </div>
+            )}
             <button
               className="profile-button"
-              aria-label={`Choose explorer. Current: ${child?.nickname || "Explorer"}`}
+              aria-label={
+                adultMode
+                  ? "Choose a child profile"
+                  : `Choose explorer. Current: ${child?.nickname || "Explorer"}`
+              }
               onClick={() => navigate("picker")}
             >
-              <span className="avatar">{avatar}</span>
-              <span>{child?.nickname || "Explorer"}</span>
+              <span className="avatar">{adultMode ? "👤" : avatar}</span>
+              <span>
+                {adultMode ? "Choose child" : child?.nickname || "Explorer"}
+              </span>
               <ChevronDown size={15} />
             </button>
           </div>
@@ -1313,12 +1322,14 @@ export default function QuizApp() {
       )}
       {picker && (
         <Dialog
-          title={session ? "Who’s ready to explore?" : "Make yourself at home"}
+          title={session ? "Choose a child profile" : "Make yourself at home"}
           onClose={() => setPicker(false)}
         >
           <p className="dialog-description">
             {session
-              ? "Choose your explorer to begin a little adventure."
+              ? session.children.length
+                ? "Choose your name to open your quizzes and saved progress."
+                : "Add a child profile from the parent dashboard first."
               : "Choose a friend for your demo adventure."}
           </p>
           <div className="avatar-grid">
@@ -1349,7 +1360,6 @@ export default function QuizApp() {
           </div>
           {session && !session.children.length && (
             <>
-              <p>Add your first explorer in the parent corner.</p>
               <button
                 className="button primary"
                 onClick={() => {
@@ -1357,7 +1367,7 @@ export default function QuizApp() {
                   parent();
                 }}
               >
-                Open parent corner
+                Open parent dashboard
               </button>
             </>
           )}

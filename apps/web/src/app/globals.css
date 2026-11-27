@@ -1566,10 +1566,21 @@ h1 {
 }
 .children-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
+.parent-dashboard-heading,
+.child-profiles-heading {
+  flex-wrap: wrap;
+}
+.parent-dashboard-heading > div,
+.child-profiles-heading > div {
+  flex: 1 1 19rem;
+}
 .child-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   padding: 20px;
   border: 1px solid #e9dff0;
   border-radius: 17px;
@@ -1580,27 +1591,45 @@ h1 {
   border-color: #c8afdf;
   background: #fbf7ff;
 }
-.child-select {
+.child-identity {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
-  width: 100%;
   padding-bottom: 18px;
+  overflow-wrap: anywhere;
 }
-.child-select > span {
+.child-identity > span {
   font-size: 3rem;
 }
-.child-select strong {
+.child-identity h3 {
   font-size: 1.5rem;
+  font-weight: 800;
+  max-width: 100%;
   margin-top: 8px;
 }
-.child-select small {
-  color: #b2a0bc;
+.child-identity small {
+  color: var(--muted);
   font-size: var(--text-small);
   margin-top: 3px;
 }
 .child-card > .button {
   width: 100%;
+}
+.child-card > .child-progress-button {
+  margin-top: 10px;
+}
+.child-progress-button[aria-pressed="true"] {
+  background: #efe5f8;
+  border-color: #d8c4ea;
+}
+.children-grid .empty-state h3 {
+  font-size: 1.1875rem;
+  font-weight: 800;
+}
+#child-progress-title {
+  scroll-margin-top: 100px;
+  overflow-wrap: anywhere;
 }
 .child-actions {
   display: flex;
@@ -1614,7 +1643,7 @@ h1 {
   gap: 5px;
   font-size: var(--text-small);
   color: #ae99ba;
-  min-height: 35px;
+  min-height: 48px;
 }
 .avatar-fieldset,
 .choice-fieldset {
@@ -2302,7 +2331,7 @@ h1 {
     max-width: 70vw;
   }
   .children-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .stats-grid {
     gap: 10px;
@@ -2856,7 +2885,6 @@ h3 {
 .question-encouragement,
 .quiz-fox-note,
 .explore-card p,
-.child-select small,
 .child-actions > button,
 .skill-report div > span,
 .catalog-list button,
