@@ -4060,3 +4060,121 @@ textarea::placeholder {
     transition: none;
   }
 }
+
+.family-signup-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 20px;
+  margin-block: 16px;
+  padding: 10px 16px;
+  border: 1px solid #e8deef;
+  border-radius: 12px;
+  background: #fffdfb;
+  color: var(--muted);
+}
+.family-signup-prompt .text-button {
+  min-height: 48px;
+  text-align: left;
+  color: #705197;
+}
+.family-signup-prompt svg,
+.proposal-actions svg {
+  flex: none;
+}
+.account-setup-form {
+  margin-block: 16px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.account-setup-form h3 {
+  font-weight: 900;
+  font-size: 1.25rem;
+}
+.account-setup-form .button {
+  min-height: 48px;
+  padding-block: 10px;
+  white-space: normal;
+}
+.account-setup-error {
+  margin-top: 16px;
+}
+.studio-toolbar.moderator-toolbar {
+  grid-template-columns: minmax(0, 15rem);
+}
+.studio-tabs {
+  margin-bottom: 16px;
+}
+.studio-tabs button {
+  min-height: 48px;
+}
+.proposal-list {
+  background: #fff;
+  border: 1px solid #ece2f3;
+  border-radius: 15px;
+  padding: 16px;
+}
+.proposal-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding-block: 12px;
+}
+.proposal-row + .proposal-row {
+  border-top: 1px solid #f2ebf5;
+}
+.proposal-row .question-copy {
+  flex: 1 1 min(100%, 16rem);
+}
+.proposal-note {
+  margin-top: 8px;
+  color: var(--muted);
+}
+.proposal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+.proposal-actions .button {
+  padding-inline: 13px;
+  white-space: normal;
+}
+.status-tag.in_review {
+  background: #f0e8fc;
+  color: #65448e;
+}
+.status-tag.changes_requested {
+  background: #fbeee6;
+  color: #81522e;
+}
+.proposal-comparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 12px;
+  margin-block: 20px;
+}
+.review-question {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #e3d9eb;
+  border-radius: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.review-question h3 {
+  font-weight: 900;
+}
+.review-question ul {
+  padding-inline-start: 22px;
+  list-style: disc;
+}
+.review-question img,
+.review-question audio {
+  max-width: 100%;
+}

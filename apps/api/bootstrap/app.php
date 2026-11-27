@@ -3,6 +3,7 @@
 use App\Http\Middleware\AdminOnly;
 use App\Http\Middleware\AdultMode;
 use App\Http\Middleware\ApiHeaders;
+use App\Http\Middleware\ContentStudioAccess;
 use App\Http\Middleware\LearnerMode;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(web: __DIR__.'/../routes/web.php', commands: __DIR__.'/../routes/console.php', health: '/up')
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias(['adult' => AdultMode::class, 'learner' => LearnerMode::class, 'admin' => AdminOnly::class]);
+        $middleware->alias(['adult' => AdultMode::class, 'learner' => LearnerMode::class, 'admin' => AdminOnly::class, 'studio' => ContentStudioAccess::class]);
         $middleware->trustProxies(at: '*');
         $middleware->web(prepend: [ApiHeaders::class]);
     })

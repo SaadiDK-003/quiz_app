@@ -37,7 +37,8 @@ php artisan pilot:admin your-email@example.com
 3. Check each answer and explanation, upload narration, listen to it, and select the three adult-review checks. Audio for reading activities must not reveal the word or passage being assessed. Upload optional illustrations with a description.
 4. Publish at least **five questions per skill** to make that adventure playable. Each save creates a revision; active adventures retain their original revisions.
 5. Add one profile per child, choose their starting skills, and use **Open quizzes** to hand over the device. **View progress** opens the report for that child.
-6. Use **Invite family** to send seven-day, single-use registration invitations. New parents verify their email before adding children.
+6. Families choose **Create a family account**, enter their name and email, and follow the emailed link to set their password. This also verifies the email. Guest practice stays in the current browser, and each child profile starts fresh.
+7. Use **Invite moderator** in Content Studio to invite a quiz author. An existing parent can accept with their current login. Moderators send drafts and proposed edits to the **Review queue**. An administrator reviews and publishes them.
 
 The application intentionally does not auto-approve content. Starter question accuracy, wording, images, and narration need human review before children use them in the pilot.
 

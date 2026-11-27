@@ -15,23 +15,29 @@ import {
 import type {
   AdminQuestion,
   QuestionImportResult,
+  QuestionProposal,
   Skill,
   Subject,
 } from "@little-quest/api-client";
 import { api, Dialog, type Notice } from "./quiz-app";
+import { ProposalReviewDialog, QuestionProposals } from "./question-proposals";
 interface Meta {
   subjects: Subject[];
   topics: { id: number; subject_id: number; name: string; position: number }[];
   skills: Skill[];
 }
 export function AdminPanel({
+  admin,
   notify,
   onCatalogChanged,
 }: {
+  admin: boolean;
   notify: Notice;
   onCatalogChanged: () => Promise<void>;
 }) {
   const [questions, setQuestions] = useState<AdminQuestion[]>([]),
+    [proposals, setProposals] = useState<QuestionProposal[]>([]),
+    [studioView, setStudioView] = useState<"library" | "proposals">("library"),
     [meta, setMeta] = useState<Meta | null>(null),
     [filter, setFilter] = useState("all"),
     [skill, setSkill] = useState("all"),
@@ -40,6 +46,10 @@ export function AdminPanel({
     [importing, setImporting] = useState(false),
     [importError, setImportError] = useState(""),
     [editing, setEditing] = useState<AdminQuestion | null>(null),
+    [editingProposal, setEditingProposal] = useState<QuestionProposal | null>(
+      null,
+    ),
+    [reviewing, setReviewing] = useState<QuestionProposal | null>(null),
     [preview, setPreview] = useState<AdminQuestion | null>(null),
     [metadata, setMetadata] = useState(false),
     [invite, setInvite] = useState(false),
@@ -47,12 +57,14 @@ export function AdminPanel({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   async function load() {
-    const [q, m] = await Promise.all([
-      api.get<AdminQuestion[]>("/admin/questions"),
-      api.get<Meta>("/admin/metadata"),
+    const [q, m, drafts] = await Promise.all([
+      api.get<AdminQuestion[]>("/studio/questions"),
+      api.get<Meta>("/studio/metadata"),
+      api.get<QuestionProposal[]>("/studio/proposals"),
     ]);
     setQuestions(q);
     setMeta(m);
+    setProposals(drafts);
   }
   useEffect(() => {
     load().catch((e) => notify(e.message));
@@ -87,6 +99,33 @@ export function AdminPanel({
       narration_reviewed: false,
       version: 0,
     });
+  }
+  async function saveQuestion(question: AdminQuestion) {
+    if (admin) {
+      if (question.id)
+        await api.put(`/admin/questions/${question.id}`, question);
+      else await api.post("/admin/questions", question);
+    } else if (editingProposal) {
+      await api.put(`/studio/proposals/${editingProposal.id}`, {
+        ...question,
+        version: editingProposal.version,
+      });
+    } else {
+      await api.post("/studio/proposals", {
+        ...question,
+        question_id: question.id || null,
+        question_version: question.version || null,
+      });
+    }
+    setEditing(null);
+    setEditingProposal(null);
+    if (!admin) setStudioView("proposals");
+    await load();
+    notify(
+      admin
+        ? "Question revision saved."
+        : "Draft saved. Send it for review when it’s ready.",
+    );
   }
   async function importQuestions() {
     if (importing) return;
@@ -129,118 +168,178 @@ export function AdminPanel({
               published · Adult review required
             </p>
           </div>
-          <div className="studio-toolbar">
+          <div
+            className={
+              admin ? "studio-toolbar" : "studio-toolbar moderator-toolbar"
+            }
+          >
+            {admin && (
+              <>
+                <button
+                  className="button secondary"
+                  onClick={() => {
+                    setImportError("");
+                    setImportOpen(true);
+                  }}
+                >
+                  <Download size={18} aria-hidden="true" />
+                  <span>Import bundled questions</span>
+                </button>
+                <button
+                  className="button secondary"
+                  onClick={() => setInvite(true)}
+                >
+                  <Mail size={18} aria-hidden="true" />
+                  <span>Invite moderator</span>
+                </button>
+                <button
+                  className="button secondary"
+                  onClick={() => setMetadata(true)}
+                >
+                  <BookOpen size={18} aria-hidden="true" />
+                  <span>Learning catalog</span>
+                </button>
+              </>
+            )}
             <button
-              className="button secondary"
-              onClick={() => {
-                setImportError("");
-                setImportOpen(true);
-              }}
+              className="button primary"
+              onClick={newQuestion}
+              disabled={!meta}
             >
-              <Download size={18} aria-hidden="true" />
-              <span>Import bundled questions</span>
-            </button>
-            <button
-              className="button secondary"
-              onClick={() => setInvite(true)}
-            >
-              <Mail size={18} aria-hidden="true" />
-              <span>Invite family</span>
-            </button>
-            <button
-              className="button secondary"
-              onClick={() => setMetadata(true)}
-            >
-              <BookOpen size={18} aria-hidden="true" />
-              <span>Learning catalog</span>
-            </button>
-            <button className="button primary" onClick={newQuestion}>
               <Plus size={18} aria-hidden="true" />
-              <span>New question</span>
+              <span>{admin ? "New question" : "New draft"}</span>
             </button>
           </div>
         </header>
-        <div className="admin-filters">
-          <label>
-            Status
-            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-              {["all", "draft", "published", "archived"].map((x) => (
-                <option key={x} value={x}>
-                  {x[0].toUpperCase() + x.slice(1)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Skill
-            <select value={skill} onChange={(e) => setSkill(e.target.value)}>
-              <option value="all">All skills</option>
-              {meta?.skills.map((k) => (
-                <option key={k.id} value={k.id}>
-                  {k.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Difficulty
-            <select
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-            >
-              <option value="all">All difficulties</option>
-              {["starter", "growing", "challenge"].map((level) => (
-                <option key={level} value={level}>
-                  {level[0].toUpperCase() + level.slice(1)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <p className="studio-count muted" aria-live="polite">
-          Showing {shown.length} of {questions.length} questions
-        </p>
         <div
-          className="question-list"
-          role="region"
-          aria-label="Questions"
-          tabIndex={0}
+          className="filter-tabs studio-tabs"
+          aria-label="Content Studio views"
+          role="group"
         >
-          {shown.map((q) => (
-            <div className="question-row" key={q.id}>
-              <div className="question-copy">
-                <strong>{q.prompt}</strong>
-                <small>
-                  {q.skill_name} ·{" "}
-                  {q.difficulty[0].toUpperCase() + q.difficulty.slice(1)} ·
-                  Revision {q.version}
-                </small>
-              </div>
-              <span className={`status-tag ${q.status}`}>{q.status}</span>
-              <div className="question-actions">
-                <button
-                  className="studio-row-action"
-                  aria-label={`Preview ${q.prompt}`}
-                  onClick={() => setPreview(q)}
-                >
-                  <Eye size={18} aria-hidden="true" />
-                  <span>Preview</span>
-                </button>
-                <button
-                  className="studio-row-action"
-                  aria-label={`Edit ${q.prompt}`}
-                  onClick={() => setEditing(q)}
-                >
-                  <Pencil size={18} aria-hidden="true" />
-                  <span>Edit</span>
-                </button>
-              </div>
-            </div>
-          ))}
-          {!shown.length && (
-            <p className="muted">No questions match these filters.</p>
-          )}
+          <button
+            className={studioView === "library" ? "selected" : ""}
+            aria-pressed={studioView === "library"}
+            onClick={() => setStudioView("library")}
+          >
+            Quiz library
+          </button>
+          <button
+            className={studioView === "proposals" ? "selected" : ""}
+            aria-pressed={studioView === "proposals"}
+            onClick={() => setStudioView("proposals")}
+          >
+            {admin ? "Review queue" : "My drafts"}
+          </button>
         </div>
+        {studioView === "proposals" ? (
+          <QuestionProposals
+            proposals={proposals}
+            admin={admin}
+            onPreview={(proposal) => setPreview(proposal.question)}
+            onEdit={(proposal) => {
+              setEditingProposal(proposal);
+              setEditing(proposal.question);
+            }}
+            onReview={setReviewing}
+            onSubmit={async (proposal) => {
+              await api.post(`/studio/proposals/${proposal.id}/submit`, {
+                version: proposal.version,
+              });
+              await load();
+              notify("Draft sent for admin review.");
+            }}
+          />
+        ) : (
+          <>
+            <div className="admin-filters">
+              <label>
+                Status
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                >
+                  {["all", "draft", "published", "archived"].map((x) => (
+                    <option key={x} value={x}>
+                      {x[0].toUpperCase() + x.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Skill
+                <select
+                  value={skill}
+                  onChange={(e) => setSkill(e.target.value)}
+                >
+                  <option value="all">All skills</option>
+                  {meta?.skills.map((k) => (
+                    <option key={k.id} value={k.id}>
+                      {k.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Difficulty
+                <select
+                  value={difficulty}
+                  onChange={(e) => setDifficulty(e.target.value)}
+                >
+                  <option value="all">All difficulties</option>
+                  {["starter", "growing", "challenge"].map((level) => (
+                    <option key={level} value={level}>
+                      {level[0].toUpperCase() + level.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <p className="studio-count muted" aria-live="polite">
+              Showing {shown.length} of {questions.length} questions
+            </p>
+            <div
+              className="question-list"
+              role="region"
+              aria-label="Questions"
+              tabIndex={0}
+            >
+              {shown.map((q) => (
+                <div className="question-row" key={q.id}>
+                  <div className="question-copy">
+                    <strong>{q.prompt}</strong>
+                    <small>
+                      {q.skill_name} ·{" "}
+                      {q.difficulty[0].toUpperCase() + q.difficulty.slice(1)} ·
+                      Revision {q.version}
+                    </small>
+                  </div>
+                  <span className={`status-tag ${q.status}`}>{q.status}</span>
+                  <div className="question-actions">
+                    <button
+                      className="studio-row-action"
+                      aria-label={`Preview ${q.prompt}`}
+                      onClick={() => setPreview(q)}
+                    >
+                      <Eye size={18} aria-hidden="true" />
+                      <span>Preview</span>
+                    </button>
+                    <button
+                      className="studio-row-action"
+                      aria-label={`${admin ? "Edit" : "Propose edit to"} ${q.prompt}`}
+                      onClick={() => setEditing(q)}
+                    >
+                      <Pencil size={18} aria-hidden="true" />
+                      <span>{admin ? "Edit" : "Propose edit"}</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {!shown.length && (
+                <p className="muted">No questions match these filters.</p>
+              )}
+            </div>
+          </>
+        )}
       </section>
       {importOpen && (
         <Dialog
@@ -284,11 +383,32 @@ export function AdminPanel({
         <QuestionEditor
           question={editing}
           skills={meta.skills}
-          onClose={() => setEditing(null)}
-          onSaved={async () => {
-            await load();
+          draft={!admin}
+          onClose={() => {
             setEditing(null);
-            notify("Question revision saved.");
+            setEditingProposal(null);
+          }}
+          onSave={saveQuestion}
+        />
+      )}
+      {reviewing && admin && (
+        <ProposalReviewDialog
+          proposal={reviewing}
+          current={questions.find((q) => q.id === reviewing.question_id)}
+          onClose={() => setReviewing(null)}
+          onRefresh={async () => {
+            await load();
+            setReviewing(null);
+          }}
+          onReviewed={async (published) => {
+            setReviewing(null);
+            await load();
+            if (published) await onCatalogChanged();
+            notify(
+              published
+                ? "The reviewed question is live."
+                : "Draft returned to the moderator.",
+            );
           }}
         />
       )}
@@ -353,13 +473,10 @@ export function AdminPanel({
         />
       )}
       {invite && (
-        <Dialog
-          title="Invite a little explorer’s family."
-          onClose={() => setInvite(false)}
-        >
+        <Dialog title="Invite a moderator" onClose={() => setInvite(false)}>
           <p className="dialog-description">
-            We’ll email a private registration link to their parent. Invitations
-            expire after seven days.
+            We’ll email an invitation to help with quiz drafts. Moderators can
+            use an existing parent login. The link expires after seven days.
           </p>
           <form
             className="form-stack"
@@ -369,7 +486,7 @@ export function AdminPanel({
               setError("");
               try {
                 const r = await api.post<{ message: string }>(
-                  "/admin/invitations",
+                  "/admin/moderator-invitations",
                   { email },
                 );
                 notify(r.message);
@@ -383,7 +500,7 @@ export function AdminPanel({
             }}
           >
             <label>
-              Parent email
+              Moderator email address
               <input
                 type="email"
                 required
@@ -397,7 +514,7 @@ export function AdminPanel({
               </p>
             )}
             <button className="button primary" disabled={busy}>
-              {busy ? "Sending…" : "Send family invitation"}
+              {busy ? "Sending…" : "Send moderator invitation"}
               <ArrowRight size={18} />
             </button>
           </form>
@@ -409,13 +526,15 @@ export function AdminPanel({
 function QuestionEditor({
   question,
   skills,
+  draft,
   onClose,
-  onSaved,
+  onSave,
 }: {
   question: AdminQuestion;
   skills: Skill[];
+  draft: boolean;
   onClose: () => void;
-  onSaved: () => Promise<void>;
+  onSave: (question: AdminQuestion) => Promise<void>;
 }) {
   const [q, setQ] = useState(question),
     [busy, setBusy] = useState(false),
@@ -436,7 +555,7 @@ function QuestionEditor({
       const form = new FormData();
       form.append("file", file);
       const r = await api.upload<{ path: string; url: string }>(
-        "/admin/media",
+        "/studio/media",
         form,
       );
       if (choice !== undefined)
@@ -458,9 +577,11 @@ function QuestionEditor({
   return (
     <Dialog
       title={
-        question.id
-          ? "Review this little question."
-          : "Create a little question."
+        draft
+          ? "Prepare a quiz draft"
+          : question.id
+            ? "Review this little question."
+            : "Create a little question."
       }
       onClose={onClose}
       wide
@@ -472,9 +593,7 @@ function QuestionEditor({
           setBusy(true);
           setError("");
           try {
-            if (q.id) await api.put(`/admin/questions/${q.id}`, q);
-            else await api.post("/admin/questions", q);
-            await onSaved();
+            await onSave(q);
           } catch (e) {
             setError((e as Error).message);
           } finally {
@@ -662,50 +781,54 @@ function QuestionEditor({
             />
           </label>
         )}
-        <fieldset className="review-checks">
-          <legend>Adult review</legend>
-          {(
-            [
-              [
-                "answers_reviewed",
-                "I checked the question, all choices, and correct answer.",
-              ],
-              [
-                "explanation_reviewed",
-                "I checked the explanation for accuracy and child-friendly wording.",
-              ],
-              [
-                "narration_reviewed",
-                "I listened to the audio and checked it matches the content without revealing the answer.",
-              ],
-            ] as const
-          ).map(([key, text]) => (
-            <label key={key}>
-              <input
-                type="checkbox"
-                checked={q[key]}
-                onChange={(e) => patch({ [key]: e.target.checked })}
-              />
-              {text}
+        {!draft && (
+          <>
+            <fieldset className="review-checks">
+              <legend>Adult review</legend>
+              {(
+                [
+                  [
+                    "answers_reviewed",
+                    "I checked the question, all choices, and correct answer.",
+                  ],
+                  [
+                    "explanation_reviewed",
+                    "I checked the explanation for accuracy and child-friendly wording.",
+                  ],
+                  [
+                    "narration_reviewed",
+                    "I listened to the audio and checked it matches the content without revealing the answer.",
+                  ],
+                ] as const
+              ).map(([key, text]) => (
+                <label key={key}>
+                  <input
+                    type="checkbox"
+                    checked={q[key]}
+                    onChange={(e) => patch({ [key]: e.target.checked })}
+                  />
+                  {text}
+                </label>
+              ))}
+            </fieldset>
+            <label>
+              Publication status
+              <select
+                value={q.status}
+                onChange={(e) => patch({ status: e.target.value })}
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
+              </select>
             </label>
-          ))}
-        </fieldset>
-        <label>
-          Publication status
-          <select
-            value={q.status}
-            onChange={(e) => patch({ status: e.target.value })}
-          >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-            <option value="archived">Archived</option>
-          </select>
-        </label>
-        <small>
-          Publishing requires all review checks and uploaded narration. Saving
-          creates a new revision; existing adventures keep their original
-          questions.
-        </small>
+            <small>
+              Publishing requires all review checks and uploaded narration.
+              Saving creates a new revision; existing adventures keep their
+              original questions.
+            </small>
+          </>
+        )}
         {error && (
           <p role="alert" className="form-error">
             {error}
@@ -717,7 +840,9 @@ function QuestionEditor({
             ? "Uploading…"
             : busy
               ? "Saving…"
-              : "Save question revision"}
+              : draft
+                ? "Save draft"
+                : "Save question revision"}
         </button>
       </form>
     </Dialog>

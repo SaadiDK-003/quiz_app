@@ -47,6 +47,7 @@ import {
 } from "@/lib/demo-state";
 import { Fox, MathWorld, EnglishWorld, DiscoveryWorld } from "./illustrations";
 import { AuthDialog, ParentPanel } from "./parent-panel";
+import { AccountSetupDialog } from "./account-setup-dialog";
 import { ExplorerBadgeMark, ExplorerRankCard } from "./explorer-rank-card";
 import { ExplorerRewards } from "./explorer-rewards";
 import {
@@ -98,6 +99,7 @@ export default function QuizApp() {
     invite: "",
     email: "",
     token: "",
+    setup: "",
   });
   const audioRef = useRef<HTMLAudioElement | null>(null),
     noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -170,13 +172,25 @@ export default function QuizApp() {
   }, []);
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const setup =
+      new URLSearchParams(location.hash.slice(1)).get("setup") || "";
     setAuthParams({
       invite: params.get("invite") || "",
       email: params.get("email") || "",
       token: params.get("reset_token") || "",
+      setup,
     });
     if (params.has("invite")) setAuth("register");
     if (params.has("reset_token")) setAuth("reset");
+    if (setup) setAuth("setup");
+    const openSetupLink = () => {
+      const token = new URLSearchParams(location.hash.slice(1)).get("setup");
+      if (token) {
+        setAuthParams((previous) => ({ ...previous, setup: token }));
+        setAuth("setup");
+      }
+    };
+    window.addEventListener("hashchange", openSetupLink);
     try {
       setDemoState(
         restoreDemo(localStorage.getItem("little-quest-demo"), emptyProgress),
@@ -211,6 +225,7 @@ export default function QuizApp() {
     window.addEventListener("online", up);
     window.addEventListener("offline", down);
     return () => {
+      window.removeEventListener("hashchange", openSetupLink);
       window.removeEventListener("online", up);
       window.removeEventListener("offline", down);
       audioRef.current?.pause();
@@ -369,6 +384,13 @@ export default function QuizApp() {
     } catch (e) {
       handleError(e);
     }
+  };
+  const signedOut = () => {
+    setSession(null);
+    setCatalog(demoCatalog);
+    setLiveProgress(emptyProgress);
+    setLiveAttempt(null);
+    goTo("home");
   };
   const enterChild = async (c: Child) => {
     try {
@@ -776,6 +798,24 @@ export default function QuizApp() {
                   </span>
                 </div>
               </section>
+              {demo && (
+                <aside
+                  className="family-signup-prompt"
+                  aria-label="Family accounts"
+                >
+                  <p>
+                    Save a separate quiz history for each child with a family
+                    account.
+                  </p>
+                  <button
+                    className="text-button"
+                    onClick={() => setAuth("signup")}
+                  >
+                    Create a family account{" "}
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </button>
+                </aside>
+              )}
               <ExplorerRankCard
                 rank={progress.explorer_rank}
                 onViewRewards={() => navigate("rewards")}
@@ -1217,13 +1257,7 @@ export default function QuizApp() {
               session={session}
               catalog={catalog}
               onSession={entered}
-              onLogout={() => {
-                setSession(null);
-                setCatalog(demoCatalog);
-                setLiveProgress(emptyProgress);
-                setLiveAttempt(null);
-                navigate("home");
-              }}
+              onLogout={signedOut}
               notify={notify}
             />
           )}
@@ -1310,13 +1344,48 @@ export default function QuizApp() {
           </div>
         </Dialog>
       )}
-      {auth && (
+      {(auth === "signup" || auth === "setup") && (
+        <AccountSetupDialog
+          key={auth === "setup" ? authParams.setup : auth}
+          token={auth === "setup" ? authParams.setup : null}
+          session={session}
+          onClose={() => setAuth(null)}
+          onSignIn={(email) => {
+            if (email) setAuthParams((previous) => ({ ...previous, email }));
+            setAuth(email ? "setup-login" : "login");
+          }}
+          onSignedOut={signedOut}
+          onComplete={async (account, moderator) => {
+            if (location.hash.startsWith("#setup="))
+              history.replaceState(
+                history.state,
+                "",
+                location.pathname + location.search,
+              );
+            setAuthParams((previous) => ({
+              ...previous,
+              setup: "",
+              email: "",
+            }));
+            await entered(account);
+            notify(
+              moderator
+                ? "Invitation accepted. Open Content Studio from your Parent dashboard."
+                : "Your family account is ready. Add your first child profile to get started.",
+            );
+          }}
+        />
+      )}
+      {auth && auth !== "signup" && auth !== "setup" && (
         <AuthDialog
-          mode={auth}
+          mode={auth === "setup-login" ? "login" : auth}
           params={authParams}
           onClose={() => setAuth(null)}
           onMode={setAuth}
-          onSession={entered}
+          onSession={async (s) => {
+            await entered(s);
+            if (auth === "setup-login") setAuth("setup");
+          }}
           notify={notify}
         />
       )}
@@ -1372,15 +1441,24 @@ export default function QuizApp() {
             </>
           )}
           {!session && (
-            <button
-              className="text-button dialog-signin"
-              onClick={() => {
-                setPicker(false);
-                parent();
-              }}
-            >
-              Have an invitation? Sign in or join <ArrowRight size={16} />
-            </button>
+            <div className="auth-links">
+              <button
+                onClick={() => {
+                  setPicker(false);
+                  parent();
+                }}
+              >
+                Parent sign in
+              </button>
+              <button
+                onClick={() => {
+                  setPicker(false);
+                  setAuth("signup");
+                }}
+              >
+                Create a family account
+              </button>
+            </div>
           )}
         </Dialog>
       )}

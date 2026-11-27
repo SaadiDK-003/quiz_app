@@ -119,7 +119,7 @@ export function AuthDialog({
         {mode === "reauth"
           ? "Enter your parent password to open settings and family progress."
           : mode === "register"
-            ? "Little Quest is an invitation-only family pilot. Let’s create your parent account."
+            ? "Finish creating the parent account from your invitation."
             : "A quiet corner to look after your little explorers."}
       </p>
       <form onSubmit={submit} className="form-stack">
@@ -215,8 +215,9 @@ export function AuthDialog({
       {mode === "login" && (
         <div className="auth-links">
           <button onClick={() => onMode("forgot")}>Forgot password?</button>
-          <button onClick={() => onMode("register")}>
-            I have an invitation <ChevronRight size={14} />
+          <button onClick={() => onMode("signup")}>
+            Create a family account{" "}
+            <ChevronRight size={14} aria-hidden="true" />
           </button>
         </div>
       )}
@@ -261,6 +262,8 @@ export function ParentPanel({
   const openingRef = useRef<number | null>(null);
   const reportHeading = useRef<HTMLHeadingElement>(null);
   const selectedChild = children.find((c) => c.id === chosen);
+  const admin = session.user.role === "admin";
+  const canUseStudio = admin || session.user.can_moderate;
   const progress = report?.childId === chosen ? report.data : null;
   useEffect(() => {
     setChildren(session.children);
@@ -365,7 +368,7 @@ export function ParentPanel({
               <Users size={16} />
               My family
             </button>
-            {session.user.role === "admin" && (
+            {canUseStudio && (
               <button
                 className={tab === "admin" ? "selected" : ""}
                 onClick={() => setTab("admin")}
@@ -608,8 +611,9 @@ export function ParentPanel({
               )}
             </>
           )}
-          {tab === "admin" && session.user.role === "admin" && (
+          {tab === "admin" && canUseStudio && (
             <AdminPanel
+              admin={admin}
               notify={notify}
               onCatalogChanged={async () => {
                 await onSession(await api.get<Session>("/session"));
