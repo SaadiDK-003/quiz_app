@@ -1,0 +1,770 @@
+[
+  {
+    "seed_key": "preschool-match-shapes-1",
+    "skill": "match-shapes",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same shape",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/circle-clue.png",
+    "image_alt": "A circle",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Circle",
+        "image_url": "/storage/media/preschool-v1/circle-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Triangle",
+        "image_url": "/storage/media/preschool-v1/triangle-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Star",
+        "image_url": "/storage/media/preschool-v1/star-answer.png"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "That is the same circle.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-shapes-2",
+    "skill": "match-shapes",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same shape",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/square-clue.png",
+    "image_alt": "A square",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Diamond",
+        "image_url": "/storage/media/preschool-v1/diamond-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Heart",
+        "image_url": "/storage/media/preschool-v1/heart-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Square",
+        "image_url": "/storage/media/preschool-v1/square-answer.png"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "That is the same square.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-shapes-3",
+    "skill": "match-shapes",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same shape",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/triangle-clue.png",
+    "image_alt": "A triangle",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Circle",
+        "image_url": "/storage/media/preschool-v1/circle-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Triangle",
+        "image_url": "/storage/media/preschool-v1/triangle-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Star",
+        "image_url": "/storage/media/preschool-v1/star-answer.png"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "That is the same triangle.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-shapes-4",
+    "skill": "match-shapes",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same shape",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/diamond-clue.png",
+    "image_alt": "A diamond",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Diamond",
+        "image_url": "/storage/media/preschool-v1/diamond-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Heart",
+        "image_url": "/storage/media/preschool-v1/heart-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Square",
+        "image_url": "/storage/media/preschool-v1/square-answer.png"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "That is the same diamond.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-shapes-5",
+    "skill": "match-shapes",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same shape",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/star-clue.png",
+    "image_alt": "A star",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Circle",
+        "image_url": "/storage/media/preschool-v1/circle-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Triangle",
+        "image_url": "/storage/media/preschool-v1/triangle-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Star",
+        "image_url": "/storage/media/preschool-v1/star-answer.png"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "That is the same star.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-shapes-6",
+    "skill": "match-shapes",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same shape",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/heart-clue.png",
+    "image_alt": "A heart",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Diamond",
+        "image_url": "/storage/media/preschool-v1/diamond-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Heart",
+        "image_url": "/storage/media/preschool-v1/heart-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Square",
+        "image_url": "/storage/media/preschool-v1/square-answer.png"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "That is the same heart.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-objects-1",
+    "skill": "match-objects",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same thing",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/ball-clue.png",
+    "image_alt": "A ball",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Ball",
+        "image_url": "/storage/media/preschool-v1/ball-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Book",
+        "image_url": "/storage/media/preschool-v1/book-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Kite",
+        "image_url": "/storage/media/preschool-v1/kite-answer.png"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "That is the same ball.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-objects-2",
+    "skill": "match-objects",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same thing",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/cup-clue.png",
+    "image_alt": "A cup",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Umbrella",
+        "image_url": "/storage/media/preschool-v1/umbrella-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Apple",
+        "image_url": "/storage/media/preschool-v1/apple-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Cup",
+        "image_url": "/storage/media/preschool-v1/cup-answer.png"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "That is the same cup.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-objects-3",
+    "skill": "match-objects",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same thing",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/book-clue.png",
+    "image_alt": "A book",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Ball",
+        "image_url": "/storage/media/preschool-v1/ball-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Book",
+        "image_url": "/storage/media/preschool-v1/book-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Kite",
+        "image_url": "/storage/media/preschool-v1/kite-answer.png"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "That is the same book.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-objects-4",
+    "skill": "match-objects",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same thing",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/umbrella-clue.png",
+    "image_alt": "An umbrella",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Umbrella",
+        "image_url": "/storage/media/preschool-v1/umbrella-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Apple",
+        "image_url": "/storage/media/preschool-v1/apple-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Cup",
+        "image_url": "/storage/media/preschool-v1/cup-answer.png"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "That is the same umbrella.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-objects-5",
+    "skill": "match-objects",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same thing",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/kite-clue.png",
+    "image_alt": "A kite",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Ball",
+        "image_url": "/storage/media/preschool-v1/ball-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Book",
+        "image_url": "/storage/media/preschool-v1/book-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Kite",
+        "image_url": "/storage/media/preschool-v1/kite-answer.png"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "That is the same kite.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-objects-6",
+    "skill": "match-objects",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same thing",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/apple-clue.png",
+    "image_alt": "An apple",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Umbrella",
+        "image_url": "/storage/media/preschool-v1/umbrella-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Apple",
+        "image_url": "/storage/media/preschool-v1/apple-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Cup",
+        "image_url": "/storage/media/preschool-v1/cup-answer.png"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "That is the same apple.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-animals-1",
+    "skill": "match-animals",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same animal",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/cat-clue.png",
+    "image_alt": "A cat",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Cat",
+        "image_url": "/storage/media/preschool-v1/cat-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Rabbit",
+        "image_url": "/storage/media/preschool-v1/rabbit-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Bird",
+        "image_url": "/storage/media/preschool-v1/bird-answer.png"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "That is the same cat.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-animals-2",
+    "skill": "match-animals",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same animal",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/dog-clue.png",
+    "image_alt": "A dog",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Fish",
+        "image_url": "/storage/media/preschool-v1/fish-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Turtle",
+        "image_url": "/storage/media/preschool-v1/turtle-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Dog",
+        "image_url": "/storage/media/preschool-v1/dog-answer.png"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "That is the same dog.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-animals-3",
+    "skill": "match-animals",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same animal",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/rabbit-clue.png",
+    "image_alt": "A rabbit",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Cat",
+        "image_url": "/storage/media/preschool-v1/cat-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Rabbit",
+        "image_url": "/storage/media/preschool-v1/rabbit-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Bird",
+        "image_url": "/storage/media/preschool-v1/bird-answer.png"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "That is the same rabbit.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-animals-4",
+    "skill": "match-animals",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same animal",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/fish-clue.png",
+    "image_alt": "A fish",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Fish",
+        "image_url": "/storage/media/preschool-v1/fish-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Turtle",
+        "image_url": "/storage/media/preschool-v1/turtle-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Dog",
+        "image_url": "/storage/media/preschool-v1/dog-answer.png"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "That is the same fish.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-animals-5",
+    "skill": "match-animals",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same animal",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/bird-clue.png",
+    "image_alt": "A bird",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Cat",
+        "image_url": "/storage/media/preschool-v1/cat-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Rabbit",
+        "image_url": "/storage/media/preschool-v1/rabbit-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Bird",
+        "image_url": "/storage/media/preschool-v1/bird-answer.png"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "That is the same bird.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-animals-6",
+    "skill": "match-animals",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the same animal",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/turtle-clue.png",
+    "image_alt": "A turtle",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Fish",
+        "image_url": "/storage/media/preschool-v1/fish-answer.png"
+      },
+      {
+        "id": "b",
+        "text": "Turtle",
+        "image_url": "/storage/media/preschool-v1/turtle-answer.png"
+      },
+      {
+        "id": "c",
+        "text": "Dog",
+        "image_url": "/storage/media/preschool-v1/dog-answer.png"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "That is the same turtle.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-small-groups-1",
+    "skill": "match-small-groups",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the group with the same number",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/dots-1.png",
+    "image_alt": "One dot",
+    "choices": [
+      {
+        "id": "a",
+        "text": "One sun",
+        "image_url": "/storage/media/preschool-v1/suns-1.png"
+      },
+      {
+        "id": "b",
+        "text": "Three suns",
+        "image_url": "/storage/media/preschool-v1/suns-3.png"
+      },
+      {
+        "id": "c",
+        "text": "Two suns",
+        "image_url": "/storage/media/preschool-v1/suns-2.png"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "The dots and pictures each show one.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-small-groups-2",
+    "skill": "match-small-groups",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the group with the same number",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/dots-2.png",
+    "image_alt": "Two dots",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Two suns",
+        "image_url": "/storage/media/preschool-v1/suns-2.png"
+      },
+      {
+        "id": "b",
+        "text": "Three suns",
+        "image_url": "/storage/media/preschool-v1/suns-3.png"
+      },
+      {
+        "id": "c",
+        "text": "One sun",
+        "image_url": "/storage/media/preschool-v1/suns-1.png"
+      }
+    ],
+    "correct_choice_id": "a",
+    "explanation": "The dots and pictures each show two.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-small-groups-3",
+    "skill": "match-small-groups",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the group with the same number",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/dots-3.png",
+    "image_alt": "Three dots",
+    "choices": [
+      {
+        "id": "a",
+        "text": "One sun",
+        "image_url": "/storage/media/preschool-v1/suns-1.png"
+      },
+      {
+        "id": "b",
+        "text": "Three suns",
+        "image_url": "/storage/media/preschool-v1/suns-3.png"
+      },
+      {
+        "id": "c",
+        "text": "Two suns",
+        "image_url": "/storage/media/preschool-v1/suns-2.png"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "The dots and pictures each show three.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-small-groups-4",
+    "skill": "match-small-groups",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the group with the same number",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/dots-1.png",
+    "image_alt": "One dot",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Two apples",
+        "image_url": "/storage/media/preschool-v1/apples-2.png"
+      },
+      {
+        "id": "b",
+        "text": "Three apples",
+        "image_url": "/storage/media/preschool-v1/apples-3.png"
+      },
+      {
+        "id": "c",
+        "text": "One apple",
+        "image_url": "/storage/media/preschool-v1/apples-1.png"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "The dots and pictures each show one.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-small-groups-5",
+    "skill": "match-small-groups",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the group with the same number",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/dots-2.png",
+    "image_alt": "Two dots",
+    "choices": [
+      {
+        "id": "a",
+        "text": "One apple",
+        "image_url": "/storage/media/preschool-v1/apples-1.png"
+      },
+      {
+        "id": "b",
+        "text": "Three apples",
+        "image_url": "/storage/media/preschool-v1/apples-3.png"
+      },
+      {
+        "id": "c",
+        "text": "Two apples",
+        "image_url": "/storage/media/preschool-v1/apples-2.png"
+      }
+    ],
+    "correct_choice_id": "c",
+    "explanation": "The dots and pictures each show two.",
+    "difficulty": "starter",
+    "locale": "en"
+  },
+  {
+    "seed_key": "preschool-match-small-groups-6",
+    "skill": "match-small-groups",
+    "age_bands": [
+      "3-4"
+    ],
+    "prompt": "Find the group with the same number",
+    "instruction": "Look at the picture, then tap your answer.",
+    "image_path": "media/preschool-v1/dots-3.png",
+    "image_alt": "Three dots",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Two apples",
+        "image_url": "/storage/media/preschool-v1/apples-2.png"
+      },
+      {
+        "id": "b",
+        "text": "Three apples",
+        "image_url": "/storage/media/preschool-v1/apples-3.png"
+      },
+      {
+        "id": "c",
+        "text": "One apple",
+        "image_url": "/storage/media/preschool-v1/apples-1.png"
+      }
+    ],
+    "correct_choice_id": "b",
+    "explanation": "The dots and pictures each show three.",
+    "difficulty": "starter",
+    "locale": "en"
+  }
+]

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import {
   ApiError,
+  type AgeBand,
   type VerificationEmailResponse,
   type Child,
   type Progress,
@@ -27,6 +28,7 @@ import {
 import { api, Dialog, type Notice } from "./quiz-app";
 import { AdminPanel } from "./admin-panel";
 import { ExplorerRankCard } from "./explorer-rank-card";
+import { ageRangeLabels, ageRanges } from "../lib/age-ranges";
 export function AuthDialog({
   mode,
   params,
@@ -427,7 +429,7 @@ export function ParentPanel({
                         }
                       </span>
                       <h3>{c.nickname}</h3>
-                      <small>Ages {c.age_band}</small>
+                      <small>Ages {ageRangeLabels([c.age_band])}</small>
                     </div>
                     <button
                       className="button primary explorer-entry"
@@ -801,17 +803,25 @@ function ProfileEditor({
 }) {
   const [nickname, setNickname] = useState(child?.nickname || ""),
     [avatar, setAvatar] = useState(child?.avatar || "fox"),
-    [age, setAge] = useState(child?.age_band || "7-8"),
+    [age, setAge] = useState<AgeBand>(child?.age_band ?? "7-8"),
     [starts, setStarts] = useState<Record<string, number>>(
-      child?.starting_skills ||
-        Object.fromEntries(
-          catalog
-            .filter((s) => s.skills.length)
-            .map((s) => [s.id, s.skills[0].id]),
-        ),
+      child?.starting_skills ?? {},
     ),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const ageCatalog = catalog
+    .map((subject) => ({
+      ...subject,
+      skills: subject.skills.filter((skill) => skill.age_bands?.includes(age)),
+    }))
+    .filter((subject) => subject.skills.length);
+  const startingSkills = Object.fromEntries(
+    ageCatalog.flatMap((subject) =>
+      subject.skills.some((skill) => skill.id === starts[subject.id])
+        ? [[subject.id, starts[subject.id]]]
+        : [],
+    ),
+  );
   return (
     <Dialog
       title={child ? "Edit child profile" : "Add child profile"}
@@ -828,7 +838,7 @@ function ProfileEditor({
               nickname,
               avatar,
               age_band: age,
-              starting_skills: starts,
+              starting_skills: startingSkills,
             };
             if (child) await api.put(`/children/${child.id}`, data);
             else await api.post("/children", data);
@@ -876,20 +886,28 @@ function ProfileEditor({
         </fieldset>
         <label>
           Age range
-          <select value={age} onChange={(e) => setAge(e.target.value)}>
-            <option value="7-8">7–8 years</option>
-            <option value="9-10">9–10 years</option>
+          <select
+            value={age}
+            onChange={(e) => setAge(e.target.value as AgeBand)}
+          >
+            {ageRanges.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label} years
+              </option>
+            ))}
           </select>
+          <small>This controls which quizzes your child sees.</small>
         </label>
-        {catalog.map((s) => (
+        {ageCatalog.map((s) => (
           <label key={s.id}>
             Starting skill for {s.name}
             <select
-              value={starts[s.id] || ""}
+              value={startingSkills[s.id] || ""}
               onChange={(e) =>
                 setStarts({ ...starts, [s.id]: Number(e.target.value) })
               }
             >
+              <option value="">Choose automatically</option>
               {s.skills.map((k) => (
                 <option value={k.id} key={k.id}>
                   {k.name}
@@ -898,9 +916,12 @@ function ProfileEditor({
             </select>
           </label>
         ))}
-        <small>
-          This guides their next adventure. They can still explore other topics.
-        </small>
+        {ageCatalog.length > 0 && (
+          <small>
+            Starting skills guide the next adventure. Your child can still
+            explore other topics.
+          </small>
+        )}
         {error && (
           <p className="form-error" role="alert">
             {error}

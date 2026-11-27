@@ -19,7 +19,11 @@ class AdventureQuestionSelector
     /** @return Collection<int, Question> */
     public function select(ChildProfile $child, int $skillId): Collection
     {
-        $pool = Question::where('skill_id', $skillId)->where('status', 'published')->with('latestRevision')->get();
+        $age = ChildAgeRange::from($child->age_band);
+        $total = $age->roundLength();
+        $pool = Question::where('skill_id', $skillId)->where('status', 'published')
+            ->with(['latestRevision' => fn ($revision) => $revision->whereJsonContains('age_bands', $age->value)])
+            ->get()->filter(fn (Question $question) => $question->latestRevision !== null);
         $history = DB::table('attempt_questions')
             ->join('attempts', 'attempts.id', '=', 'attempt_questions.attempt_id')
             ->join('question_revisions', 'question_revisions.id', '=', 'attempt_questions.question_revision_id')
@@ -31,11 +35,12 @@ class AdventureQuestionSelector
             ->pluck('last_checked', 'question_id');
         $ranked = $pool->shuffle()->sortBy(fn (Question $q): string => $history[$q->id] ?? '')->values();
         $chosen = collect();
-        foreach (['starter' => 2, 'growing' => 2, 'challenge' => 1] as $level => $count) {
+        $distribution = $age === ChildAgeRange::Preschool ? ['starter' => 2, 'growing' => 1] : ['starter' => 2, 'growing' => 2, 'challenge' => 1];
+        foreach ($distribution as $level => $count) {
             $chosen = $chosen->concat($ranked->filter(fn (Question $q): bool => $q->latestRevision->difficulty === $level)->take($count));
         }
         foreach (['starter', 'growing', 'challenge'] as $level) {
-            $chosen = $chosen->concat($ranked->filter(fn (Question $q): bool => $q->latestRevision->difficulty === $level && ! $chosen->contains('id', $q->id))->take(5 - $chosen->count()));
+            $chosen = $chosen->concat($ranked->filter(fn (Question $q): bool => $q->latestRevision->difficulty === $level && ! $chosen->contains('id', $q->id))->take($total - $chosen->count()));
         }
         $levels = ['starter' => 0, 'growing' => 1, 'challenge' => 2];
 

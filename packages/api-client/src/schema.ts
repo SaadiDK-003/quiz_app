@@ -250,7 +250,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Learning catalog */
+        /**
+         * Learning catalog
+         * @description In child mode, skills and published question counts match the active child's saved age. In adult mode, skills include the age ranges used by their question revisions for choosing a starting skill.
+         */
         get: operations["learning_catalog"];
         put?: never;
         post?: never;
@@ -358,7 +361,7 @@ export interface paths {
         put?: never;
         /**
          * Start adventure
-         * @description Resumes an active attempt for the same skill. A different skill replaces the active attempt only before its first accepted answer, after validating that five published questions are available. Replaced empty attempts are retained internally as superseded. Once any answer is accepted, returns the existing active attempt even if a different skill was requested; clients must explain that adventure should be continued. New attempts snapshot five published question revisions and a shuffled choice-ID order for each question. Choice IDs and scoring stay unchanged. Reads, retries, and resume retain the saved order; legacy attempts keep revision order. New adventures aim for two Starter, two Growing, and one Challenge question, ordered from simpler to harder. Within each level, unchecked questions are preferred, then those checked longest ago by this child. Sparse levels use other available questions, preferring easier levels. Existing active attempts retain their snapshots.
+         * @description Resumes an active attempt for the same skill. A different skill replaces the active attempt only before its first accepted answer, after validating that enough published questions match the child's saved age. Replaced empty attempts are retained internally as superseded. Once any answer is accepted, returns the existing active attempt even if a different skill was requested; clients must explain that adventure should be continued. New attempts snapshot three published question revisions for ages 3–4 and five for older children, plus a shuffled choice-ID order for each question. Choice IDs and scoring stay unchanged. Reads, retries, and resume retain the saved order; legacy attempts keep revision order. Older adventures aim for two Starter, two Growing, and one Challenge question. Ages 3–4 aim for two Starter and one Growing question. Questions are ordered from simpler to harder. Within each level, unchecked questions are preferred, then those checked longest ago by this child. Sparse levels use other questions for the same age, preferring easier levels. An active attempt is superseded when a profile age change makes its length or any snapshot ineligible. Submitted answers are kept.
          */
         post: operations["start_adventure"];
         delete?: never;
@@ -758,6 +761,9 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @enum {string} */
+        AgeBand: "3-4" | "7-8" | "9-10";
+        AgeBands: components["schemas"]["AgeBand"][];
         Choice: {
             id: string;
             text: string;
@@ -770,7 +776,9 @@ export interface components {
             slug: string;
             description: string;
             position: number;
+            /** @description Published questions matching the active child’s age, or the full published count in adult mode. */
             question_count: number;
+            age_bands?: components["schemas"]["AgeBands"];
             completed?: boolean;
         };
         Subject: {
@@ -786,7 +794,7 @@ export interface components {
             id: number;
             nickname: string;
             avatar: string;
-            age_band: string;
+            age_band: components["schemas"]["AgeBand"];
             starting_skills: {
                 [key: string]: number;
             } | null;
@@ -894,6 +902,7 @@ export interface components {
             correct_choice_id: string;
             explanation: string;
             instruction: string;
+            age_bands: components["schemas"]["AgeBands"];
             difficulty: string;
             locale: string;
             status: string;
@@ -918,8 +927,7 @@ export interface components {
             nickname: string;
             /** @enum {string} */
             avatar: "fox" | "bear" | "bunny" | "panda" | "cat" | "frog";
-            /** @enum {string} */
-            age_band: "7-8" | "9-10";
+            age_band: components["schemas"]["AgeBand"];
             starting_skills?: {
                 [key: string]: number;
             } | null;
@@ -976,6 +984,8 @@ export interface components {
             explanation_reviewed: boolean;
             /** @description Required to publish when audio_path is provided. */
             narration_reviewed?: boolean;
+            /** @description Select at least one range before submission or publication. */
+            age_bands?: components["schemas"]["AgeBands"];
         };
         QuestionDraftInput: {
             skill_id: number;
@@ -989,6 +999,8 @@ export interface components {
             image_path?: string | null;
             image_alt?: string | null;
             audio_path?: string | null;
+            /** @description Select at least one range before submission or publication. */
+            age_bands?: components["schemas"]["AgeBands"];
         };
         AccountSetupDetails: {
             email: string;

@@ -28,9 +28,9 @@ class QuestionBankConcurrencyTest extends TestCase
 
         $created = array_column($results, 'created');
         sort($created);
-        $this->assertSame([0, 360], $created);
-        $this->assertSame(360, array_sum(array_column($results, 'skipped')));
-        $this->assertDatabaseCount('questions', 360);
-        $this->assertDatabaseCount('question_revisions', 360);
+        $this->assertSame([0, 384], $created);
+        $this->assertSame(384, array_sum(array_column($results, 'skipped')));
+        $this->assertDatabaseCount('questions', 384);
+        $this->assertDatabaseCount('question_revisions', 384);
     }
 }

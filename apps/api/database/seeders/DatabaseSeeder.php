@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Skill;
 use App\Models\Subject;
 use App\Models\Topic;
+use App\Services\BundledQuestionContent;
 use App\Services\QuestionBankImporter;
 use Illuminate\Database\Seeder;
 
@@ -22,6 +23,7 @@ class DatabaseSeeder extends Seeder
                 Skill::firstOrCreate(['slug' => $slug], ['subject_id' => $subject->id, 'topic_id' => $topic->id, 'name' => $name, 'description' => $description, 'position' => $i + 1]);
             }
         }
+        app(BundledQuestionContent::class)->addPreschoolSkills();
         app(QuestionBankImporter::class)->bundled();
     }
 }

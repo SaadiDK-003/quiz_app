@@ -78,6 +78,7 @@ class QuestionProposalController extends Controller
         $data = $request->validate(['version' => 'required|integer|min:1']);
         DB::transaction(function () use ($request, $proposal, $data) {
             $draft = $this->ownedDraft($request, $proposal, (int) $data['version']);
+            $this->questions->validateAgeEligibility(json_decode($draft->content, true, flags: JSON_THROW_ON_ERROR));
             $this->query()->where('id', $proposal)->update([
                 'state' => 'in_review',
                 'version' => $draft->version + 1,
@@ -174,7 +175,7 @@ class QuestionProposalController extends Controller
             'state' => $proposal->state,
             'author_name' => $proposal->author_name,
             'review_note' => $proposal->review_note,
-            'question' => array_merge($content, [
+            'question' => array_merge(['age_bands' => []], $content, [
                 'id' => $proposal->question_id ?? 0,
                 'version' => $proposal->base_version ?? 0,
                 'skill_name' => $skills[$content['skill_id']] ?? '',

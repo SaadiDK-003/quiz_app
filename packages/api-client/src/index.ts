@@ -2,6 +2,7 @@ import type { components } from "./schema";
 export type { paths, components } from "./schema";
 export type Subject = components["schemas"]["Subject"];
 export type Skill = components["schemas"]["Skill"];
+export type AgeBand = components["schemas"]["AgeBand"];
 export type Child = components["schemas"]["Child"];
 export type User = components["schemas"]["User"];
 export type Session = components["schemas"]["Session"];

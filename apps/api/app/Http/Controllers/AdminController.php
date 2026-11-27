@@ -72,7 +72,9 @@ class AdminController extends Controller
 
     public function save(Request $r, ?Question $question = null): array
     {
-        return $this->content->save($this->content->validate($r->all()), $question);
+        $data = array_replace(['age_bands' => $question?->latestRevision?->age_bands ?? []], $r->all());
+
+        return $this->content->save($this->content->validate($data), $question);
     }
 
     public function upload(Request $r): array
