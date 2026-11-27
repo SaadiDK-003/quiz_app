@@ -164,6 +164,14 @@ sudo bash /opt/webostics-quiz/bin/deploy-vps.sh --backup
 
 `--resume` requires an incomplete deployment, its matching production keys, all three existing Quiz volumes, and its cached images. It stops if any are missing rather than creating replacement storage. It backs up the existing database/media, retries migrations explicitly, then completes HTTPS, worker startup, and scheduled backups. Use the normal installer for a new release or to change SMTP with `--env-file`.
 
+After the age-based release is live, an operator can import and publish the 24 reviewed bundled questions for ages 3–4 from the VPS checkout:
+
+```bash
+sudo bash scripts/publish-preschool.sh
+```
+
+The command uses the running Quiz API and can be repeated. It preserves edited and archived questions for manual review in Content Studio. It updates the Quiz database and picture storage without restarting services.
+
 Deployment logs and paired backups are under `/opt/webostics-quiz/shared/`, with restricted permissions. Daily backups run at **02:30 UTC / 07:30 Pakistan time** and retain the latest seven complete pairs (`.dump`, `.media.tar.gz`, and `.complete`). Copy them to separate storage for protection against VPS loss, and securely back up `shared/environment.json` separately to retain production keys and mail settings. A `.complete` marker identifies a successfully created pair. Status output includes the active configuration path; use it with `docker compose --env-file /dev/null -p webostics_quiz -f PATH` for manual administration or recovery. Never use `down -v` or automatic database rollback as an update step.
 
 `--check` performs a read-only preflight. Focused renderer, Git-report, runner, and preflight fixtures can be checked with `python3 scripts/tests/test_deploy_vps_ui.py`; these use temporary data and do not deploy. Actual deployment performs only required configuration validation and service/HTTPS health checks, with no application test suites or automatic test email. The installer is not a remote SSH tool; run it on the VPS in an interactive root/sudo terminal.
