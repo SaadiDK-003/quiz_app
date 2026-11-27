@@ -745,7 +745,7 @@ export interface paths {
         put?: never;
         /**
          * Review a submitted draft
-         * @description An administrator publishes a reviewed draft or returns it with feedback. Publishing requires the version of the current question viewed by the reviewer, when editing an existing question.
+         * @description An administrator publishes a reviewed draft or returns it with feedback. Publishing requires the version of the current question viewed by the reviewer when editing an existing question. Narration is optional. Attached narration requires review.
          */
         post: operations["review_question_proposal"];
         delete?: never;
@@ -974,7 +974,8 @@ export interface components {
             audio_path?: string | null;
             answers_reviewed: boolean;
             explanation_reviewed: boolean;
-            narration_reviewed: boolean;
+            /** @description Required to publish when audio_path is provided. */
+            narration_reviewed?: boolean;
         };
         QuestionDraftInput: {
             skill_id: number;
@@ -4105,6 +4106,7 @@ export interface operations {
                     review_note?: string | null;
                     answers_reviewed?: boolean;
                     explanation_reviewed?: boolean;
+                    /** @description Required to publish when the proposal has narration. */
                     narration_reviewed?: boolean;
                 };
             };

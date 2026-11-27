@@ -49,6 +49,29 @@ class AuthAndContentTest extends TestCase
         $this->postJson('/api/v1/auth/reset-password', $p)->assertUnprocessable();
     }
 
+    public function test_reviewed_text_question_can_be_published_without_narration(): void
+    {
+        $this->seed();
+        $admin = User::factory()->create(['role' => 'admin']);
+        $question = Question::with('latestRevision')->firstOrFail();
+        $payload = [
+            ...$question->latestRevision->toArray(),
+            'skill_id' => $question->skill_id,
+            'status' => 'published',
+            'audio_path' => null,
+            'answers_reviewed' => true,
+            'explanation_reviewed' => true,
+        ];
+        unset($payload['narration_reviewed']);
+        $url = '/api/v1/admin/questions/'.$question->id;
+        $this->actingAs($admin)->putJson($url, [...$payload, 'answers_reviewed' => false])->assertUnprocessable();
+        $this->putJson($url, [...$payload, 'explanation_reviewed' => false])->assertUnprocessable();
+        $this->putJson($url, $payload)->assertOk()->assertJsonPath('status', 'published')
+            ->assertJsonPath('audio_path', null)->assertJsonPath('narration_reviewed', false);
+
+        $this->assertSame('published', $question->fresh()->status);
+    }
+
     public function test_reviewed_audio_allows_publication_and_old_revision_stays_immutable(): void
     {
         $this->seed();

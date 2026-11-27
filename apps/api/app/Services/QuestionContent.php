@@ -11,7 +11,7 @@ class QuestionContent
 {
     public function validate(array $input): array
     {
-        $v = Validator::make($input, ['skill_id' => 'required|integer|exists:skills,id', 'prompt' => 'required|string|max:2000', 'instruction' => 'required|string|max:500', 'choices' => 'required|array|min:2|max:4', 'choices.*.id' => 'required|string|max:20|distinct', 'choices.*.text' => 'required|string|max:300', 'choices.*.image_url' => 'nullable|string|max:500', 'correct_choice_id' => 'required|string|max:20', 'explanation' => 'required|string|max:2000', 'difficulty' => 'required|in:starter,growing,challenge', 'locale' => 'required|in:en', 'status' => 'required|in:draft,published,archived', 'image_path' => 'nullable|string|max:500', 'image_alt' => 'nullable|string|max:300', 'audio_path' => 'nullable|string|max:500', 'answers_reviewed' => 'required|boolean', 'explanation_reviewed' => 'required|boolean', 'narration_reviewed' => 'required|boolean'])->validate();
+        $v = Validator::make($input, ['skill_id' => 'required|integer|exists:skills,id', 'prompt' => 'required|string|max:2000', 'instruction' => 'required|string|max:500', 'choices' => 'required|array|min:2|max:4', 'choices.*.id' => 'required|string|max:20|distinct', 'choices.*.text' => 'required|string|max:300', 'choices.*.image_url' => 'nullable|string|max:500', 'correct_choice_id' => 'required|string|max:20', 'explanation' => 'required|string|max:2000', 'difficulty' => 'required|in:starter,growing,challenge', 'locale' => 'required|in:en', 'status' => 'required|in:draft,published,archived', 'image_path' => 'nullable|string|max:500', 'image_alt' => 'nullable|string|max:300', 'audio_path' => 'nullable|string|max:500', 'answers_reviewed' => 'required|boolean', 'explanation_reviewed' => 'required|boolean', 'narration_reviewed' => 'sometimes|boolean'])->validate();
         abort_unless(in_array($v['correct_choice_id'], array_column($v['choices'], 'id'), true), 422, 'Choose a correct answer from the cards.');
         foreach (['audio_path', 'image_path'] as $field) {
             if (! empty($v[$field])) {
@@ -28,8 +28,12 @@ class QuestionContent
                 abort_unless(str_starts_with($choice['image_url'], '/storage/media/') && ! str_contains($choice['image_url'], '..') && Storage::disk('public')->exists(substr($choice['image_url'], 9)), 422, 'Upload answer pictures through the media library.');
             }
         }
+        $hasNarration = ! empty($v['audio_path']);
+        $v['narration_reviewed'] = $hasNarration && ($v['narration_reviewed'] ?? false);
         if ($v['status'] === 'published') {
-            abort_unless($v['answers_reviewed'] && $v['explanation_reviewed'] && $v['narration_reviewed'] && ! empty($v['audio_path']) && (empty($v['image_path']) || ! empty($v['image_alt'])), 422, 'Review the answers, explanation and narration, upload audio, and describe any illustration before publishing.');
+            abort_unless($v['answers_reviewed'] && $v['explanation_reviewed'], 422, 'Review the question, answers and explanation before publishing.');
+            abort_if($hasNarration && ! $v['narration_reviewed'], 422, 'Listen to the attached narration and mark it reviewed before publishing.');
+            abort_if(! empty($v['image_path']) && empty($v['image_alt']), 422, 'Describe the illustration before publishing.');
         }
 
         return $v;

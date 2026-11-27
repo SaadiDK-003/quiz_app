@@ -167,6 +167,36 @@ class SignupAndModerationTest extends TestCase
         $this->assertDatabaseHas('question_proposals', ['id' => $id, 'state' => 'in_review', 'version' => 5]);
     }
 
+    public function test_admin_can_publish_a_reviewed_proposal_without_narration(): void
+    {
+        $this->seed();
+        $author = User::factory()->create(['can_moderate' => true]);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $question = Question::with('latestRevision')->firstOrFail();
+        $payload = [
+            ...$question->latestRevision->toArray(),
+            'question_id' => $question->id,
+            'question_version' => $question->latestRevision->version,
+            'skill_id' => $question->skill_id,
+            'audio_path' => null,
+        ];
+        $id = $this->useAccount($author)->postJson('/api/v1/studio/proposals', $payload)->assertCreated()->json('id');
+        $url = '/api/v1/studio/proposals/'.$id;
+        $this->postJson($url.'/submit', ['version' => 1])->assertOk();
+
+        $this->useAccount($admin)->postJson($url.'/review', [
+            'decision' => 'publish',
+            'version' => 2,
+            'question_version' => $question->latestRevision->version,
+            'answers_reviewed' => true,
+            'explanation_reviewed' => true,
+        ])->assertOk();
+
+        $this->assertSame('published', $question->fresh()->status);
+        $this->assertNull($question->fresh()->latestRevision->audio_path);
+        $this->assertDatabaseHas('question_proposals', ['id' => $id, 'state' => 'published']);
+    }
+
     public function test_reviewed_edit_reaches_new_adventures_and_keeps_existing_child_snapshots(): void
     {
         $this->seed();
