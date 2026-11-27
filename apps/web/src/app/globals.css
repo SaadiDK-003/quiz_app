@@ -2634,15 +2634,6 @@ h1 {
 .quiz-fox-note {
   color: #8c7598;
 }
-.demo-badge {
-  font-size: var(--text-small);
-  letter-spacing: 1.2px;
-  font-weight: 900;
-  background: #f0e9f7;
-  color: #8a6ca7;
-  padding: 5px 8px;
-  border-radius: 6px;
-}
 .feedback p,
 .question-instruction {
   font-size: var(--text-body);
@@ -3069,9 +3060,6 @@ h3 {
 .checkbox-label {
   line-height: 1.65;
 }
-.demo-badge {
-  color: #74508d;
-}
 .toast {
   max-width: calc(100vw - 32px);
 }
@@ -3382,7 +3370,8 @@ textarea::placeholder {
   }
 }
 .explorer-rank-card {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 20px;
   padding: 24px;
@@ -3399,11 +3388,30 @@ textarea::placeholder {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  color: #88601f;
-  background: #f6e7c0;
+  color: var(--badge-ink);
+  background: var(--badge-fill);
+}
+.badge-paw {
+  --badge-ink: #8c532d;
+  --badge-fill: #fae2cd;
+}
+.badge-compass {
+  --badge-ink: #32685b;
+  --badge-fill: #dcefe5;
+}
+.badge-light {
+  --badge-ink: #72539b;
+  --badge-fill: #eee4fa;
+}
+.badge-star {
+  --badge-ink: #3f6188;
+  --badge-fill: #deedfb;
+}
+.badge-trophy {
+  --badge-ink: #88601f;
+  --badge-fill: #f6e7c0;
 }
 .rank-copy {
-  flex: 1;
   min-width: 0;
 }
 .rank-label {
@@ -3413,11 +3421,9 @@ textarea::placeholder {
   letter-spacing: 0.06em;
 }
 .rank-copy h2 {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
   font-size: 1.5rem;
+  font-weight: 900;
+  line-height: 1.25;
   margin: 5px 0;
 }
 .rank-copy p {
@@ -3427,15 +3433,25 @@ textarea::placeholder {
   margin: 4px 0 12px;
 }
 .rank-track {
+  appearance: none;
+  display: block;
+  width: 100%;
   height: 10px;
+  border: 0;
   border-radius: 10px;
   background: #e9dfce;
   overflow: hidden;
 }
-.rank-track > span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
+.rank-track::-webkit-progress-bar {
+  background: #e9dfce;
+  border-radius: 10px;
+}
+.rank-track::-webkit-progress-value {
+  border-radius: 10px;
+  background: #7c57ba;
+}
+.rank-track::-moz-progress-bar {
+  border-radius: 10px;
   background: #7c57ba;
 }
 .rank-points {
@@ -3452,6 +3468,108 @@ textarea::placeholder {
 .rank-points span {
   color: #6d5d79;
   font-size: var(--text-small);
+}
+.rank-points .text-button {
+  gap: 6px;
+}
+.badge-complete {
+  font-weight: 800;
+}
+.reward-section {
+  margin: 28px 0 36px;
+}
+.reward-section-heading {
+  margin-bottom: 16px;
+}
+.reward-section-heading h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+.reward-section-heading p {
+  color: var(--muted);
+  margin-top: 4px;
+}
+.badge-grid,
+.reward-stickers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: 12px;
+}
+.badge-tile {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  align-items: start;
+  gap: 10px;
+  padding: 18px 12px;
+  text-align: center;
+  border: 1px solid #eee0c7;
+  border-radius: 18px;
+  background: #fffaf0;
+  overflow-wrap: anywhere;
+}
+.badge-tile h3,
+.reward-stickers h3 {
+  font-size: var(--text-reading);
+  font-weight: 900;
+  line-height: 1.35;
+}
+.badge-locked {
+  background: #fff;
+  border-color: var(--line);
+  border-style: dashed;
+}
+.badge-locked .rank-emblem {
+  background: #f4f0f7;
+  color: #786581;
+}
+.badge-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: var(--text-small);
+  color: #6d5d79;
+}
+.badge-status svg {
+  flex-shrink: 0;
+}
+.badge-earned .badge-status {
+  color: #416348;
+  font-weight: 900;
+}
+.reward-stickers .sticker-card > span {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  margin: 0 auto 14px;
+  background: #f7e6b9;
+  color: #825d22;
+}
+.reward-stickers .sticker-1 > span {
+  background: #e9dbf8;
+  color: #72539b;
+}
+.reward-stickers .sticker-card p {
+  color: var(--muted);
+}
+.badge-unlocked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+  text-align: left;
+}
+.badge-unlocked strong {
+  display: block;
 }
 .earned-points {
   display: grid;
@@ -3471,23 +3589,24 @@ textarea::placeholder {
 }
 @media (max-width: 600px) {
   .explorer-rank-card {
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 14px;
     padding: 20px;
-    flex-wrap: wrap;
   }
   .rank-emblem {
     width: 48px;
     height: 48px;
     border-radius: 15px;
   }
-  .rank-copy {
-    flex-basis: calc(100% - 62px);
-  }
   .rank-points {
+    grid-column: 2;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 8px;
-    padding-left: 62px;
+    gap: 0 8px;
+  }
+  .rank-points .text-button {
+    flex-basis: 100%;
   }
 }
 @media (prefers-reduced-motion: reduce) {

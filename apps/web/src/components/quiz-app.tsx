@@ -47,8 +47,13 @@ import {
 } from "@/lib/demo-state";
 import { Fox, MathWorld, EnglishWorld, DiscoveryWorld } from "./illustrations";
 import { AuthDialog, ParentPanel } from "./parent-panel";
-import { ExplorerRankCard } from "./explorer-rank-card";
-import { adventurePoints, explorerRank } from "@/lib/explorer-rank";
+import { ExplorerBadgeMark, ExplorerRankCard } from "./explorer-rank-card";
+import { ExplorerRewards } from "./explorer-rewards";
+import {
+  adventurePoints,
+  earnedExplorerBadges,
+  explorerRank,
+} from "@/lib/explorer-rank";
 export const api = createClient();
 const emptyProgress: Progress = {
   completed: 0,
@@ -60,7 +65,7 @@ const emptyProgress: Progress = {
   explorer_rank: explorerRank(0),
 };
 export type Notice = (message: string) => void;
-type Destination = "home" | "explore" | "stickers" | "parent" | "picker";
+type Destination = "home" | "explore" | "rewards" | "parent" | "picker";
 const drawerViewport = "(max-width: 900px)";
 
 export default function QuizApp() {
@@ -87,7 +92,7 @@ export default function QuizApp() {
   const [completionSummary, setCompletionSummary] = useState<{
     attemptId: number;
     points: number;
-    previousTitle: string;
+    previousPoints: number;
   } | null>(null);
   const [authParams, setAuthParams] = useState({
     invite: "",
@@ -121,6 +126,17 @@ export default function QuizApp() {
       resumeAttempt.skill_name)
     : null;
   const playing = view === "quiz" && resumeAttempt !== null;
+  const completedReward =
+    completionSummary?.attemptId === attempt?.id ? completionSummary : null;
+  const currentBadge = earnedExplorerBadges(progress.explorer_rank.points).at(
+    -1,
+  );
+  const unlockedBadge =
+    completedReward &&
+    currentBadge &&
+    currentBadge.min_points > completedReward.previousPoints
+      ? currentBadge
+      : null;
   const setDemoAvatar = (avatar: string) =>
     setDemoState((state) => ({ ...state, avatar }));
   const clearAdventure = () => {
@@ -470,7 +486,7 @@ export default function QuizApp() {
           setCompletionSummary({
             attemptId: attempt.id,
             points: adventurePoints(attempt.score),
-            previousTitle: progress.explorer_rank.title,
+            previousPoints: progress.explorer_rank.points,
           });
         }
         setDemoState((state) => nextDemo(state, advancedAt));
@@ -483,7 +499,7 @@ export default function QuizApp() {
           setCompletionSummary({
             attemptId: a.id,
             points: adventurePoints(a.score),
-            previousTitle: progress.explorer_rank.title,
+            previousPoints: progress.explorer_rank.points,
           });
           setLiveProgress(
             await api.get<Progress>(`/children/${child.id}/progress`),
@@ -593,14 +609,11 @@ export default function QuizApp() {
             Explore subjects
           </button>
           <button
-            className={`nav-item ${view === "stickers" ? "active" : ""}`}
-            onClick={() => navigate("stickers")}
+            className={`nav-item ${view === "rewards" ? "active" : ""}`}
+            onClick={() => navigate("rewards")}
           >
-            <Star size={21} />
-            My stickers
-            {progress.stars > 0 && (
-              <span className="nav-count">{progress.stars}</span>
-            )}
+            <Trophy size={21} />
+            My rewards
           </button>
         </nav>
         <div className="side-divider" />
@@ -652,14 +665,13 @@ export default function QuizApp() {
             <span>A little curiosity goes a long way.</span>
           </div>
           <div className="topbar-right">
-            {demo && <span className="demo-badge">DEMO</span>}
             <div
               className="star-counter"
-              aria-label={`${progress.stars} adventure stars`}
+              aria-label={`${progress.completed} completed adventures`}
             >
-              <Star size={18} fill="currentColor" />
-              <strong>{progress.stars}</strong>
-              <span>stars</span>
+              <Flag size={18} aria-hidden="true" />
+              <strong>{progress.completed}</strong>
+              <span>finished</span>
             </div>
             <button
               className="profile-button"
@@ -755,7 +767,10 @@ export default function QuizApp() {
                   </span>
                 </div>
               </section>
-              <ExplorerRankCard rank={progress.explorer_rank} />
+              <ExplorerRankCard
+                rank={progress.explorer_rank}
+                onViewRewards={() => navigate("rewards")}
+              />
               <section className="subject-section">
                 <div className="section-heading">
                   <div>
@@ -944,57 +959,12 @@ export default function QuizApp() {
               </div>
             </>
           )}
-          {view === "stickers" && (
-            <>
-              <div className="page-heading">
-                <div>
-                  <div className="eyebrow">LOOK HOW FAR YOU’VE COME</div>
-                  <h1>
-                    Your little victories <span>🌟</span>
-                  </h1>
-                  <p>A happy reminder of every adventure you’ve explored.</p>
-                </div>
-                <div className="gentle-pill">
-                  <Trophy size={16} />
-                  {progress.stars} adventures complete
-                </div>
-              </div>
-              {!progress.stickers.length ? (
-                <div className="empty-state">
-                  <span className="empty-sticker">
-                    <Star size={60} />
-                  </span>
-                  <h2>Your first sticker is waiting!</h2>
-                  <p>
-                    Finish a little adventure to start your collection.
-                    <br />
-                    Every step is something to celebrate.
-                  </p>
-                  <button
-                    className="button primary"
-                    onClick={() => void start()}
-                    disabled={busy}
-                  >
-                    Let’s explore <ArrowRight size={18} />
-                  </button>
-                </div>
-              ) : (
-                <div className="sticker-grid">
-                  {progress.stickers.map((s, i) => (
-                    <div className={`sticker-card sticker-${i % 3}`} key={s.id}>
-                      <span>{["🌟", "🦋", "🌈", "🌻", "🚀", "🍀"][i % 6]}</span>
-                      <h2>{s.name}</h2>
-                      <p>
-                        {new Date(s.earned_at).toLocaleDateString("en", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
+          {view === "rewards" && (
+            <ExplorerRewards
+              progress={progress}
+              onExplore={() => void start()}
+              busy={busy}
+            />
           )}
           {view === "quiz" && attempt && (
             <>
@@ -1020,23 +990,26 @@ export default function QuizApp() {
                     </span>
                     <Sparkles />
                   </div>
-                  {completionSummary?.attemptId === attempt.id && (
+                  {completedReward && (
                     <div className="earned-points" role="status">
                       <strong>
-                        +{completionSummary.points} adventure points
+                        +{completedReward.points} adventure points
                       </strong>
-                      <span>
-                        {progress.explorer_rank.title !==
-                        completionSummary.previousTitle
-                          ? `New rank! You’re a ${progress.explorer_rank.title}.`
-                          : `Every little step counts, ${progress.explorer_rank.title}!`}
-                      </span>
+                      {unlockedBadge && (
+                        <div className="badge-unlocked">
+                          <ExplorerBadgeMark badge={unlockedBadge} />
+                          <span>
+                            <strong>New badge!</strong> {unlockedBadge.title}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                   <ExplorerRankCard rank={progress.explorer_rank} />
                   <div className="celebration-actions">
                     <button
                       className="button primary"
+                      disabled={busy}
                       onClick={() => {
                         clearAdventure();
                         navigate("home");
@@ -1046,6 +1019,17 @@ export default function QuizApp() {
                     </button>
                     <button
                       className="text-button"
+                      disabled={busy}
+                      onClick={() => {
+                        clearAdventure();
+                        navigate("rewards");
+                      }}
+                    >
+                      See my rewards <Trophy size={18} aria-hidden="true" />
+                    </button>
+                    <button
+                      className="text-button"
+                      disabled={busy}
                       onClick={() => {
                         clearAdventure();
                         navigate("explore");
@@ -1240,7 +1224,7 @@ export default function QuizApp() {
             </span>
             <span>
               {demo
-                ? "Interactive demo · progress stays on this device"
+                ? "Playing as a guest. Progress is saved in this browser."
                 : "A happy little place to learn"}
             </span>
             {demo && (
