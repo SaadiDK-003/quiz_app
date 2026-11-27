@@ -34,7 +34,7 @@ php artisan pilot:admin your-email@example.com
 
 1. Open **Parent dashboard** and sign in with that account.
 2. Open **Content studio** to review the 360 bundled draft questions. Each of the 12 skills has 30 questions: ten Starter, ten Growing, and ten Challenge. On an existing installation, select **Import bundled questions** first; it adds missing drafts and preserves all existing edits and review decisions.
-3. Check each answer and explanation, upload narration, listen to it, and select the three adult-review checks. Audio for reading activities must not reveal the word or passage being assessed. Upload optional illustrations with a description.
+3. Check each question, answer and explanation before publishing. Narration is optional. If you attach a recording, listen to it and confirm it keeps the answer for the child to work out. Describe any illustration you upload.
 4. Publish at least **five questions per skill** to make that adventure playable. Each save creates a revision; active adventures retain their original revisions.
 5. Add one profile per child, choose their starting skills, and use **Open quizzes** to hand over the device. **View progress** opens the report for that child.
 6. Families choose **Create a family account**, enter their name and email, and follow the emailed link to set their password. This also verifies the email. Guest practice stays in the current browser, and each child profile starts fresh.

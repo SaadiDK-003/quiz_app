@@ -99,7 +99,7 @@ class QuestionProposalController extends Controller
             'question_version' => 'nullable|integer|min:1',
             'answers_reviewed' => 'required_if:decision,publish|boolean',
             'explanation_reviewed' => 'required_if:decision,publish|boolean',
-            'narration_reviewed' => 'required_if:decision,publish|boolean',
+            'narration_reviewed' => 'sometimes|boolean',
         ]);
 
         return DB::transaction(function () use ($request, $proposal, $data) {
@@ -116,7 +116,7 @@ class QuestionProposalController extends Controller
                     'status' => 'published',
                     'answers_reviewed' => $data['answers_reviewed'],
                     'explanation_reviewed' => $data['explanation_reviewed'],
-                    'narration_reviewed' => $data['narration_reviewed'],
+                    'narration_reviewed' => $data['narration_reviewed'] ?? false,
                 ]);
                 $questionId = $this->questions->save($this->questions->validate($payload), $question)['id'];
             }

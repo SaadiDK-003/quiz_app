@@ -353,8 +353,8 @@ export function AdminPanel({
             Existing questions, edits, and review decisions will be kept.
           </p>
           <p>
-            New questions are drafts. Review the answers and explanations, add
-            narration, and complete the review checks before publishing.
+            New questions are drafts. Review the questions, answers and
+            explanations before publishing. Narration is optional.
           </p>
           {importError && (
             <p className="form-error" role="alert">
@@ -755,21 +755,39 @@ function QuestionEditor({
               </>
             )}
           </label>
-          <label>
-            Tap-to-listen narration
-            <input
-              type="file"
-              accept="audio/mpeg,audio/wav,audio/mp4,audio/ogg"
-              onChange={(e) => upload(e.target.files?.[0], "audio")}
-            />
+          <div>
+            <label>
+              Narration (optional)
+              <input
+                type="file"
+                accept="audio/mpeg,audio/wav,audio/mp4,audio/ogg"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  void upload(file, "audio");
+                }}
+              />
+            </label>
             {q.audio_path && (
-              <audio controls src={"/storage/" + q.audio_path} />
+              <>
+                <audio controls src={"/storage/" + q.audio_path} />
+                <button
+                  type="button"
+                  className="text-button"
+                  disabled={uploading}
+                  onClick={() =>
+                    patch({ audio_path: null, narration_reviewed: false })
+                  }
+                >
+                  Remove narration
+                </button>
+              </>
             )}
-            <small>
-              Read the instruction and appropriate question text. Do not reveal
-              an assessed reading answer.
+            <small className="block">
+              If you record audio, read the instruction and keep the answer for
+              the child to work out.
             </small>
-          </label>
+          </div>
         </div>
         {q.image_path && (
           <label>
@@ -800,16 +818,18 @@ function QuestionEditor({
                     "I listened to the audio and checked it matches the content without revealing the answer.",
                   ],
                 ] as const
-              ).map(([key, text]) => (
-                <label key={key}>
-                  <input
-                    type="checkbox"
-                    checked={q[key]}
-                    onChange={(e) => patch({ [key]: e.target.checked })}
-                  />
-                  {text}
-                </label>
-              ))}
+              )
+                .filter(([key]) => key !== "narration_reviewed" || q.audio_path)
+                .map(([key, text]) => (
+                  <label key={key}>
+                    <input
+                      type="checkbox"
+                      checked={q[key]}
+                      onChange={(e) => patch({ [key]: e.target.checked })}
+                    />
+                    {text}
+                  </label>
+                ))}
             </fieldset>
             <label>
               Publication status
@@ -823,9 +843,8 @@ function QuestionEditor({
               </select>
             </label>
             <small>
-              Publishing requires all review checks and uploaded narration.
-              Saving creates a new revision; existing adventures keep their
-              original questions.
+              Check the question, answers and explanation before publishing.
+              Review any recording you attach.
             </small>
           </>
         )}

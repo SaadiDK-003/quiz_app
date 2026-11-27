@@ -496,7 +496,9 @@ components:
         audio_path: *id003
         answers_reviewed: *id004
         explanation_reviewed: *id004
-        narration_reviewed: *id004
+        narration_reviewed:
+          type: boolean
+          description: Required to publish when audio_path is provided.
       required:
         - skill_id
         - prompt
@@ -509,7 +511,6 @@ components:
         - status
         - answers_reviewed
         - explanation_reviewed
-        - narration_reviewed
     QuestionDraftInput:
       type: object
       properties:
@@ -2373,7 +2374,7 @@ paths:
     post:
       operationId: review_question_proposal
       summary: Review a submitted draft
-      description: An administrator publishes a reviewed draft or returns it with feedback. Publishing requires the version of the current question viewed by the reviewer, when editing an existing question.
+      description: An administrator publishes a reviewed draft or returns it with feedback. Publishing requires the version of the current question viewed by the reviewer when editing an existing question. Narration is optional. Attached narration requires review.
       security:
         - cookieAuth: []
       parameters:
@@ -2394,7 +2395,9 @@ paths:
                 review_note: *id003
                 answers_reviewed: *id004
                 explanation_reviewed: *id004
-                narration_reviewed: *id004
+                narration_reviewed:
+                  type: boolean
+                  description: Required to publish when the proposal has narration.
               required: [version, decision]
       responses:
         "200":

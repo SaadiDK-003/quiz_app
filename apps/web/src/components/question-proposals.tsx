@@ -187,7 +187,7 @@ function ReviewQuestion({
           src={"/storage/" + question.audio_path}
         />
       ) : (
-        <p className="muted">No narration uploaded.</p>
+        <p className="muted">Text only</p>
       )}
     </section>
   );
@@ -307,15 +307,17 @@ export function ProposalReviewDialog({
               I checked the explanation for accuracy and age-appropriate
               wording.
             </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={narration}
-                onChange={(e) => setNarration(e.target.checked)}
-              />
-              I listened to the narration and checked it doesn’t reveal the
-              answer.
-            </label>
+            {proposal.question.audio_path && (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={narration}
+                  onChange={(e) => setNarration(e.target.checked)}
+                />
+                I listened to the narration and checked it doesn’t reveal the
+                answer.
+              </label>
+            )}
           </fieldset>
         )}
         {error && (
@@ -351,8 +353,7 @@ export function ProposalReviewDialog({
                   !(
                     answers &&
                     explanation &&
-                    narration &&
-                    proposal.question.audio_path
+                    (!proposal.question.audio_path || narration)
                   ))
               }
             >
