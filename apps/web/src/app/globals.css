@@ -1940,14 +1940,21 @@ h1 {
 .question-editor select {
   min-width: 0;
 }
-.choice-editor {
+.choice-fieldset {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) 100px;
+  gap: 12px;
+}
+.choice-editor {
+  --choice-control-size: 52px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) var(--choice-control-size);
   align-items: center;
   gap: 8px;
 }
-.choice-editor + .choice-editor {
-  margin-top: 9px;
+.choice-fieldset:has(.choice-media-actions > button) .choice-editor {
+  grid-template-columns: 48px minmax(0, 1fr) calc(
+      2 * var(--choice-control-size) + 4px
+    );
 }
 .choice-editor .correct-radio {
   display: flex;
@@ -1955,7 +1962,7 @@ h1 {
   justify-content: center;
   align-items: center;
   gap: 4px;
-  min-height: 48px;
+  min-height: var(--choice-control-size);
   cursor: pointer;
 }
 .correct-radio input {
@@ -1968,9 +1975,14 @@ h1 {
   gap: 4px;
 }
 .choice-media-actions > * {
-  width: 48px;
-  height: 48px;
+  flex: none;
+  width: var(--choice-control-size);
+  height: var(--choice-control-size);
   color: #705197;
+}
+.choice-media-actions .icon-btn {
+  border: 1px solid #e8deef;
+  border-radius: 8px;
 }
 .upload-choice {
   position: relative;
@@ -2092,13 +2104,10 @@ h1 {
   .media-fields {
     grid-template-columns: minmax(0, 1fr);
   }
-  .choice-editor:has(.choice-media-actions > button) {
+  .choice-fieldset:has(.choice-media-actions > button) .choice-editor {
     grid-template-columns: 48px minmax(0, 1fr);
   }
-  .choice-editor:not(:has(.choice-media-actions > button)) {
-    grid-template-columns: 48px minmax(0, 1fr) 48px;
-  }
-  .choice-media-actions:has(> button) {
+  .choice-fieldset:has(.choice-media-actions > button) .choice-media-actions {
     grid-column: 2;
     justify-content: flex-end;
   }
@@ -4205,8 +4214,9 @@ textarea::placeholder {
 .age-band-fieldset legend {
   font-weight: 800;
 }
-.age-band-fieldset label {
+.age-band-fieldset > label {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 8px;
   min-height: 48px;
